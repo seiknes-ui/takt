@@ -687,7 +687,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   for (const id in T) T[id].id = id;
   const PARTS = ['base', 'front', 'side', 'win', 'door', 'roof', 'chim', 'qc'];
   const DEFAULT = {
-    shiftMin: 200 / 60, demand: 10, warmup: 45, batch: 4, pull: false, variation: 0.15,
+    shiftMin: 200 / 60, demand: 10, warmup: 45, batch: 2, pull: false, variation: 0.15,
     stations: [['fetch', 'base', 'front', 'side'], ['search', 'win', 'polish'], ['waitTool', 'door', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
     removed: [], home: {},
     form: 'linje', groups: 1, homeT: {},
@@ -1255,6 +1255,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     L.full = houseSVG(new Set(PARTS), null);
     updateLine();
   }
+  // Tekst for hus som ligger på brettet og venter på at partiet blir fullt.
+  const trayNote = (tray, B, done) => B > 1 && tray > 0 && tray < B ? (done ? `Skiftet er over. ${tray} hus venter på partiet (${tray} av ${B})` : `Venter på partiet (${tray} av ${B})`) : '';
   function simVM() {
     const c = sim ? sim.cfg : cfg;
     const t = sim ? sim.k * DT : 0;
@@ -1267,8 +1269,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         Object.assign(v, { key: s.cur.id + ':' + s.ti, done: s.cur.done, working: tk.part, task: `<b>${esc(tk.name)}</b>`, prog: 1 - s.rem / s.dur });
       } else {
         Object.assign(v, { key: 'idle:' + status, done: new Set(), working: null, prog: 0,
-          task: !sim ? (ids.length ? 'Klar' : 'Ingen oppgaver') : status === 'blocked' ? 'Blokkert: neste ledd er fullt' : (sim.done ? 'Skiftet er over' : 'Venter på hus') });
+          task: !sim ? (ids.length ? 'Klar' : 'Ingen oppgaver') : status === 'blocked' ? 'Blokkert: neste ledd er fullt' : trayNote(v.tray, c.batch, sim.done) || (sim.done ? 'Skiftet er over' : 'Venter på hus') });
       }
+      if (sim && sim.done && trayNote(v.tray, c.batch, true)) v.task = trayNote(v.tray, c.batch, true);
       return v;
     });
     return {
@@ -2342,8 +2345,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         Object.assign(v, { key: tk + ':' + ti, done, working: tkObj.part, task: `<b>${esc(tkObj.name)}</b>`, prog: num(x.sp) });
       } else {
         Object.assign(v, { key: 'idle:' + status, done: new Set(), working: null, prog: 0,
-          task: !running ? (ids.length ? 'Klar' : 'Ingen oppgaver') : LD.ph === 'count' ? 'Klar til start' : LD.ph === 'done' ? 'Skiftet er over' : status === 'blocked' ? 'Blokkert: neste ledd er fullt' : 'Venter på hus' });
+          task: !running ? (ids.length ? 'Klar' : 'Ingen oppgaver') : LD.ph === 'count' ? 'Klar til start' : LD.ph === 'done' ? (trayNote(tr, c.batch, true) || 'Skiftet er over') : status === 'blocked' ? 'Blokkert: neste ledd er fullt' : trayNote(tr, c.batch, false) || 'Venter på hus' });
       }
+      if (LD.ph === 'done' && trayNote(tr, c.batch, true)) v.task = trayNote(tr, c.batch, true);
       return v;
     });
     const snN = running ? num(cn(n - 1).sn) : 0, tk0 = running ? num(cn(0).tk) : 0;
@@ -3186,6 +3190,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     // Eldre oppsett (lange runder, gamle oppdrag) flyttes over til første korte oppdrag.
     if (!('mission' in c) || (typeof c.mission === 'string' && /^m[0-9]$/.test(c.mission))) { out.mission = 'o1'; Object.assign(out, missionSet(MISSIONS[0], out)); }
     // Oppstarten i oppdragene ble økt fra 30 til 45 s, så en linje under takt rekker å fylles. Oppdater lagrede oppsett.
+    // Standard partistørrelse ble endret fra 4 til 2. Et urørt startoppsett får den nye verdien.
+    if (out.batch === 4 && !(out.removed || []).length && JSON.stringify(out.stations) === JSON.stringify(DEFAULT.stations)) out.batch = DEFAULT.batch;
     const om = MISSIONS.find(m => m.id === out.mission);
     if (om && om.set.warmup === 45 && out.warmup === Math.round(30 * (out.tempo || 1) / 5) * 5) out.warmup = missionSet(om, out).warmup;
     return out;
