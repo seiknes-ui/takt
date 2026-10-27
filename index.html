@@ -342,6 +342,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
 #bench .tgt * { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; opacity: 1; }
 #bench .piece { cursor: grab; }
 #bench .piece * { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+#bench .piece .grab { stroke: none; }
 #bench .screw { cursor: pointer; }
 #bench .screw .head { fill: var(--metal); stroke: var(--ink); stroke-width: 1; }
 #bench .screw .slot { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
@@ -2608,6 +2609,12 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   // -- tegning av arbeidsbenken --
   const VX = x => 20 + x * 4, VY = y => 4 + y * 4;
   function pieceT(id, x, y, s) { const p = PIECES[id]; return `translate(${x} ${y}) scale(${s}) translate(${-p.cx} ${-p.cy})`; }
+  // Usynlig gripeflate rundt hver del (minst 44 × 44 enheter på benken, omtrent en fingertupp på mobil), så tynne deler som grunnplaten er lette å ta tak i.
+  function grabArea(id, scale) {
+    const p = PIECES[id], min = 44 / scale;
+    const w = Math.max(p.w + 4, min), h = Math.max(p.h + 4, min);
+    return `<rect class="grab" x="${p.cx - w / 2}" y="${p.cy - h / 2}" width="${w}" height="${h}" fill="transparent"/>`;
+  }
   function trayLayout(list) {
     const k = list.length;
     return list.map((id, n) => { const p = PIECES[id]; return { id, x: 200 * (n + 1) / (k + 1), y: 194, s: Math.min(4, (170 / k) / p.w, 46 / p.h) }; });
@@ -2632,7 +2639,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (stp.drag) {
       s += '<text x="10" y="170" font-size="8" class="muted">DELER</text>';
       for (const p of trayLayout(stp.drag.filter(p => !j.placed.includes(p))))
-        s += `<g class="piece" data-act="piece" data-id="${p.id}" data-s="${p.s}" transform="${pieceT(p.id, p.x, p.y, p.s)}">${PIECES[p.id].svg}</g>`;
+        s += `<g class="piece" data-act="piece" data-id="${p.id}" data-s="${p.s}" transform="${pieceT(p.id, p.x, p.y, p.s)}">${grabArea(p.id, p.s)}${PIECES[p.id].svg}</g>`;
     }
     if (stp.screws) {
       stp.screws.forEach(([x, y], k) => {
