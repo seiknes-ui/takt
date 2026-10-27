@@ -1,0 +1,2491 @@
+<title>Taktlinja</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: verkstedgulv – modusvelger øverst; simulering/tavle viser linja, balansebordet og loggen; stasjonsmodus er en mobil arbeidsbenk. */
+:root {
+  --bg: #E8EBE7;
+  --surface: #F7F8F5;
+  --ink: #1B201E;
+  --muted: #5A6560;
+  --line: #C6CDC8;
+  --accent: #F2B300;
+  --on-accent: #1B201E;
+  --va: #2E6B8A;
+  --on-va: #FFFFFF;
+  --waste: #C2402C;
+  --on-waste: #FFFFFF;
+  --ok: #2B9A58;
+  --on-ok: #FFFFFF;
+  --warn: #D89A00;
+  --bad: #D0392A;
+  --idle: #A3ACA7;
+  --wood: #C08A4E;
+  --wall: #EAD9B9;
+  --wall-2: #CDB893;
+  --roof: #A4463A;
+  --brick: #7E3B30;
+  --glass: #7DB3CE;
+  --door: #6B4A2E;
+  --metal: #A9B1AD;
+  --b-red: #D6402F;
+  --b-blue: #2F6FD0;
+  --b-yellow: #F2C230;
+  --b-green: #3C9A4A;
+  --b-white: #F4F4EF;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+    --accent: #F5BF1F; --on-accent: #131715; --va: #5AA6CC; --on-va: #0B1A22;
+    --waste: #E2654F; --on-waste: #1A0B07; --ok: #3FBF72; --on-ok: #0B1A11; --warn: #F0B429; --bad: #F05A47; --idle: #59625D;
+    --wood: #B5834B; --wall: #D8C6A4; --wall-2: #B09D7C; --roof: #BC5848; --brick: #8E4638; --glass: #8CC3DD; --door: #7E5A3A;
+    --metal: #78827D; --b-red: #E0533F; --b-blue: #4A86E0; --b-yellow: #F2C94A; --b-green: #4FB15E; --b-white: #DADDD8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+  --accent: #F5BF1F; --on-accent: #131715; --va: #5AA6CC; --on-va: #0B1A22;
+  --waste: #E2654F; --on-waste: #1A0B07; --ok: #3FBF72; --on-ok: #0B1A11; --warn: #F0B429; --bad: #F05A47; --idle: #59625D;
+  --wood: #B5834B; --wall: #D8C6A4; --wall-2: #B09D7C; --roof: #BC5848; --brick: #8E4638; --glass: #8CC3DD; --door: #7E5A3A;
+  --metal: #78827D; --b-red: #E0533F; --b-blue: #4A86E0; --b-yellow: #F2C94A; --b-green: #4FB15E; --b-white: #DADDD8;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 36px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: .01em; margin: 0; text-wrap: balance; line-height: 1; }
+h1 { font-size: clamp(56px, 9vw, 96px); text-transform: uppercase; }
+h2 { font-size: 32px; text-transform: uppercase; }
+h3 { font-size: 22px; text-transform: uppercase; }
+p { margin: 0; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.help { font-size: 12px; color: var(--muted); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+
+/* Topp */
+.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 40px; align-items: end; }
+.top .lede { max-width: 58ch; margin-top: 12px; color: var(--muted); font-size: 16px; }
+.hazard { height: 10px; background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--ink) 14px 28px); border-radius: 2px; margin-bottom: 18px; max-width: 220px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(110px, auto)); border: 2px solid var(--ink); background: var(--surface); }
+.kpi { padding: 10px 16px 12px; border-left: 1px solid var(--line); min-width: 0; }
+.kpi:first-child { border-left: 0; }
+.kpi .eyebrow { font-size: 11px; }
+.kpi b { display: block; font-family: var(--display); font-size: 40px; line-height: 1.05; font-weight: 800; }
+.kpi small { color: var(--muted); font-size: 12px; }
+.kpi[data-state="bad"] b { color: var(--bad); }
+.kpi[data-state="ok"] b { color: var(--ok); }
+.kpi.takt { background: var(--accent); color: var(--on-accent); }
+.kpi.takt .eyebrow, .kpi.takt small { color: var(--on-accent); opacity: .8; }
+body[data-mode="stasjon"] .top { display: none; }
+
+/* Modusvelger */
+.modes { display: flex; flex-wrap: wrap; gap: 0; border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; width: fit-content; max-width: 100%; }
+.modes button { border: 0; background: var(--surface); padding: 10px 18px; font-weight: 700; font-size: 14px; border-left: 1px solid var(--line); text-align: left; display: grid; gap: 0; }
+.modes button:first-child { border-left: 0; }
+.modes button small { font-weight: 400; font-size: 12px; color: var(--muted); }
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.modes button[aria-pressed="true"] small { color: var(--bg); opacity: .75; }
+
+/* Seksjoner */
+section { display: grid; gap: 16px; min-width: 0; }
+.sec-head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+.sec-head p { color: var(--muted); max-width: 62ch; margin-top: 6px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; min-width: 0; }
+.view { display: grid; gap: 40px; }
+
+/* Kontroller */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 2px solid var(--ink); background: transparent; padding: 7px 14px; border-radius: 4px; font-weight: 700; font-size: 14px; }
+.btn:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn.primary:hover:not(:disabled) { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.small { padding: 4px 10px; font-size: 13px; border-width: 1px; }
+.btn.big { padding: 12px 18px; font-size: 16px; }
+.seg { display: inline-flex; border: 1px solid var(--ink); border-radius: 4px; overflow: hidden; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; padding: 5px 11px; font-size: 13px; font-weight: 600; border-left: 1px solid var(--line); }
+.seg button:first-child { border-left: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+input[type="text"], input[type="number"] { padding: 7px 10px; border: 1px solid var(--ink); border-radius: 4px; background: var(--bg); color: var(--ink); font-family: var(--mono); font-size: 15px; }
+
+/* Lobby (tavle) */
+.lobby { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px 32px; align-items: start; }
+.code { font-family: var(--display); font-weight: 800; font-size: 72px; line-height: .9; letter-spacing: .06em; }
+.code-box { display: grid; gap: 6px; }
+.code-box .eyebrow { color: var(--ink); }
+.roster { display: grid; gap: 6px; }
+.roster .r { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px; padding: 7px 10px; background: var(--bg); border-radius: 4px; font-size: 14px; align-items: baseline; }
+.roster .r b { font-family: var(--mono); font-size: 13px; }
+.roster .r .sim { color: var(--muted); }
+.roster .r .dup { color: var(--bad); font-size: 12px; }
+.conn-msg { font-size: 13px; color: var(--muted); }
+
+/* Live-tavle */
+.board { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; padding: 12px 16px; background: var(--ink); color: var(--bg); border-radius: 6px 6px 0 0; }
+.board .cell { display: flex; gap: 8px; align-items: baseline; }
+.board .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+.board .val { font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.board .val.bad { color: var(--bad); }
+.board .round { margin-left: auto; font-family: var(--display); font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--accent); }
+.progress { height: 4px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+
+/* Linja */
+.line-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 6px 6px; }
+.line { display: flex; align-items: stretch; padding: 18px; min-width: max-content; }
+.node { width: 148px; flex: none; display: grid; gap: 6px; align-content: start; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); position: relative; }
+.node.st { border: 2px solid var(--ink); background: var(--surface); }
+.node.st.bn::after { content: "Flaskehals"; position: absolute; top: -10px; right: 8px; background: var(--bad); color: var(--on-ok); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 1px 6px; border-radius: 3px; }
+.node-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+.node-head .num { margin-left: auto; font-size: 12px; color: var(--muted); font-weight: 400; }
+.st-who { font-size: 12px; font-weight: 600; min-height: 1.2em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-who.sim { color: var(--muted); font-weight: 400; }
+.andon { width: 12px; height: 12px; border-radius: 50%; background: var(--idle); flex: none; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--line); display: inline-block; }
+.andon[data-s="work"] { background: var(--ok); }
+.andon[data-s="starved"] { background: var(--warn); }
+.andon[data-s="blocked"] { background: var(--bad); }
+.node .house { width: 100%; height: 78px; }
+.st-task { font-size: 12px; min-height: 2.6em; color: var(--muted); line-height: 1.3; }
+.st-task b { color: var(--ink); font-weight: 600; }
+.bar { height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--ok); }
+.st-meta { display: flex; justify-content: space-between; gap: 6px; font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.conn { flex: none; width: 74px; display: grid; align-content: center; justify-items: center; gap: 4px; position: relative; padding: 0 4px; }
+.conn::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dashed var(--line); z-index: 0; }
+.conn > * { position: relative; z-index: 1; }
+.buf-icons { display: flex; flex-wrap: wrap-reverse; justify-content: center; gap: 1px; width: 66px; min-height: 22px; align-content: flex-start; background: var(--surface); }
+.buf-icons .house { width: 15px; height: 14px; }
+.buf-n { font-family: var(--mono); font-size: 12px; background: var(--surface); padding: 0 4px; font-variant-numeric: tabular-nums; }
+.buf-n.hot { color: var(--bad); font-weight: 500; }
+.node.end .big { font-family: var(--display); font-size: 34px; font-weight: 800; line-height: 1; }
+.node.end .sub { font-size: 12px; color: var(--muted); }
+.node.cust { border: 2px dashed var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .andon { box-shadow: none; width: 10px; height: 10px; }
+
+/* Hus */
+.house .ghost, #bench .ghost { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 2; opacity: .55; vector-effect: non-scaling-stroke; }
+.house .wk { animation: pulse .7s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity: .2; } to { opacity: .75; } }
+@media (prefers-reduced-motion: reduce) { .house .wk { animation: none; opacity: .5; } }
+
+/* Balansebord */
+.bal { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
+.yz-scroll { overflow-x: auto; }
+.yz { min-width: max-content; padding: 8px 4px 0 0; }
+.yz-plot { position: relative; margin-left: 34px; }
+.yz-tick { position: absolute; left: -34px; right: 0; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.yz-tick span { position: absolute; left: 0; top: -7px; width: 28px; text-align: right; background: var(--surface); }
+.yz-cols, .yz-feet { display: grid; gap: 10px; grid-auto-flow: column; grid-auto-columns: 96px; }
+.yz-cols { position: relative; height: 100%; align-items: end; }
+.yz-feet { margin-left: 34px; margin-top: 6px; }
+.yz-col { height: 100%; display: flex; flex-direction: column-reverse; gap: 2px; border-radius: 4px 4px 0 0; position: relative; }
+.yz-col.drop { outline: 2px dashed var(--accent); outline-offset: 2px; cursor: copy; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.yz-meas { position: absolute; left: -4px; right: -4px; border-top: 2px solid var(--ink); z-index: 3; pointer-events: none; }
+.yz-meas span { position: absolute; right: 0; top: -17px; font-family: var(--mono); font-size: 10px; background: var(--ink); color: var(--bg); padding: 0 4px; border-radius: 2px; }
+.blk { border: 0; border-radius: 3px; padding: 2px 6px; text-align: left; font-size: 11px; line-height: 1.15; background: var(--va); color: var(--on-va); overflow: hidden; display: flex; flex-direction: column; justify-content: center; flex: none; }
+.blk .t { font-family: var(--mono); font-size: 10px; opacity: .85; }
+.blk.waste { background: repeating-linear-gradient(-45deg, var(--waste) 0 6px, color-mix(in srgb, var(--waste) 78%, var(--surface)) 6px 12px); color: var(--on-waste); }
+.blk.sel { outline: 3px solid var(--ink); outline-offset: 1px; }
+.blk.viol { box-shadow: inset 0 0 0 3px var(--bad); }
+.blk:hover { filter: brightness(1.08); }
+.yz-takt { position: absolute; left: -34px; right: 0; border-top: 3px dashed var(--bad); pointer-events: none; z-index: 2; }
+.yz-takt span { position: absolute; right: 0; top: -22px; background: var(--bad); color: var(--on-ok); font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 3px; font-family: var(--mono); }
+.yz-foot { text-align: center; font-size: 12px; color: var(--muted); line-height: 1.25; }
+.yz-foot b { display: block; font-family: var(--mono); font-size: 14px; color: var(--ink); }
+.yz-foot b.over { color: var(--bad); }
+.yz-key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); margin-top: 12px; }
+.yz-key i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
+.selbox { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 10px; }
+.selbox .hint { color: var(--muted); font-size: 14px; }
+.selbox .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; background: var(--va); color: var(--on-va); }
+.tag.waste { background: var(--waste); color: var(--on-waste); }
+.viols { color: var(--bad); font-size: 13px; display: grid; gap: 4px; margin-top: 10px; }
+.lock { font-size: 13px; color: var(--muted); background: var(--bg); border-radius: 4px; padding: 8px 10px; margin-bottom: 12px; }
+.settings { display: grid; gap: 18px; }
+.set { display: grid; gap: 8px; }
+.set > .eyebrow { color: var(--ink); font-weight: 500; }
+.fields { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.fields label { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+.fields input { width: 84px; padding: 5px 8px; font-size: 14px; }
+.formula { font-family: var(--mono); font-size: 13px; background: var(--bg); border-radius: 4px; padding: 8px 10px; }
+.stepper { display: inline-flex; align-items: center; gap: 10px; }
+.stepper .num { font-size: 20px; min-width: 1.5ch; text-align: center; }
+.removed { display: grid; gap: 6px; font-size: 13px; }
+.removed div { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+
+/* Logg */
+.obs { display: grid; gap: 8px; }
+.ob { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 12px; padding: 10px 14px; background: var(--surface); border-radius: 4px; border: 1px solid var(--line); }
+.ob::before { content: ""; border-radius: 4px; background: var(--muted); }
+.ob[data-k="good"]::before { background: var(--ok); }
+.ob[data-k="warn"]::before { background: var(--bad); }
+.ob[data-k="info"]::before { background: var(--warn); }
+.tbl-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td .chg { display: flex; flex-wrap: wrap; gap: 4px; max-width: 280px; }
+td .chg span { background: var(--bg); border-radius: 3px; padding: 1px 6px; font-size: 12px; }
+td .chg span.live { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+.mbar { display: inline-block; width: 70px; height: 8px; background: var(--line); border-radius: 2px; margin-left: 8px; overflow: hidden; }
+.mbar i { display: block; height: 100%; background: var(--bad); }
+.mbar i.full { background: var(--ok); }
+.empty { color: var(--muted); padding: 18px; font-size: 14px; }
+
+/* Veiledning */
+.guide { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; counter-increment: s; }
+.steps li::before { content: counter(s); font-family: var(--display); font-weight: 800; font-size: 30px; line-height: 1; color: var(--accent); -webkit-text-stroke: 1px var(--ink); }
+.steps b { display: block; }
+.steps span { color: var(--muted); font-size: 14px; }
+dl { margin: 0; display: grid; gap: 10px; }
+dt { font-weight: 700; }
+dd { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* Stasjon (elev) */
+.ws { max-width: 560px; width: 100%; margin: 0 auto; display: grid; gap: 14px; }
+.ws h2 { font-size: 40px; }
+.join { display: grid; gap: 14px; }
+.join label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.join input { width: 100%; }
+.boards { display: grid; gap: 8px; }
+.board-btn { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 2px solid var(--ink); background: var(--accent); color: var(--on-accent); padding: 12px 16px; border-radius: 6px; font-weight: 700; text-align: left; }
+.board-btn .code-s { font-family: var(--display); font-size: 30px; letter-spacing: .06em; }
+.code-row { display: flex; gap: 8px; }
+.code-row input { width: 120px; }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.pick { border: 2px solid var(--ink); background: var(--surface); border-radius: 6px; padding: 10px 12px; text-align: left; display: grid; gap: 4px; }
+.pick b { font-family: var(--display); font-size: 22px; text-transform: uppercase; line-height: 1; }
+.pick span { font-size: 12px; color: var(--muted); line-height: 1.3; }
+.pick .who { color: var(--ink); font-weight: 600; }
+.pick[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.pick[aria-pressed="true"] span { color: var(--bg); opacity: .8; }
+.ws-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ws-head h2 { font-size: 34px; }
+.ws-head .andon { width: 16px; height: 16px; }
+.ws-head .clock { margin-left: auto; font-family: var(--mono); font-size: 20px; font-variant-numeric: tabular-nums; }
+.ws-status { font-size: 14px; font-weight: 600; }
+.ws-counters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.ws-counters div { padding: 6px 10px; border-left: 1px solid var(--line); min-width: 0; }
+.ws-counters div:first-child { border-left: 0; }
+.ws-counters span { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ws-counters b { font-family: var(--display); font-size: 28px; line-height: 1; }
+.taktbar { position: relative; height: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.taktbar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--ok); opacity: .35; }
+.taktbar.over i { background: var(--bad); opacity: .5; }
+.taktbar span { position: relative; display: block; text-align: center; font-family: var(--mono); font-size: 12px; line-height: 24px; }
+#bench { width: 100%; height: auto; max-height: 62vh; display: block; background: var(--surface); border: 2px solid var(--ink); border-radius: 8px; touch-action: none; user-select: none; -webkit-user-select: none; }
+#bench text { fill: var(--ink); font-family: var(--body); }
+#bench .tray { fill: var(--bg); stroke: var(--line); }
+#bench .tgt * { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; opacity: 1; }
+#bench .piece { cursor: grab; }
+#bench .piece * { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+#bench .screw { cursor: pointer; }
+#bench .screw .head { fill: var(--metal); stroke: var(--ink); stroke-width: 1; }
+#bench .screw .slot { stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; }
+#bench .screw.done .head { fill: var(--ok); }
+#bench .screw.done .slot { stroke: var(--on-ok); }
+#bench .chk circle.c { fill: var(--surface); stroke: var(--ink); stroke-width: 1.2; }
+#bench .chk.done circle.c { fill: var(--ok); }
+#bench .brick { cursor: pointer; }
+#bench .brick.miss rect { stroke: var(--bad); stroke-width: 2.5; }
+#bench .hold rect.b { fill: var(--accent); stroke: var(--ink); stroke-width: 1.5; }
+#bench .hold text, #bench .hold-l { fill: var(--on-accent); font-weight: 700; }
+#bench .pbar { fill: var(--ink); opacity: .25; }
+#bench .muted { fill: var(--muted); }
+.team { display: grid; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+.tm { display: grid; grid-template-columns: 14px 52px minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; align-items: center; font-size: 13px; }
+.tm .andon { width: 10px; height: 10px; box-shadow: none; }
+.tm.me { font-weight: 700; }
+.tm-n, .tm-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tm-t { color: var(--muted); }
+.gcol { display: grid; gap: 12px; align-content: center; }
+.node.grp { width: 290px; border: 2px solid var(--ink); background: var(--surface); }
+.grp-body { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: center; }
+.ghouse .house { width: 96px; height: 86px; }
+.gmem { display: grid; gap: 3px; }
+.gm { display: grid; grid-template-columns: 10px auto minmax(0, 1fr); column-gap: 6px; font-size: 11px; line-height: 1.25; align-items: center; }
+.gm .andon { width: 9px; height: 9px; box-shadow: none; grid-row: span 2; }
+.gm-n { font-weight: 700; }
+.gm-w { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.gm-w.sim { color: var(--muted); font-weight: 400; }
+.gm-t { grid-column: 2 / -1; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.blk.wait { background: repeating-linear-gradient(45deg, transparent 0 5px, color-mix(in srgb, var(--muted) 22%, transparent) 5px 10px); border: 1px dashed var(--muted); color: var(--muted); }
+.instr { font-size: 16px; min-height: 2.8em; }
+.instr b { font-weight: 700; }
+.ws-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ws-stats div { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; }
+.ws-stats span { display: block; font-size: 11px; color: var(--muted); }
+.ws-stats b { font-family: var(--mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.ws-stats b.over { color: var(--bad); }
+
+@media (max-width: 900px) {
+  .top { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi:nth-child(3) { border-left: 0; }
+  .kpi:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .bal, .guide, .lobby { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .kpi b { font-size: 32px; }
+  .board .round { margin-left: 0; width: 100%; }
+  .modes button { padding: 8px 12px; }
+  .modes button small { display: none; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="hazard" aria-hidden="true"></div>
+      <p class="eyebrow">Lean-verksted · linjebalansering</p>
+      <h1>Taktlinja</h1>
+      <p class="lede">Stasjonene bygger små hus, og kunden demonterer dem i takt med bestillingene. Kjør linja som simulering, eller la elevene bygge husene selv på hver sin enhet mens tavla viser flyten.</p>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </header>
+
+  <nav class="modes" aria-label="Modus">
+    <button type="button" data-mode="sim"><span>Simulering</span><small>Datamaskinen bygger</small></button>
+    <button type="button" data-mode="tavle"><span>Tavle</span><small>Læreren styrer live-runder</small></button>
+    <button type="button" data-mode="stasjon"><span>Stasjon</span><small>Eleven bygger selv</small></button>
+  </nav>
+
+  <div class="view" id="view-main">
+    <section id="lobby-sec" aria-labelledby="h-lobby" hidden>
+      <div class="sec-head">
+        <div>
+          <h2 id="h-lobby">Lag og stasjoner</h2>
+          <p>Elevene åpner den samme siden, velger <b>Stasjon</b> og trykker på tavla med denne koden. Stasjoner uten elev blir simulert av tavla.</p>
+        </div>
+      </div>
+      <div class="panel lobby">
+        <div class="code-box">
+          <span class="eyebrow">Lagkode</span>
+          <div class="code num" id="lobby-code">····</div>
+          <span class="conn-msg" id="lobby-conn">Kobler til …</span>
+        </div>
+        <div class="roster" id="roster"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-line">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-line">Produksjonslinja</h2>
+          <p>Andonlampen viser status for hver stasjon. Tallene mellom stasjonene er hus som venter i kø.</p>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="btn-start" type="button">Start runde 1</button>
+          <button class="btn" id="btn-pause" type="button" hidden>Pause</button>
+          <button class="btn" id="btn-skip" type="button" hidden>Spol til slutt</button>
+          <button class="btn" id="btn-cancel" type="button" hidden>Avbryt runden</button>
+          <div class="seg" id="speed" role="group" aria-label="Hastighet"></div>
+        </div>
+      </div>
+      <div>
+        <div class="board" id="board"></div>
+        <div class="progress"><i id="prog"></i></div>
+        <div class="line-scroll"><div class="line" id="line"></div></div>
+      </div>
+      <div class="legend">
+        <span><i class="andon" data-s="work"></i>Arbeider</span>
+        <span><i class="andon" data-s="starved"></i>Venter på deler</span>
+        <span><i class="andon" data-s="blocked"></i>Blokkert (partiet kan ikke sendes videre)</span>
+        <span><i class="andon"></i>Ikke i gang</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-bal">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-bal">Linjebalanse</h2>
+          <p>Hver søyle er én stasjon, og høyden er planlagt arbeidstid per hus. Ingen søyle bør gå over den røde taktlinja. Etter en live-runde viser en svart strek hva elevene faktisk brukte.</p>
+        </div>
+      </div>
+      <div class="bal">
+        <div class="panel">
+          <div class="lock" id="lock" hidden>Linja kjører. Endringer gjøres mellom rundene.</div>
+          <div class="yz-scroll"><div class="yz" id="yz"></div></div>
+          <div class="yz-key">
+            <span><i style="background: var(--va)"></i>Verdiskapende arbeid</span>
+            <span><i style="background: var(--waste)"></i>Sløsing (muda)</span>
+            <span><i style="border-top: 3px dashed var(--bad); height: 0; vertical-align: 3px;"></i>Takt-tid</span>
+            <span><i style="border-top: 2px solid var(--ink); height: 0; vertical-align: 3px;"></i>Målt i live-runde</span>
+          </div>
+          <div class="viols" id="viols"></div>
+          <div class="selbox" id="selbox"></div>
+        </div>
+        <div class="panel settings" id="settings"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-obs">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-obs">Observasjoner</h2>
+          <p id="obs-sub">Det linja forteller etter siste runde.</p>
+        </div>
+      </div>
+      <div class="obs" id="obs"></div>
+    </section>
+
+    <section aria-labelledby="h-log">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-log">Rundelogg</h2>
+          <p>Hver runde lagres med endringene dere gjorde, slik at forbedringen blir synlig.</p>
+        </div>
+        <button class="btn small" id="btn-clear" type="button">Slett rundeloggen</button>
+      </div>
+      <div class="tbl-scroll" id="log"></div>
+    </section>
+
+    <section aria-labelledby="h-guide">
+      <div class="sec-head"><h2 id="h-guide">I undervisningen</h2></div>
+      <div class="guide">
+        <div class="panel">
+          <h3 style="margin-bottom: 14px">Forslag til økt</h3>
+          <ol class="steps">
+            <li><div><b>Øv på stasjonene</b><span>Elevene velger Stasjon og trykker «Øv uten tavle» for å lære håndgrepene: dra delene på plass, skru inn skruene, let etter klosser.</span></div></li>
+            <li><div><b>Slik gjør vi det i dag</b><span>Læreren åpner Tavle, elevene trykker på lagkoden og velger hver sin stasjon. Kjør første live-runde uten endringer.</span></div></li>
+            <li><div><b>Balanser linja</b><span>Se på de målte tidene i diagrammet. Flytt oppgaver fra de høyeste søylene til de laveste, og husk rekkefølgen.</span></div></li>
+            <li><div><b>Fjern sløsing</b><span>Elevene har kjent sløsingen på kroppen: gå til lageret, lete etter klosser, vente på verktøy. Gjennomfør tiltak mot de røde blokkene.</span></div></li>
+            <li><div><b>Skap flyt</b><span>Sett partistørrelsen til 1 og slå på trekk. Diskuter hvordan det føltes å vente og å bli blokkert.</span></div></li>
+            <li><div><b>Bygg i gruppe</b><span>Bytt arbeidsform til Gruppe. Fire elever bygger det samme huset, og du fordeler oppgavene i diagrammet. Sammenlign med linja: hvem venter, og hvorfor klarer ikke én gruppe takten alene?</span></div></li>
+          </ol>
+        </div>
+        <div class="panel">
+          <h3 style="margin-bottom: 14px">Begreper</h3>
+          <dl>
+            <div><dt>Takt-tid</dt><dd>Tilgjengelig tid delt på kundebehovet. Rytmen kunden trenger, for eksempel ett hus hvert 20. sekund.</dd></div>
+            <div><dt>Syklustid</dt><dd>Hvor lang tid en stasjon bruker per hus. Den tregeste stasjonen, flaskehalsen, bestemmer hele linjas tempo.</dd></div>
+            <div><dt>Balansegrad</dt><dd>Total arbeidstid delt på antall stasjoner ganger flaskehalsens tid. 100 % betyr at alle har like mye å gjøre.</dd></div>
+            <div><dt>Gjennomløpstid</dt><dd>Tiden fra et hus påbegynnes til det står ferdig i lageret.</dd></div>
+            <div><dt>PIA</dt><dd>Produkter i arbeid: hus som er påbegynt men ikke ferdige. Mye PIA gir lang gjennomløpstid.</dd></div>
+            <div><dt>Sløsing (muda)</dt><dd>Transport, lager, bevegelse, venting, overproduksjon, overprosessering og feil. Alt som tar tid uten at kunden får mer verdi.</dd></div>
+            <div><dt>Ettstykksflyt og trekk</dt><dd>Ett hus sendes videre straks det er ferdig, og en stasjon bygger bare når neste ledd har plass (kanban).</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="view" id="view-station" hidden>
+    <div class="ws" id="st-join">
+      <div><p class="eyebrow">Taktlinja · stasjon</p><h2>Bli med på linja</h2></div>
+      <div class="panel join">
+        <label for="in-nick">Navnet ditt (vises på tavla)<input id="in-nick" type="text" maxlength="20" autocomplete="off" placeholder="For eksempel Ida"></label>
+        <div>
+          <p class="eyebrow" style="margin-bottom: 8px">Åpne tavler</p>
+          <div class="boards" id="boards"><p class="help">Ser etter tavler …</p></div>
+        </div>
+        <div class="code-row">
+          <input id="in-code" type="text" inputmode="numeric" maxlength="4" placeholder="Kode" aria-label="Lagkode">
+          <button class="btn" type="button" id="btn-code">Bli med</button>
+        </div>
+        <p class="help" id="join-msg"></p>
+      </div>
+      <div class="panel join">
+        <p><b>Øv først.</b> Bygg hus i ditt eget tempo og lær håndgrepene før runden starter. Ingenting sendes til tavla.</p>
+        <div><button class="btn" type="button" id="btn-practice">Øv uten tavle</button></div>
+      </div>
+    </div>
+
+    <div class="ws" id="st-pick" hidden>
+      <div class="ws-head"><div><p class="eyebrow" id="pick-sub">Lag ····</p><h2>Velg stasjon</h2></div></div>
+      <p class="help" id="pick-msg">Velg den stasjonen læreren har gitt deg. Runden starter når læreren trykker start.</p>
+      <div class="picks" id="picks"></div>
+      <div class="controls"><button class="btn small" type="button" id="btn-leave-team">Forlat laget</button></div>
+    </div>
+
+    <div class="ws" id="st-work" hidden>
+      <div class="ws-head">
+        <span class="andon" id="ws-andon"></span>
+        <h2 id="ws-title">Stasjon 1</h2>
+        <span class="clock" id="ws-clock">00:00</span>
+      </div>
+      <p class="ws-status" id="ws-status"></p>
+      <div class="ws-counters">
+        <div><span>Inn</span><b class="num" id="ws-in">0</b></div>
+        <div><span>Parti</span><b class="num" id="ws-tray">0</b></div>
+        <div><span id="ws-out-l">Ut</span><b class="num" id="ws-out">0</b></div>
+      </div>
+      <div class="taktbar" id="ws-takt"><i></i><span>Takt-klokke</span></div>
+      <div class="team" id="ws-team" hidden></div>
+      <svg id="bench" viewBox="0 0 200 230" role="application" aria-label="Arbeidsbenk"></svg>
+      <p class="instr" id="ws-instr"></p>
+      <div class="ws-stats">
+        <div><span>Hus ferdig</span><b id="ws-n">0</b></div>
+        <div><span>Siste hus</span><b id="ws-last">–</b></div>
+        <div><span>Snitt</span><b id="ws-avg">–</b></div>
+      </div>
+      <div class="controls"><button class="btn small" type="button" id="btn-leave-st">Bytt stasjon</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const DT = 0.05;
+  const T = {
+    fetch:    { name: 'Hent deler fra lageret', short: 'Hent deler', t: 8, ord: 1, waste: 'Transport', fix: 'Deler i reol ved stasjonen' },
+    base:     { name: 'Legg grunnplate', short: 'Grunnplate', t: 6, ord: 2, pre: [], part: 'base' },
+    front:    { name: 'Monter frontvegg', short: 'Frontvegg', t: 10, ord: 3, pre: ['base'], part: 'front' },
+    side:     { name: 'Monter sidevegg', short: 'Sidevegg', t: 10, ord: 4, pre: ['base'], part: 'side' },
+    search:   { name: 'Let etter riktig kloss', short: 'Lete', t: 6, ord: 4.5, waste: 'Bevegelse', fix: '5S: sorter og merk kassene' },
+    win:      { name: 'Sett inn vinduer', short: 'Vinduer', t: 8, ord: 5, pre: ['front'], part: 'win' },
+    door:     { name: 'Monter dør', short: 'Dør', t: 5, ord: 6, pre: ['front'], part: 'door' },
+    waitTool: { name: 'Vent på delt verktøy', short: 'Vente verktøy', t: 5, ord: 6.5, waste: 'Venting', fix: 'Eget verktøy på hver stasjon' },
+    roof:     { name: 'Legg tak', short: 'Tak', t: 12, ord: 7, pre: ['front', 'side'], part: 'roof' },
+    chim:     { name: 'Sett på pipe', short: 'Pipe', t: 4, ord: 8, pre: ['roof'], part: 'chim' },
+    qc:       { name: 'Sluttkontroll', short: 'Kontroll', t: 5, ord: 10, pre: ['base', 'front', 'side', 'win', 'door', 'roof', 'chim'], part: 'qc' },
+    recheck:  { name: 'Dobbeltkontroll og omarbeid', short: 'Omarbeid', t: 6, ord: 11, waste: 'Feil og omarbeid', fix: 'Kvalitet ved kilden: sjekkliste' },
+  };
+  for (const id in T) T[id].id = id;
+  const PARTS = ['base', 'front', 'side', 'win', 'door', 'roof', 'chim', 'qc'];
+  const DEFAULT = {
+    shiftMin: 8, demand: 24, batch: 4, pull: false, variation: 0.15,
+    stations: [['fetch', 'base', 'front', 'side'], ['search', 'win'], ['waitTool', 'door', 'roof', 'chim'], ['qc', 'recheck']],
+    removed: [], home: {},
+    form: 'linje', groups: 1, homeT: {},
+    team: [['fetch', 'base', 'front', 'side', 'search'], ['win'], ['door', 'waitTool', 'roof', 'chim'], ['qc', 'recheck']],
+  };
+  const SPEEDS = [1, 5, 15, 40];
+  const GL = ['A', 'B', 'C', 'D'];
+  const isG = c => !!c && c.form === 'gruppe';
+  const arr = c => isG(c) ? c.team : c.stations;
+  const unitName = c => isG(c) ? 'Elev' : 'Stasjon';
+  // Korte koder for oppgaver i presence (holder meldingene små)
+  const TIDS = ['fetch', 'base', 'front', 'side', 'search', 'win', 'door', 'waitTool', 'roof', 'chim', 'qc', 'recheck'];
+  const enc = ids => ids.map(id => String.fromCharCode(97 + TIDS.indexOf(id))).join('');
+  const dec = s => Array.from(typeof s === 'string' ? s.slice(0, 12) : '').map(ch => TIDS[ch.charCodeAt(0) - 97]).filter(Boolean);
+  const VARS = [[0, 'Ingen'], [0.05, '±5 %'], [0.15, '±15 %'], [0.3, '±30 %']];
+  const KEY = 'taktlinja-v1';
+  const STATUS_TXT = { work: 'Arbeider', starved: 'Venter på hus', blocked: 'Blokkert', idle: 'Ikke i gang', done: 'Ferdig' };
+
+  let cfg, history, sim = null, playing = false, speed = 15, sel = null, lastTs = 0, dragId = null;
+  let mode = 'sim';
+  let room = null, roomState = 'pending';
+  const $ = id => document.getElementById(id);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const fmt = (x, d = 0) => x == null || isNaN(x) ? '–' : Number(x).toLocaleString('nb-NO', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+  const pct = x => fmt(x * 100) + ' %';
+  const clock = s => { s = Math.max(0, Math.floor(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const sortIds = ids => ids.sort((a, b) => T[a].ord - T[b].ord);
+  const num = x => Number.isFinite(+x) ? +x : 0;
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function fetchStore(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function save() { store(KEY, { cfg, history }); }
+
+  function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  // Konfigurasjon som sendes til elevene (og lagres i loggen)
+  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []) }; }
+  function cleanCfg(c) {
+    if (!c || !Array.isArray(c.stations) || !c.stations.length) return null;
+    const lists = a => Array.isArray(a) ? a.slice(0, 6).map(x => Array.isArray(x) ? sortIds(x.filter(id => typeof id === 'string' && T[id])) : []) : [];
+    const out = {
+      shiftMin: clamp(Math.round(num(c.shiftMin)) || 8, 1, 60), demand: clamp(Math.round(num(c.demand)) || 24, 1, 200),
+      batch: clamp(Math.round(num(c.batch)) || 1, 1, 6), pull: c.pull === true, variation: clamp(num(c.variation), 0, 0.3),
+      stations: lists(c.stations), removed: Array.isArray(c.removed) ? c.removed.filter(id => T[id]) : [],
+      form: c.form === 'gruppe' ? 'gruppe' : 'linje', groups: clamp(Math.round(num(c.groups)) || 1, 1, 4), team: lists(c.team),
+    };
+    if (out.form === 'gruppe' && out.team.length < 2) return null;
+    return out;
+  }
+
+  // ---------- Analyse ----------
+  const analyze = c => isG(c) ? analyzeTeam(c) : analyzeLine(c);
+  // Planlagt gjennomføring av ett hus når hver elev tar sin neste ledige oppgave.
+  function schedule(team) {
+    const all = team.flat();
+    const busy = team.map(ids => ids.reduce((a, id) => a + T[id].t, 0));
+    if (!all.length) return { span: 0, busy, wait: busy.map(() => 0) };
+    const allSet = new Set(all), done = new Set(), cur = team.map(() => null);
+    let t = 0, guard = 400;
+    while (done.size < all.length && guard--) {
+      team.forEach((ids, m) => {
+        if (cur[m]) return;
+        const id = ids.find(x => !done.has(x) && (T[x].pre || []).every(p => !allSet.has(p) || done.has(p)));
+        if (id) cur[m] = { id, end: t + T[id].t };
+      });
+      const ends = cur.filter(Boolean).map(x => x.end);
+      if (!ends.length) break;
+      t = Math.min(...ends);
+      cur.forEach((x, m) => { if (x && x.end <= t + 1e-9) { done.add(x.id); cur[m] = null; } });
+    }
+    return { span: t, busy, wait: busy.map(b => Math.max(0, t - b)) };
+  }
+  function analyzeTeam(c) {
+    const custTakt = c.shiftMin * 60 / c.demand, takt = custTakt * c.groups;
+    const times = c.team.map(ids => ids.reduce((a, id) => a + T[id].t, 0));
+    const sc = schedule(c.team);
+    const maxW = Math.max(0, ...times), bn = times.indexOf(maxW);
+    const total = times.reduce((a, b) => a + b, 0);
+    const wasteIds = c.team.flat().filter(id => T[id].waste);
+    const waste = wasteIds.reduce((a, id) => a + T[id].t, 0);
+    const where = {};
+    c.team.forEach((ids, i) => ids.forEach(id => { where[id] = i; }));
+    const cp = schedule(c.team.flat().map(id => [id])).span;
+    return { takt, custTakt, times, max: sc.span, span: sc.span, wait: sc.wait, maxW, bn, total, waste, wasteIds, balance: maxW ? total / (c.team.length * maxW) : 0, viol: [], where, cp };
+  }
+  function analyzeLine(c) {
+    const takt = c.shiftMin * 60 / c.demand;
+    const times = c.stations.map(ids => ids.reduce((a, id) => a + T[id].t, 0));
+    const max = Math.max(0, ...times);
+    const bn = times.indexOf(max);
+    const total = times.reduce((a, b) => a + b, 0);
+    const wasteIds = c.stations.flat().filter(id => T[id].waste);
+    const waste = wasteIds.reduce((a, id) => a + T[id].t, 0);
+    const balance = max ? total / (c.stations.length * max) : 0;
+    const where = {};
+    c.stations.forEach((ids, i) => ids.forEach(id => { where[id] = i; }));
+    const viol = [];
+    for (const id in where) for (const p of (T[id].pre || [])) if (where[p] !== undefined && where[p] > where[id]) viol.push({ id, p });
+    return { takt, times, max, bn, total, waste, wasteIds, balance, viol, where };
+  }
+
+  // ---------- Simulering ----------
+  function makeSim(c) {
+    const T_end = c.shiftMin * 60, takt = T_end / c.demand;
+    return {
+      cfg: clone(c), takt, T: T_end, steps: Math.round(T_end / DT), k: 0, acc: 0, rng: mulberry32(20261027),
+      st: c.stations.map(ids => ({ tasks: ids.map(id => T[id]), inQ: [], cur: null, ti: 0, rem: 0, dur: 0, tray: [], work: 0, starve: 0, block: 0, maxQ: 0, status: 'starved' })),
+      fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: takt, nid: 1, started: 0, wipInt: 0,
+      finished: [], firstOut: null, lastDel: null, done: false,
+    };
+  }
+  function beginTask(sim, s) {
+    const v = sim.cfg.variation;
+    s.dur = s.tasks[s.ti].t * (1 + v * (sim.rng() * 2 - 1));
+    s.rem = s.dur;
+  }
+  function tryTransfer(sim, i) {
+    const S = sim.st, s = S[i], B = sim.cfg.batch;
+    if (s.tray.length < B) return;
+    const t = sim.k * DT;
+    if (i === S.length - 1) {
+      for (const u of s.tray) { u.end = t; sim.fg.push(u); sim.finished.push(u); if (sim.firstOut == null) sim.firstOut = t; }
+      s.tray = [];
+      return;
+    }
+    const d = S[i + 1];
+    if (sim.cfg.pull && d.inQ.length + s.tray.length > B) return;
+    d.inQ.push(...s.tray);
+    s.tray = [];
+    d.maxQ = Math.max(d.maxQ, d.inQ.length);
+  }
+  function startNext(sim, i) {
+    const s = sim.st[i];
+    if (s.cur || s.tray.length >= sim.cfg.batch) return;
+    let u = null;
+    if (i === 0) { u = { id: sim.nid++, start: sim.k * DT, done: new Set() }; sim.started++; }
+    else if (s.inQ.length) u = s.inQ.shift();
+    if (!u) return;
+    s.cur = u; s.ti = 0;
+    if (!s.tasks.length) { s.tray.push(u); s.cur = null; return; }
+    beginTask(sim, s);
+  }
+  function step(sim) {
+    const S = sim.st, B = sim.cfg.batch;
+    sim.k++;
+    for (let i = S.length - 1; i >= 0; i--) {
+      const s = S[i];
+      if (s.cur) {
+        s.rem -= DT;
+        while (s.cur && s.rem <= 0) {
+          const task = s.tasks[s.ti];
+          if (task.part) s.cur.done.add(task.part);
+          s.ti++;
+          if (s.ti >= s.tasks.length) { s.tray.push(s.cur); s.cur = null; }
+          else { const carry = s.rem; beginTask(sim, s); s.rem += carry; }
+        }
+      }
+      tryTransfer(sim, i);
+      startNext(sim, i);
+      s.status = s.cur ? 'work' : (s.tray.length >= B ? 'blocked' : 'starved');
+      s[s.status === 'work' ? 'work' : s.status === 'blocked' ? 'block' : 'starve'] += DT;
+    }
+    const t = sim.k * DT;
+    while (sim.placed < sim.cfg.demand && t >= sim.nextOrder - 1e-9) { sim.orders.push(sim.nextOrder); sim.placed++; sim.nextOrder += sim.takt; }
+    while (sim.orders.length && sim.fg.length) {
+      const o = sim.orders.shift(); sim.fg.shift();
+      sim.delivered++; sim.lastDel = t;
+      if (t - o > 0.5) sim.late++;
+    }
+    sim.wipInt += (sim.started - sim.finished.length) * DT;
+    if (sim.k >= sim.steps) sim.done = true;
+  }
+  function results(sim) {
+    const f = sim.finished;
+    return {
+      delivered: sim.delivered, demand: sim.cfg.demand, produced: f.length, late: sim.late,
+      lead: f.length ? f.reduce((a, u) => a + u.end - u.start, 0) / f.length : null,
+      wip: sim.wipInt / sim.T, first: sim.firstOut,
+      starve: sim.st.map(s => s.starve / sim.T), block: sim.st.map(s => s.block / sim.T), util: sim.st.map(s => s.work / sim.T),
+      maxQ: sim.st.map(s => s.maxQ),
+    };
+  }
+
+  // ---------- Simulering av gruppebygging ----------
+  function makeGroupSim(c) {
+    const T_end = c.shiftMin * 60, takt = T_end / c.demand, all = c.team.flat();
+    return {
+      group: true, cfg: clone(c), takt, T: T_end, steps: Math.round(T_end / DT), k: 0, acc: 0, rng: mulberry32(20261027),
+      all, allSet: new Set(all),
+      gs: Array.from({ length: c.groups }, () => ({ start: 0, done: new Set(), cyc: [], mem: c.team.map(() => ({ cur: null, rem: 0, dur: 0, work: 0, wait: 0, status: 'wait' })) })),
+      fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: takt, started: all.length ? c.groups : 0, wipInt: 0,
+      finished: [], firstOut: null, lastDel: null, done: false,
+    };
+  }
+  function groupStep(sim) {
+    const c = sim.cfg;
+    sim.k++;
+    const t = sim.k * DT;
+    for (const g of sim.gs) {
+      g.mem.forEach(mm => { if (mm.cur) { mm.rem -= DT; if (mm.rem <= 0) { g.done.add(mm.cur); mm.cur = null; } } });
+      if (sim.all.length && g.done.size >= sim.all.length) {
+        const u = { start: g.start, end: t };
+        sim.fg.push(u); sim.finished.push(u); g.cyc.push(t - g.start);
+        if (sim.firstOut == null) sim.firstOut = t;
+        g.done = new Set(); g.start = t;
+      }
+      g.mem.forEach((mm, m) => {
+        if (!mm.cur) {
+          const id = c.team[m].find(x => !g.done.has(x) && (T[x].pre || []).every(p => !sim.allSet.has(p) || g.done.has(p)));
+          if (id) { mm.cur = id; mm.dur = T[id].t * (1 + c.variation * (sim.rng() * 2 - 1)); mm.rem = mm.dur; }
+        }
+        mm.status = mm.cur ? 'work' : c.team[m].some(x => !g.done.has(x)) ? 'wait' : 'idle';
+        if (mm.cur) mm.work += DT; else mm.wait += DT;
+      });
+    }
+    while (sim.placed < c.demand && t >= sim.nextOrder - 1e-9) { sim.orders.push(sim.nextOrder); sim.placed++; sim.nextOrder += sim.takt; }
+    while (sim.orders.length && sim.fg.length) {
+      const o = sim.orders.shift(); sim.fg.shift();
+      sim.delivered++; sim.lastDel = t;
+      if (t - o > 0.5) sim.late++;
+    }
+    sim.wipInt += (sim.all.length ? sim.gs.length : 0) * DT;
+    if (sim.k >= sim.steps) sim.done = true;
+  }
+  function groupResults(sim) {
+    const f = sim.finished, G = sim.gs.length, M = sim.cfg.team.length;
+    const per = key => Array.from({ length: M }, (_, m) => sim.gs.reduce((a, g) => a + g.mem[m][key], 0) / (G * sim.T));
+    const houses = Math.max(1, f.length);
+    return {
+      delivered: sim.delivered, demand: sim.cfg.demand, produced: f.length, late: sim.late,
+      lead: f.length ? f.reduce((a, u) => a + u.end - u.start, 0) / f.length : null,
+      wip: sim.wipInt / sim.T, first: sim.firstOut,
+      util: per('work'), starve: per('wait'), block: Array(M).fill(0), maxQ: [],
+      gcyc: sim.gs.map(g => g.cyc.length ? g.cyc.reduce((a, b) => a + b, 0) / g.cyc.length : null),
+      memWork: Array.from({ length: M }, (_, m) => sim.gs.reduce((a, g) => a + g.mem[m].work, 0) / houses),
+    };
+  }
+  const makeSimAny = c => isG(c) ? makeGroupSim(c) : makeSim(c);
+  const stepAny = s => s.group ? groupStep(s) : step(s);
+  const resultsAny = s => s.group ? groupResults(s) : results(s);
+
+  // ---------- Hus ----------
+  const GHOST = '<path class="ghost" d="M5 31V17h22v14zM3 17.5L16 6.5l13 11M27 17h8v14h-8M22 6.5h-6M22 6.5l13 11"/>';
+  function houseInner(done, working) {
+    const W = working instanceof Set ? working : new Set(working ? [working] : []);
+    const show = p => done.has(p) || W.has(p);
+    const w = p => W.has(p) && !done.has(p) ? ' class="wk"' : '';
+    let s = '';
+    if (show('base')) s += `<rect${w('base')} x="2" y="31" width="35" height="3" rx=".6" fill="var(--wood)"/>`;
+    if (show('side')) s += `<rect${w('side')} x="27" y="17" width="8" height="14" fill="var(--wall-2)"/>`;
+    if (show('front')) s += `<rect${w('front')} x="5" y="17" width="22" height="14" fill="var(--wall)"/>`;
+    if (show('win')) s += `<g${w('win')} fill="var(--glass)"><rect x="7.5" y="20" width="5" height="5"/><rect x="20" y="20" width="5" height="5"/></g>`;
+    if (show('door')) s += `<rect${w('door')} x="14" y="23" width="4.5" height="8" fill="var(--door)"/>`;
+    if (show('roof')) s += `<g${w('roof')} fill="var(--roof)"><path d="M3 17.5L16 6.5l13 11z"/><path d="M16 6.5h6l13 11h-6z" opacity=".78"/></g>`;
+    if (show('chim')) s += `<rect${w('chim')} x="25.5" y="5" width="3" height="7" fill="var(--brick)"/>`;
+    if (show('qc')) s += `<g${w('qc')}><circle cx="34.5" cy="5" r="4" fill="var(--ok)"/><path d="M32.6 5.1l1.4 1.4 2.6-2.8" stroke="var(--on-ok)" stroke-width="1.3" fill="none"/></g>`;
+    return s;
+  }
+  const houseSVG = (done, working) => `<svg viewBox="0 0 40 36" class="house" aria-hidden="true">${GHOST}${houseInner(done, working)}</svg>`;
+  const partsAfter = (c, i) => new Set(c.stations.slice(0, i + 1).flat().map(id => T[id].part).filter(Boolean));
+
+  // ---------- KPI ----------
+  const partsOf = ids => new Set([...ids].map(id => T[id] && T[id].part).filter(Boolean));
+  function renderKPIs() {
+    const a = analyze(cfg);
+    const over = a.max > a.takt + 1e-9;
+    if (isG(cfg)) {
+      const G = cfg.groups;
+      $('kpis').innerHTML = `
+        <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.custTakt, 1)} s</b><small>${G > 1 ? `${G} grupper: ${fmt(a.takt, 1)} s hver` : `${cfg.shiftMin} min ÷ ${cfg.demand} hus`}</small></div>
+        <div class="kpi" data-state="${over ? 'bad' : 'ok'}"><span class="eyebrow">Tid per hus</span><b class="num">${fmt(a.span)} s</b><small>Gruppetakt ${fmt(a.takt, 1)} s</small></div>
+        <div class="kpi"><span class="eyebrow">Arbeidsbalanse</span><b class="num">${pct(a.balance)}</b><small>${cfg.team.length} elever per gruppe</small></div>
+        <div class="kpi" data-state="${a.waste ? 'bad' : 'ok'}"><span class="eyebrow">Sløsing per hus</span><b class="num">${fmt(a.waste)} s</b><small>av ${fmt(a.total)} s arbeid</small></div>`;
+      return;
+    }
+    $('kpis').innerHTML = `
+      <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.takt, 1)} s</b><small>${cfg.shiftMin} min ÷ ${cfg.demand} hus</small></div>
+      <div class="kpi" data-state="${over ? 'bad' : 'ok'}"><span class="eyebrow">Syklustid</span><b class="num">${fmt(a.max)} s</b><small>${a.max ? 'Flaskehals: stasjon ' + (a.bn + 1) : 'Ingen oppgaver'}</small></div>
+      <div class="kpi"><span class="eyebrow">Balansegrad</span><b class="num">${pct(a.balance)}</b><small>${cfg.stations.length} stasjoner</small></div>
+      <div class="kpi" data-state="${a.waste ? 'bad' : 'ok'}"><span class="eyebrow">Sløsing per hus</span><b class="num">${fmt(a.waste)} s</b><small>av ${fmt(a.total)} s arbeid</small></div>`;
+  }
+
+  // ---------- Linja (felles visning for simulering og live) ----------
+  let L = null;
+  function lineCfg() {
+    if (mode === 'tavle' && LD && LD.ph !== 'lobby' && LD.cfg) return LD.cfg;
+    return sim ? sim.cfg : cfg;
+  }
+  const ENDS = `<div class="conn"><div class="buf-n">→</div></div>
+      <div class="node end"><div class="node-head">Ferdiglager</div><div class="buf-icons" id="fgi" style="width:auto;min-height:30px"></div><div class="big num" id="fgn">0</div><div class="sub">hus klare til kunden</div></div>
+      <div class="conn"><div class="buf-n">→</div></div>
+      <div class="node end cust"><div class="node-head">Kunde<span class="num">demonterer</span></div><div id="cuh"></div><div class="big num" id="cun">0</div><div class="sub" id="cus"></div></div>`;
+  function buildGroupLine(c) {
+    const a = analyze(c);
+    let h = `<div class="node end"><div class="node-head">Råvarer</div><div class="big">∞</div><div class="sub">Klosser og deler</div></div><div class="conn"><div class="buf-n">→</div></div><div class="gcol">`;
+    for (let g = 0; g < c.groups; g++) {
+      h += `<div class="node grp"><div class="node-head">Gruppe ${GL[g]}<span class="num" id="gc${g}">0 hus</span></div>
+        <div class="grp-body"><div id="gh${g}" class="ghouse"></div><div class="gmem">`;
+      c.team.forEach((ids, m) => {
+        h += `<div class="gm"><span class="andon" id="ga${g}_${m}"></span><span class="gm-n">Elev ${m + 1}</span><span class="gm-w" id="gw${g}_${m}"></span><span class="gm-t" id="gt${g}_${m}"></span></div>`;
+      });
+      h += `</div></div><div class="bar"><i id="gb${g}"></i></div><div class="st-meta"><span id="gx${g}"></span><span>plan ${fmt(a.span)} s</span></div></div>`;
+    }
+    h += '</div>' + ENDS;
+    $('line').innerHTML = h;
+    L = { group: true, G: c.groups, M: c.team.length, keys: [], cuKey: '', full: houseSVG(new Set(PARTS), null) };
+    updateLine();
+  }
+  function buildLine() {
+    const c = lineCfg();
+    if (isG(c)) return buildGroupLine(c);
+    const a = analyze(c);
+    const n = c.stations.length;
+    let h = `<div class="node end"><div class="node-head">Råvarer</div><div class="big">∞</div><div class="sub">Klosser og deler</div></div>`;
+    for (let i = 0; i < n; i++) {
+      h += `<div class="conn">${i ? `<div class="buf-icons" id="bi${i}"></div><div class="buf-n" id="bn${i}">0</div>` : '<div class="buf-n">→</div>'}</div>`;
+      h += `<div class="node st${a.max > a.takt && i === a.bn ? ' bn' : ''}">
+        <div class="node-head"><span class="andon" id="an${i}"></span>Stasjon ${i + 1}<span class="num">${fmt(a.times[i])} s</span></div>
+        <div class="st-who" id="wh${i}"></div>
+        <div id="ho${i}"></div>
+        <div class="st-task" id="tk${i}"></div>
+        <div class="bar"><i id="br${i}"></i></div>
+        <div class="st-meta"><span id="tr${i}"></span><span id="ut${i}"></span></div>
+      </div>`;
+    }
+    h += ENDS;
+    $('line').innerHTML = h;
+    L = { n, keys: [], cuKey: '' };
+    L.mini = [];
+    for (let i = 0; i < n; i++) L.mini[i] = houseSVG(partsAfter(c, i - 1), null);
+    L.full = houseSVG(new Set(PARTS), null);
+    updateLine();
+  }
+  function simVM() {
+    const c = sim ? sim.cfg : cfg;
+    const t = sim ? sim.k * DT : 0;
+    const stations = c.stations.map((ids, i) => {
+      const s = sim ? sim.st[i] : null;
+      const status = s ? s.status : 'idle';
+      const v = { status, q: s ? s.inQ.length : 0, tray: s ? s.tray.length : 0, who: '', whoSim: false, util: s && t > 0 ? 'Arbeid ' + pct(s.work / t) : '' };
+      if (s && s.cur) {
+        const tk = s.tasks[s.ti];
+        Object.assign(v, { key: s.cur.id + ':' + s.ti, done: s.cur.done, working: tk.part, task: `<b>${esc(tk.name)}</b>`, prog: 1 - s.rem / s.dur });
+      } else {
+        Object.assign(v, { key: 'idle:' + status, done: new Set(), working: null, prog: 0,
+          task: !sim ? (ids.length ? 'Klar' : 'Ingen oppgaver') : status === 'blocked' ? 'Blokkert: neste ledd er fullt' : (sim.done ? 'Skiftet er over' : 'Venter på hus') });
+      }
+      return v;
+    });
+    return {
+      c, t, T: c.shiftMin * 60, stations, fg: sim ? sim.fg.length : 0, delivered: sim ? sim.delivered : 0, placed: sim ? sim.placed : 0,
+      backlog: sim ? sim.orders.length : 0, wip: sim ? sim.started - sim.finished.length : 0,
+      nextIn: sim && sim.placed < c.demand ? Math.max(0, sim.nextOrder - t) : null,
+      delAgo: sim && sim.lastDel != null ? t - sim.lastDel : null, takt: c.shiftMin * 60 / c.demand,
+      round: sim ? (sim.done ? `Runde ${history.length} ferdig` : `Runde ${history.length + 1}`) : `Klar for runde ${history.length + 1}`,
+    };
+  }
+  function setIcons(el, count, svg, cap) {
+    if (el.dataset.c == count) return;
+    el.dataset.c = count;
+    el.innerHTML = svg.repeat(Math.min(count, cap));
+  }
+  function groupSimVM() {
+    const c = sim ? sim.cfg : cfg;
+    const t = sim ? sim.k * DT : 0, all = c.team.flat();
+    const groups = Array.from({ length: c.groups }, (_, gi) => {
+      const g = sim ? sim.gs[gi] : null;
+      const done = g ? g.done : new Set();
+      const working = new Set();
+      const members = c.team.map((ids, m) => {
+        const mm = g ? g.mem[m] : null;
+        if (mm && mm.cur) working.add(mm.cur);
+        return {
+          status: !mm ? 'idle' : mm.status, who: '', whoSim: false,
+          task: !mm ? (ids.length ? ids.map(id => T[id].short).join(', ') : 'Ingen oppgaver') : mm.cur ? T[mm.cur].short : mm.status === 'wait' ? 'Venter' : 'Ferdig',
+        };
+      });
+      return { done, working, members, count: g ? g.cyc.length : 0, frac: all.length ? done.size / all.length : 0, elapsed: g ? t - g.start : 0 };
+    });
+    return {
+      group: true, c, t, T: c.shiftMin * 60, groups, takt: c.shiftMin * 60 / c.demand,
+      fg: sim ? sim.fg.length : 0, delivered: sim ? sim.delivered : 0, placed: sim ? sim.placed : 0, backlog: sim ? sim.orders.length : 0,
+      wip: sim ? sim.started : 0, nextIn: sim && sim.placed < c.demand ? Math.max(0, sim.nextOrder - t) : null,
+      delAgo: sim && sim.lastDel != null ? t - sim.lastDel : null,
+      round: sim ? (sim.done ? `Runde ${history.length} ferdig` : `Runde ${history.length + 1} · gruppe`) : `Klar for runde ${history.length + 1}`,
+    };
+  }
+  function updateGroupNodes(vm) {
+    vm.groups.forEach((g, gi) => {
+      const key = [...g.done].join(',') + '|' + [...g.working].join(',');
+      if (L.keys[gi] !== key) { $('gh' + gi).innerHTML = houseSVG(partsOf(g.done), partsOf(g.working)); L.keys[gi] = key; }
+      $('gc' + gi).textContent = `${g.count} hus`;
+      $('gb' + gi).style.width = clamp(g.frac, 0, 1) * 100 + '%';
+      $('gx' + gi).textContent = vm.t > 0 ? `Dette huset ${fmt(g.elapsed)} s` : '';
+      g.members.forEach((mm, m) => {
+        const an = $(`ga${gi}_${m}`);
+        if (!an) return;
+        an.dataset.s = mm.status === 'wait' ? 'starved' : mm.status === 'work' ? 'work' : 'idle';
+        const w = $(`gw${gi}_${m}`);
+        w.textContent = mm.who; w.classList.toggle('sim', mm.whoSim);
+        $(`gt${gi}_${m}`).textContent = mm.task;
+      });
+    });
+  }
+  function updateLine() {
+    if (!L) return;
+    const vm = (mode === 'tavle' && LD) ? (isG(lineCfg()) ? liveGroupVM() : liveVM()) : (isG(lineCfg()) ? groupSimVM() : simVM());
+    if (!!vm.group !== !!L.group || (vm.group ? (vm.groups.length !== L.G || vm.c.team.length !== L.M) : vm.stations.length !== L.n)) { buildLine(); return; }
+    if (vm.group) updateGroupNodes(vm);
+    else vm.stations.forEach((v, i) => {
+      $('an' + i).dataset.s = v.status;
+      if (L.keys[i] !== v.key) { $('ho' + i).innerHTML = houseSVG(v.done, v.working); L.keys[i] = v.key; }
+      $('tk' + i).innerHTML = v.task;
+      $('br' + i).style.width = (clamp(v.prog, 0, 1) * 100) + '%';
+      $('tr' + i).textContent = vm.c.batch > 1 ? `Parti ${v.tray}/${vm.c.batch}` : 'Ett stykk';
+      $('ut' + i).textContent = v.util;
+      const wh = $('wh' + i);
+      wh.textContent = v.who; wh.classList.toggle('sim', v.whoSim);
+      if (i > 0) {
+        const q = v.q;
+        setIcons($('bi' + i), q, L.mini[i], 12);
+        const bn = $('bn' + i);
+        bn.textContent = q > 12 ? `${q} (+${q - 12})` : q;
+        bn.classList.toggle('hot', q > Math.max(3, vm.c.batch * 2));
+      }
+    });
+    setIcons($('fgi'), vm.fg, L.full, 10);
+    $('fgn').textContent = vm.fg;
+    $('cun').textContent = vm.delivered;
+    $('cus').textContent = vm.t > 0 ? `levert av ${vm.placed} bestilt` : `${vm.c.demand} hus bestilles i løpet av skiftet`;
+    let shown = 0;
+    if (vm.delAgo != null) shown = Math.ceil((1 - Math.min(1, vm.delAgo / (vm.takt * 0.85))) * PARTS.length);
+    if (L.cuKey !== String(shown)) { $('cuh').innerHTML = houseSVG(new Set(PARTS.slice(0, shown)), null); L.cuKey = String(shown); }
+    $('board').innerHTML = `
+      <div class="cell"><span class="lbl">Klokke</span><span class="val">${clock(vm.t)} / ${clock(vm.T)}</span></div>
+      <div class="cell"><span class="lbl">Levert</span><span class="val">${vm.delivered} / ${vm.c.demand}</span></div>
+      <div class="cell"><span class="lbl">Restordre</span><span class="val${vm.backlog > 0 ? ' bad' : ''}">${vm.backlog}</span></div>
+      <div class="cell"><span class="lbl">PIA</span><span class="val">${vm.wip}</span></div>
+      <div class="cell"><span class="lbl">Neste bestilling</span><span class="val">${vm.nextIn != null ? fmt(vm.nextIn, 0) + ' s' : '–'}</span></div>
+      <span class="round">${esc(vm.round)}</span>`;
+    $('prog').style.width = clamp(vm.t / vm.T * 100, 0, 100) + '%';
+  }
+
+  // ---------- Yamazumi ----------
+  const locked = () => (sim && !sim.done) || (mode === 'tavle' && LD && (LD.ph === 'count' || LD.ph === 'run'));
+  function renderYZ() {
+    const a = analyze(cfg);
+    const H = 300;
+    const lastLive = [...history].reverse().find(e => e.meas && isG(e.cfg) === isG(cfg));
+    const meas = lastLive && lastLive.meas.length === arr(cfg).length ? lastLive.meas : null;
+    const top = Math.max(a.max, a.takt, ...(meas || []).map(num)) * 1.15;
+    const stepS = top > 60 ? 10 : 5;
+    const maxV = Math.ceil(top / stepS) * stepS;
+    const sc = H / maxV;
+    const n = arr(cfg).length;
+    let ticks = '';
+    for (let v = 0; v <= maxV; v += stepS) ticks += `<div class="yz-tick" style="bottom:${v * sc}px"><span>${v}</span></div>`;
+    const violIds = new Set(a.viol.map(v => v.id));
+    const G = isG(cfg), U = unitName(cfg);
+    let cols = '', feet = '';
+    arr(cfg).forEach((ids, i) => {
+      let blks = '';
+      for (const id of ids) {
+        const k = T[id], hp = k.t * sc - 2;
+        blks += `<button type="button" class="blk${k.waste ? ' waste' : ''}${sel === id ? ' sel' : ''}${violIds.has(id) ? ' viol' : ''}" draggable="${!locked()}" data-id="${id}" style="height:${hp}px" title="${esc(k.name)} · ${k.t} s"${locked() ? ' disabled' : ''}>
+          ${hp >= 26 ? `<span>${esc(k.short)}</span>` : ''}<span class="t">${hp >= 26 ? k.t + ' s' : esc(k.short) + ' ' + k.t + ' s'}</span></button>`;
+      }
+      if (G && a.wait[i] > 0.5) blks += `<div class="blk wait" style="height:${a.wait[i] * sc - 2}px" title="Venter på resten av gruppa"><span class="t">venter ${fmt(a.wait[i])} s</span></div>`;
+      const m = meas && meas[i] != null ? `<div class="yz-meas" style="bottom:${num(meas[i]) * sc}px"><span>målt ${fmt(meas[i], 1)}</span></div>` : '';
+      cols += `<div class="yz-col${sel && a.where[sel] !== i && !locked() ? ' drop' : ''}" data-col="${i}">${blks}${m}</div>`;
+      feet += `<div class="yz-foot">${U} ${i + 1}<b class="${(G ? a.span : a.times[i]) > a.takt + 1e-9 ? 'over' : ''}">${fmt(a.times[i])} s</b>${G ? 'arbeid' : ''}</div>`;
+    });
+    $('yz').innerHTML = `<div class="yz-plot" style="height:${H}px;width:${n * 96 + (n - 1) * 10}px">${ticks}<div class="yz-cols">${cols}</div>
+      <div class="yz-takt" style="bottom:${a.takt * sc}px"><span>${G ? 'Gruppetakt' : 'Takt'} ${fmt(a.takt, 1)} s</span></div></div>
+      <div class="yz-feet">${feet}</div>
+      ${G ? `<p class="help" style="margin:12px 0 0 34px;max-width:60ch">Hele gruppa bruker ${fmt(a.span)} s per hus, fordi alle må vente til huset er ferdig. Selv med én elev per oppgave tar et hus minst ${fmt(a.cp)} s, fordi oppgavene må gjøres i rekkefølge.${cfg.groups > 1 ? ` Med ${cfg.groups} grupper må hver gruppe levere ett hus hvert ${fmt(a.takt, 1)}. sekund.` : ''}</p>` : ''}`;
+    $('lock').hidden = !locked();
+    $('viols').innerHTML = a.viol.map(v => `<div>Rekkefølgefeil: «${esc(T[v.id].name)}» står på stasjon ${a.where[v.id] + 1}, men må komme etter «${esc(T[v.p].name)}» på stasjon ${a.where[v.p] + 1}.</div>`).join('');
+    renderSel(a);
+  }
+  function renderSel(a) {
+    const box = $('selbox');
+    if (!sel || a.where[sel] === undefined) {
+      sel = null;
+      box.innerHTML = `<p class="hint">Velg en blokk for å flytte den til en annen stasjon. Røde blokker er sløsing som kan fjernes med et tiltak.</p>`;
+      return;
+    }
+    const k = T[sel], i = a.where[sel], n = arr(cfg).length, lk = locked(), U = unitName(cfg);
+    const pre = (k.pre || []).map(p => T[p].short).join(', ');
+    box.innerHTML = `
+      <div class="row"><span class="tag${k.waste ? ' waste' : ''}">${k.waste ? 'Sløsing: ' + esc(k.waste) : 'Verdiskapende'}</span><b>${esc(k.name)}</b><span class="num">${k.t} s</span><span class="hint">· ${U.toLowerCase()} ${i + 1}</span></div>
+      ${k.waste ? '' : `<p class="hint">${pre ? 'Må gjøres etter: ' + esc(pre) + '.' : 'Ingen forutsetninger, kan gjøres først.'}</p>`}
+      <div class="row">
+        <button class="btn small" type="button" data-move="-1"${i === 0 || lk ? ' disabled' : ''}>← ${U} ${Math.max(1, i)}</button>
+        <button class="btn small" type="button" data-move="1"${i === n - 1 || lk ? ' disabled' : ''}>${U} ${Math.min(n, i + 2)} →</button>
+        ${k.waste ? `<button class="btn small primary" type="button" data-fix="${sel}"${lk ? ' disabled' : ''}>Tiltak: ${esc(k.fix)}</button>` : ''}
+        <button class="btn small" type="button" data-unsel>Ferdig</button>
+      </div>`;
+  }
+  function moveTask(id, to) {
+    if (locked()) return;
+    const A = arr(cfg);
+    const from = A.findIndex(ids => ids.includes(id));
+    if (from < 0 || to < 0 || to >= A.length || from === to) return;
+    A[from] = A[from].filter(x => x !== id);
+    A[to].push(id); sortIds(A[to]);
+    edited();
+  }
+  // Sløsing fjernes fra både linja og gruppefordelingen.
+  function removeWaste(id) {
+    if (locked()) return;
+    [['stations', 'home'], ['team', 'homeT']].forEach(([k, h]) => {
+      const from = cfg[k].findIndex(ids => ids.includes(id));
+      if (from < 0) return;
+      cfg[k][from] = cfg[k][from].filter(x => x !== id);
+      cfg[h][id] = from;
+    });
+    if (!cfg.removed.includes(id)) cfg.removed.push(id);
+    if (sel === id) sel = null;
+    edited();
+  }
+  function restoreWaste(id) {
+    if (locked()) return;
+    cfg.removed = cfg.removed.filter(x => x !== id);
+    [['stations', 'home'], ['team', 'homeT']].forEach(([k, h]) => {
+      if (cfg[k].some(ids => ids.includes(id))) return;
+      const to = Math.min(cfg[h][id] ?? 0, cfg[k].length - 1);
+      cfg[k][to].push(id); sortIds(cfg[k][to]);
+    });
+    edited();
+  }
+
+  // ---------- Innstillinger ----------
+  function renderSettings() {
+    const a = analyze(cfg), lk = locked() ? ' disabled' : '';
+    const seg = (name, items, cur) => `<div class="seg" role="group">${items.map(([v, l]) => `<button type="button" data-set="${name}" data-v="${v}" aria-pressed="${v === cur}"${lk}>${l}</button>`).join('')}</div>`;
+    const G = isG(cfg);
+    $('settings').innerHTML = `
+      <div class="set">
+        <span class="eyebrow">Arbeidsform</span>
+        ${seg('form', [['linje', 'Linje'], ['gruppe', 'Gruppe']], cfg.form)}
+        <span class="help">${G ? 'Elevene i en gruppe bygger det samme huset sammen. Hver elev har sine oppgaver, og rekkefølgen avgjør hvem som må vente på hvem.' : 'Hver stasjon gjør sin del av huset og sender det videre til neste stasjon.'}</span>
+      </div>
+      ${G ? `<div class="set">
+        <span class="eyebrow">Grupper</span>
+        <div class="stepper"><button class="btn small" type="button" data-grp="-1"${cfg.groups <= 1 || lk ? ' disabled' : ''} aria-label="Færre grupper">−</button><span class="num">${cfg.groups}</span><button class="btn small" type="button" data-grp="1"${cfg.groups >= 4 || lk ? ' disabled' : ''} aria-label="Flere grupper">+</button></div>
+        <span class="help">Gruppene bygger samtidig, så hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund.</span>
+      </div>` : ''}
+      <div class="set">
+        <span class="eyebrow">Kundebehov</span>
+        <div class="fields">
+          <label for="in-shift">Skift (min)<input id="in-shift" type="number" min="1" max="60" step="1" value="${cfg.shiftMin}"${lk}></label>
+          <label for="in-demand">Bestilte hus<input id="in-demand" type="number" min="1" max="200" step="1" value="${cfg.demand}"${lk}></label>
+        </div>
+        <div class="formula">Takt = ${cfg.shiftMin * 60} s ÷ ${cfg.demand} hus = <b>${fmt(G ? a.custTakt : a.takt, 1)} s per hus</b></div>
+        ${mode === 'tavle' ? '<span class="help">Live-runder går i sanntid. Et skift på 5 minutter med 15 hus gir takt 20 s.</span>' : ''}
+      </div>
+      <div class="set">
+        <span class="eyebrow">${G ? 'Elever per gruppe' : 'Stasjoner'}</span>
+        <div class="stepper"><button class="btn small" type="button" data-st="-1"${arr(cfg).length <= 2 || lk ? ' disabled' : ''} aria-label="Færre">−</button><span class="num">${arr(cfg).length}</span><button class="btn small" type="button" data-st="1"${arr(cfg).length >= 6 || lk ? ' disabled' : ''} aria-label="Flere">+</button></div>
+        <span class="help">${G ? 'En ny elev har ingen oppgaver før du flytter noen dit. Fjernes en elev, overtar eleven foran oppgavene.' : 'En ny stasjon er tom. Fjernes en stasjon, flyttes oppgavene til stasjonen foran.'}</span>
+      </div>
+      ${G ? '' : `<div class="set">
+        <span class="eyebrow">Partistørrelse</span>
+        ${seg('batch', [1, 2, 3, 4, 5, 6].map(v => [v, String(v)]), cfg.batch)}
+        <span class="help">Hvor mange hus som bygges før de sendes videre samlet.</span>
+      </div>
+      <div class="set">
+        <span class="eyebrow">Styring</span>
+        ${seg('pull', [[false, 'Skyv'], [true, 'Trekk (kanban)']], cfg.pull)}
+        <span class="help">${cfg.pull ? 'Hver buffer har plass til ett parti. En stasjon venter når neste buffer er full.' : 'Alle bygger så fort de kan, uansett om neste stasjon er klar.'}</span>
+      </div>`}
+      <div class="set">
+        <span class="eyebrow">Variasjon i arbeidstid</span>
+        ${seg('variation', VARS, cfg.variation)}
+        <span class="help">Gjelder simulerte stasjoner. ±5 % tilsvarer standardisert arbeid.</span>
+      </div>
+      <div class="set">
+        <span class="eyebrow">Gjennomførte tiltak</span>
+        <div class="removed">${cfg.removed.length ? cfg.removed.map(id => `<div><span>${esc(T[id].fix)} <span class="help">(−${T[id].t} s)</span></span><button class="btn small" type="button" data-restore="${id}"${lk}>Angre</button></div>`).join('') : '<span class="help">Ingen ennå. Velg en rød blokk i diagrammet.</span>'}</div>
+      </div>
+      <div class="set">
+        <button class="btn small" type="button" id="btn-reset"${lk}>Tilbake til utgangspunktet</button>
+      </div>`;
+  }
+
+  // ---------- Observasjoner og logg ----------
+  function observationsTeam(e) {
+    const a = e.an, r = e.res, c = e.cfg, out = [];
+    const E = m => `elev ${m + 1}${e.who && e.who[m] ? ' (' + e.who[m] + ')' : ''}`;
+    if (r.delivered >= r.demand) out.push(['good', `Gruppene holdt takten. Kunden fikk alle ${r.demand} husene.`]);
+    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`]);
+    const real = r.lead;
+    if (real != null) out.push([real > a.takt ? 'warn' : 'good', `Et hus tok i snitt ${fmt(real, 1)} s fra start til ferdig. Hver gruppe måtte klare ett hus hvert ${fmt(a.takt, 1)}. sekund${c.groups > 1 ? ` (${c.groups} grupper deler på kundens takt på ${fmt(a.custTakt, 1)} s)` : ''}.`]);
+    if (a.cp > a.takt) out.push(['warn', `Selv med perfekt fordeling tar et hus minst ${fmt(a.cp)} s, fordi grunnplate, vegger, tak, pipe og kontroll må gjøres etter hverandre. Én gruppe kan ikke nå takten alene. Flere grupper, eller å la neste hus starte før det forrige er ferdig, er det som hjelper.`]);
+    let wi = 0;
+    r.starve.forEach((v, i) => { if (v > r.starve[wi]) wi = i; });
+    if (r.starve[wi] > 0.2) out.push(['info', `${E(wi)[0].toUpperCase() + E(wi).slice(1)} ventet på de andre ${pct(r.starve[wi])} av tiden. I gruppe må alle vente på den som har oppgaven som står for tur.`]);
+    if (e.meas) {
+      const parts = e.meas.map((m, i) => `${E(i)}: ${m == null ? '–' : fmt(m, 1) + ' s'}`);
+      out.push(['info', `Målt arbeidstid per hus: ${parts.join(' · ')}.`]);
+    }
+    if (a.balance < 0.8) out.push(['info', `Arbeidsbalansen er ${pct(a.balance)}. Elev ${a.bn + 1} har mest å gjøre med ${fmt(a.maxW)} s. Flytt oppgaver slik at de som venter mest får mer å gjøre.`]);
+    if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`]);
+    return out;
+  }
+  function observations(e) {
+    if (isG(e.cfg)) return observationsTeam(e);
+    const a = e.an, r = e.res, c = e.cfg, out = [];
+    const S = i => 'stasjon ' + (i + 1);
+    const Cap = s => s[0].toUpperCase() + s.slice(1);
+    if (r.delivered >= r.demand) out.push(['good', `Linja holdt takten. Kunden fikk alle ${r.demand} husene.`]);
+    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`]);
+    if (e.meas) {
+      const parts = e.meas.map((m, i) => `${S(i)}${e.who && e.who[i] ? ' (' + e.who[i] + ')' : ' (simulert)'}: ${m == null ? 'ingen hus' : fmt(m, 1) + ' s'}`);
+      out.push(['info', `Målt syklustid i snitt per hus: ${parts.join(' · ')}.`]);
+      let mi = -1, mm = 0;
+      e.meas.forEach((m, i) => { if (m != null && m > mm) { mm = m; mi = i; } });
+      if (mi >= 0 && mm > a.takt) out.push(['warn', `Målt flaskehals: ${S(mi)} brukte i snitt ${fmt(mm, 1)} s per hus, ${fmt(mm - a.takt, 1)} s over takt-tiden. Planlagt var ${fmt(a.times[mi])} s.`]);
+    } else if (a.max > a.takt + 1e-9) out.push(['warn', `${Cap(S(a.bn))} er flaskehalsen med ${fmt(a.max)} s per hus, ${fmt(a.max - a.takt, 1)} s over takt-tiden. Linja kan aldri gå fortere enn denne stasjonen.`]);
+    else if (a.max > a.takt * 0.92) out.push(['info', `Flaskehalsen (${S(a.bn)}, ${fmt(a.max)} s) ligger tett opp mot takt-tiden på ${fmt(a.takt, 1)} s. Med variasjon i arbeidet blir det lite slakk.`]);
+    else out.push(['good', `Alle stasjoner ligger under takt-tiden. Mest belastet er ${S(a.bn)} med ${fmt(a.max)} s.`]);
+    if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`]);
+    let qi = -1, qm = 0;
+    r.maxQ.forEach((q, i) => { if (q > qm) { qm = q; qi = i; } });
+    if (qi > 0 && qm >= Math.max(4, c.batch * 2)) out.push(['warn', `Opptil ${qm} hus hopet seg opp foran ${S(qi)}. Det er lager og overproduksjon: husene bygges før neste ledd kan ta imot dem.${c.pull ? '' : ' Prøv trekk (kanban).'}`]);
+    let si = 0;
+    r.starve.forEach((v, i) => { if (v > r.starve[si]) si = i; });
+    if (r.starve[si] > 0.25) out.push(['info', `${Cap(S(si))} sto og ventet på hus ${pct(r.starve[si])} av tiden. Ubalanse gir ledig kapasitet ett sted og kø et annet.`]);
+    if (c.batch > 1) out.push(['info', `Med partistørrelse ${c.batch} venter hvert hus på resten av partiet. Første hus var ferdig etter ${fmt(r.first)} s, og gjennomløpstiden ble ${fmt(r.lead)} s. Prøv ettstykksflyt.`]);
+    if (a.balance < 0.8) out.push(['info', `Balansegraden er ${pct(a.balance)}. Flytt oppgaver fra de høye søylene til de lave.`]);
+    if (!e.meas && c.variation >= 0.15 && a.max <= a.takt && r.delivered < r.demand) out.push(['info', `Variasjonen i arbeidet (±${fmt(c.variation * 100)} %) spiser av marginen. Standardisert arbeid reduserer variasjonen.`]);
+    return out;
+  }
+  function renderObs() {
+    const last = history[history.length - 1];
+    let list;
+    if (!last) {
+      const a = analyze(cfg);
+      $('obs-sub').textContent = 'Ingen runder er kjørt ennå. Dette er utgangspunktet.';
+      list = [['info', isG(cfg) ? `Hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund, men med denne fordelingen tar et hus ${fmt(a.span)} s. Hvor mange hus tror dere kunden får?` : `Kunden bestiller ett hus hvert ${fmt(a.takt, 1)}. sekund, men den tregeste stasjonen bruker ${fmt(a.max)} s. Hvor mange hus tror dere kunden får?`],
+              ['info', 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.']];
+    } else {
+      $('obs-sub').textContent = `Det linja forteller etter runde ${last.round}${last.live ? ' (live)' : ''}.`;
+      list = observations(last);
+    }
+    $('obs').innerHTML = list.map(([k, txt]) => `<div class="ob" data-k="${k}"><p>${esc(txt)}</p></div>`).join('');
+  }
+  function diffCfg(p, c) {
+    if (!p) return [isG(c) ? 'Utgangspunkt · gruppe' : 'Utgangspunkt'];
+    const out = [];
+    if (isG(p) !== isG(c)) return [isG(c) ? 'Bytte til gruppebygging' : 'Bytte til linje'];
+    const A = arr(p), B = arr(c), U = isG(c) ? 'elever' : 'stasjoner';
+    if (A.length !== B.length) out.push(`${A.length} → ${B.length} ${U}`);
+    if (isG(c) && p.groups !== c.groups) out.push(`${p.groups} → ${c.groups} grupper`);
+    const wp = {}, wc = {};
+    A.forEach((ids, i) => ids.forEach(id => { wp[id] = i; }));
+    B.forEach((ids, i) => ids.forEach(id => { wc[id] = i; }));
+    let moved = 0;
+    for (const id in wc) if (wp[id] !== undefined && wp[id] !== wc[id]) moved++;
+    if (moved) out.push(`Flyttet ${moved} oppgave${moved > 1 ? 'r' : ''}`);
+    const pr = p.removed || [], cr = c.removed || [];
+    for (const id of cr) if (!pr.includes(id)) out.push(`Tiltak: ${T[id].fix}`);
+    for (const id of pr) if (!cr.includes(id)) out.push(`Tilbake: ${T[id].short}`);
+    if (p.batch !== c.batch) out.push(`Parti ${p.batch} → ${c.batch}`);
+    if (p.pull !== c.pull) out.push(c.pull ? 'Trekk (kanban)' : 'Skyv');
+    if (p.variation !== c.variation) out.push(`Variasjon ±${fmt(p.variation * 100)} → ±${fmt(c.variation * 100)} %`);
+    if (p.shiftMin !== c.shiftMin || p.demand !== c.demand) out.push(`Ny takt ${fmt(c.shiftMin * 60 / c.demand, 1)} s`);
+    return out.length ? out : ['Ingen endring'];
+  }
+  function renderLog() {
+    if (!history.length) { $('log').innerHTML = '<p class="empty">Rundene dukker opp her etter hvert som dere kjører dem.</p>'; return; }
+    const rows = history.map(e => {
+      const r = e.res, a = e.an, share = Math.min(1, r.delivered / r.demand);
+      const mm = e.meas ? Math.max(0, ...e.meas.filter(m => m != null)) : null;
+      return `<tr>
+        <td class="n"><b>${e.round}</b></td>
+        <td><div class="chg">${e.live ? `<span class="live">Live · ${e.staffed} elev${e.staffed === 1 ? '' : 'er'}</span>` : ''}${e.changes.map(x => `<span>${esc(x)}</span>`).join('')}</div></td>
+        <td class="n">${mm != null ? fmt(mm, 1) + ' s målt' : fmt(a.max) + ' s'} <span style="color:var(--muted)">/ ${fmt(a.takt, 1)}</span></td>
+        <td class="n">${pct(a.balance)}</td>
+        <td class="n">${isG(e.cfg) ? `${e.cfg.groups} gr. × ${e.cfg.team.length}` : e.cfg.batch + (e.cfg.pull ? ' · trekk' : '')}</td>
+        <td class="n">${r.delivered} / ${r.demand}<span class="mbar"><i class="${share >= 1 ? 'full' : ''}" style="width:${share * 100}%"></i></span></td>
+        <td class="n">${fmt(r.first)} s</td>
+        <td class="n">${fmt(r.lead)} s</td>
+        <td class="n">${fmt(r.wip, 1)}</td>
+      </tr>`;
+    }).join('');
+    $('log').innerHTML = `<table><thead><tr><th>Runde</th><th>Endringer</th><th>Syklus / takt</th><th>Balanse</th><th>Parti / grupper</th><th>Levert</th><th>Første hus</th><th>Gj.løpstid</th><th>Snitt PIA</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // ---------- Kontroller ----------
+  function renderControls() {
+    const a = analyze(cfg);
+    const running = locked();
+    const live = mode === 'tavle';
+    const start = $('btn-start');
+    start.hidden = running;
+    start.textContent = live ? `Start live-runde ${history.length + 1}` : `Start runde ${history.length + 1}`;
+    start.disabled = a.viol.length > 0 || !a.max || (live && !(LD && LD.r));
+    start.title = a.viol.length ? 'Rett rekkefølgefeilene i linjebalansen først' : '';
+    $('btn-pause').hidden = !running || live;
+    $('btn-pause').textContent = playing ? 'Pause' : 'Fortsett';
+    $('btn-skip').hidden = !running || live;
+    $('btn-cancel').hidden = !running;
+    $('speed').hidden = live;
+    $('speed').innerHTML = SPEEDS.map(v => `<button type="button" data-speed="${v}" aria-pressed="${v === speed}">${v}×</button>`).join('');
+  }
+  function renderAll() { renderKPIs(); renderYZ(); renderSettings(); renderControls(); }
+  function edited() {
+    if (mode === 'tavle' && LD) {
+      if (LD.ph === 'done') { LD.ph = 'lobby'; LD.rid = null; }
+      buildLine(); publishLeader(true); renderRoster();
+    } else if (sim && sim.done) { sim = null; buildLine(); }
+    else if (!sim) buildLine();
+    renderAll(); save();
+  }
+  function pushHistory(entry) {
+    const prev = history[history.length - 1];
+    entry.round = history.length + 1;
+    entry.changes = diffCfg(prev && prev.cfg, entry.cfg);
+    history.push(entry);
+    save(); renderAll(); renderObs(); renderLog();
+  }
+  function finishRound() {
+    playing = false;
+    pushHistory({ cfg: slimCfg(sim.cfg), an: analyze(sim.cfg), res: resultsAny(sim) });
+    updateLine();
+  }
+  function frame(ts) {
+    const real = Math.min(0.1, (ts - (lastTs || ts)) / 1000);
+    lastTs = ts;
+    if (sim && playing && !sim.done) {
+      sim.acc += real * speed;
+      let guard = 4000;
+      while (sim.acc >= DT && !sim.done && guard--) { stepAny(sim); sim.acc -= DT; }
+      updateLine();
+      if (sim.done) finishRound();
+    }
+    if (mode === 'stasjon') stTick();
+    requestAnimationFrame(frame);
+  }
+  function armConfirm(btn, label, fn) {
+    if (btn.dataset.armed) { fn(); return; }
+    const orig = btn.textContent;
+    btn.dataset.armed = '1'; btn.textContent = label;
+    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = orig; } }, 3000);
+  }
+
+  // =====================================================================
+  // ---------- Live: felles hjelpere ----------
+  // =====================================================================
+  const ZERO = { tk: 0, sn: 0, tr: 0, s: 'starved', ti: 0, sp: 0, acc: [0, 0, 0] };
+  // Tellerne for stasjon j: fra eleven som bemanner den, ellers fra tavlas simulering.
+  function countersFor(j, LP, peers, mine) {
+    if (mine && mine.i === j) return mine;
+    const staffPeer = LP.staff && LP.staff[j];
+    if (staffPeer) {
+      const p = peers.find(x => x.peer === staffPeer);
+      const pr = p && p.presence;
+      if (pr && pr.role === 'st' && pr.rid === LP.rid && num(pr.i) === j) return pr;
+      return ZERO;
+    }
+    return (LP.sim && LP.sim[j]) || ZERO;
+  }
+  // Gruppe: hver elev (g, m) melder hvilket hus (h) den er på, hva den har gjort (d) og holder på med (c).
+  const ZEROG = { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0 };
+  function gSrc(g, m, LP, peers, mine) {
+    if (mine && mine.g === g && mine.m === m) return mine;
+    const key = g + '-' + m;
+    const sp = LP.gstaff && LP.gstaff[key];
+    if (sp) {
+      const p = peers.find(x => x.peer === sp);
+      const pr = p && p.presence;
+      if (pr && pr.role === 'gm' && pr.rid === LP.rid && pr.g === g && pr.m === m) return pr;
+      return ZEROG;
+    }
+    return (LP.gsim && LP.gsim[key]) || ZEROG;
+  }
+  // Hva er gjort og påbegynt på hus X i gruppe g? En elev som er på et senere hus har gjort alle sine oppgaver på X.
+  function unionFor(c, g, X, LP, peers, mine) {
+    const done = new Set(), working = new Map();
+    c.team.forEach((ids, m) => {
+      const s = gSrc(g, m, LP, peers, mine);
+      const h = num(s.h);
+      if (h === X) {
+        dec(s.d).forEach(id => { if (ids.includes(id)) done.add(id); });
+        const cur = dec(s.c)[0];
+        if (cur && ids.includes(cur)) working.set(cur, m);
+      } else if (h > X) ids.forEach(id => done.add(id));
+    });
+    return { done, working };
+  }
+  const groupX = (c, g, LP, peers, mine) => Math.max(0, ...c.team.map((_, m) => num(gSrc(g, m, LP, peers, mine).h)));
+  // Neste oppgave eleven kan gjøre nå, eller hva den venter på.
+  function nextTask(c, m, doneOwn, U) {
+    const all = new Set(c.team.flat());
+    const rem = c.team[m].filter(id => !doneOwn.has(id));
+    const id = rem.find(x => (T[x].pre || []).every(p => !all.has(p) || U.done.has(p)));
+    if (id) return { id };
+    if (!rem.length) return { idle: true };
+    const first = rem[0];
+    const miss = (T[first].pre || []).find(p => all.has(p) && !U.done.has(p));
+    return { wait: first, on: miss, owner: miss ? c.team.findIndex(ids => ids.includes(miss)) : -1 };
+  }
+  const randCode = () => String(1000 + Math.floor(Math.random() * 9000));
+  const roomName = code => 'takt-' + code;
+  const cleanNick = s => Array.from(String(s || '')).filter(ch => { const c = ch.codePointAt(0); return !(c < 32 || (c >= 0x7f && c <= 0x9f) || (c >= 0x200b && c <= 0x200f) || (c >= 0x202a && c <= 0x202e) || (c >= 0x2060 && c <= 0x206f) || c === 0xfeff); }).join('').trim().slice(0, 20);
+
+  // =====================================================================
+  // ---------- Tavle (lærer) ----------
+  // =====================================================================
+  let LD = null;
+  async function openTavle() {
+    if (!LD) {
+      const saved = fetchStore('taktlinja-code');
+      LD = { code: /^\d{4}$/.test(saved || '') ? saved : randCode(), ph: 'lobby', rid: null, cfg: null, at: 0, staff: {}, sim: {}, w: {}, del: 0, plc: 0, orders: [], nextOrder: 0, lastDelWall: null, late: 0, obs: null, stamp: Date.now(), lastPub: '', lastPubAt: 0, lastTick: Date.now() };
+      store('taktlinja-code', LD.code);
+    }
+    $('lobby-code').textContent = LD.code;
+    renderRoster();
+    if (!room) { updateConnMsg(); return; }
+    try {
+      LD.r = await room.join(roomName(LD.code));
+      room.presence({ role: 'leder', code: LD.code }).catch(() => {});
+      LD.r.onPeers(() => { renderRoster(); });
+      LD.r.onConnection(() => updateConnMsg());
+      publishLeader(true);
+    } catch (e) {
+      LD.err = e && e.code;
+    }
+    updateConnMsg(); renderControls();
+    if (!LD.timer) LD.timer = setInterval(leaderTick, 100);
+  }
+  function closeTavle() {
+    if (!LD) return;
+    if (LD.timer) clearInterval(LD.timer);
+    if (LD.r) LD.r.leave().catch(() => {});
+    if (room) room.presence({ role: null, code: null }).catch(() => {});
+    LD = null;
+  }
+  function updateConnMsg() {
+    const el = $('lobby-conn');
+    if (roomState === 'pending') el.textContent = 'Kobler til …';
+    else if (!room) el.textContent = 'Live-runder er ikke tilgjengelige her. Siden må åpnes på claude.ai av innloggede personer som har fått tilgang.';
+    else if (LD && LD.err) el.textContent = 'Kunne ikke åpne laget. Last siden på nytt.';
+    else if (LD && LD.r && !LD.r.connected()) el.textContent = 'Kobler til …';
+    else el.textContent = 'Tilkoblet. Vis koden for elevene.';
+  }
+  function leaderPres() {
+    return { role: 'leder', code: LD.code, rid: LD.rid, ph: LD.ph, cfg: LD.ph === 'lobby' || !LD.cfg ? slimCfg(cfg) : LD.cfg, at: LD.at, now: LD.stamp, sim: LD.sim, staff: LD.staff, gsim: LD.gsim || {}, gstaff: LD.gstaff || {}, del: LD.del, plc: LD.plc };
+  }
+  function publishLeader(force) {
+    if (!LD || !LD.r) return;
+    const p = leaderPres();
+    const s = JSON.stringify(p);
+    const nowMs = Date.now();
+    if (!force && (s === LD.lastPub || nowMs - LD.lastPubAt < 150)) return;
+    LD.lastPub = s; LD.lastPubAt = nowMs;
+    LD.r.presence(p).catch(() => {});
+  }
+  function studentsByStation(peers, n) {
+    const by = Array.from({ length: n }, () => []);
+    let free = 0;
+    for (const p of peers) {
+      const pr = p.presence || {};
+      if (p.kind !== 'viewer' || pr.role !== 'st') continue;
+      const i = Number.isInteger(pr.i) ? pr.i : -1;
+      if (i >= 0 && i < n) by[i].push(p); else free++;
+    }
+    return { by, free };
+  }
+  function membersByGroup(peers, c) {
+    const by = Array.from({ length: c.groups }, () => c.team.map(() => []));
+    let free = 0;
+    for (const p of peers) {
+      const pr = p.presence || {};
+      if (p.kind !== 'viewer' || (pr.role !== 'gm' && pr.role !== 'st')) continue;
+      if (pr.role === 'gm' && Number.isInteger(pr.g) && Number.isInteger(pr.m) && pr.g < c.groups && pr.m < c.team.length) by[pr.g][pr.m].push(p);
+      else free++;
+    }
+    return { by, free };
+  }
+  function renderRosterGroups(c, peers) {
+    const { by, free } = membersByGroup(peers, c);
+    const running = LD.ph !== 'lobby';
+    let h = '';
+    for (let g = 0; g < c.groups; g++) {
+      const names = c.team.map((_, m) => {
+        const key = g + '-' + m;
+        if (running) {
+          const sp = LD.gstaff[key], p = sp && peers.find(x => x.peer === sp);
+          return `${m + 1}: ${sp ? esc(cleanNick(p && p.presence.nick) || 'Elev') : '<span class="sim">simulert</span>'}`;
+        }
+        const list = by[g][m];
+        return `${m + 1}: ${list.length ? list.map(p => esc(cleanNick(p.presence.nick) || 'Elev')).join(', ') + (list.length > 1 ? ' <span class="dup">(flere)</span>' : '') : '<span class="sim">simuleres</span>'}`;
+      });
+      h += `<div class="r"><b>Gruppe ${GL[g]}</b><span>${names.join(' · ')}</span></div>`;
+    }
+    if (free) h += `<p class="help">${free} elev${free > 1 ? 'er' : ''} har ikke valgt plass i en gruppe ennå.</p>`;
+    $('roster').innerHTML = h;
+  }
+  function renderRoster() {
+    if (!LD) return;
+    const c = LD.ph === 'lobby' || !LD.cfg ? cfg : LD.cfg;
+    const peers = LD.r ? LD.r.peers() : [];
+    if (isG(c)) { renderRosterGroups(c, peers); return; }
+    const n = c.stations.length;
+    const { by, free } = studentsByStation(peers, n);
+    let h = '';
+    for (let i = 0; i < n; i++) {
+      const staffPeer = LD.ph !== 'lobby' ? LD.staff[i] : null;
+      let who;
+      if (LD.ph !== 'lobby') {
+        const p = staffPeer && peers.find(x => x.peer === staffPeer);
+        who = staffPeer ? esc(cleanNick(p && p.presence.nick) || 'Elev') + (p ? '' : ' <span class="dup">(har forlatt siden)</span>') : '<span class="sim">Simuleres av tavla</span>';
+      } else if (by[i].length) {
+        who = by[i].map(p => esc(cleanNick(p.presence.nick) || 'Elev')).join(', ');
+        if (by[i].length > 1) who += ' <span class="dup">Flere har valgt denne. Den første får stasjonen.</span>';
+      } else who = '<span class="sim">Ingen elev. Simuleres av tavla.</span>';
+      h += `<div class="r"><b>Stasjon ${i + 1}</b><span>${who}</span></div>`;
+    }
+    if (free) h += `<p class="help">${free} elev${free > 1 ? 'er' : ''} har ikke valgt stasjon ennå.</p>`;
+    $('roster').innerHTML = h;
+  }
+  function startLive() {
+    if (!LD || !LD.r || analyze(cfg).viol.length) return;
+    const c = slimCfg(cfg);
+    const peers = LD.r.peers();
+    const { by } = studentsByStation(peers, c.stations.length);
+    LD.cfg = c; LD.rid = Math.random().toString(36).slice(2, 10);
+    LD.at = Date.now() + 5000; LD.ph = 'count';
+    LD.staff = {}; LD.sim = {}; LD.w = {}; LD.gstaff = {}; LD.gsim = {}; LD.gw = {};
+    if (isG(c)) {
+      const { by: gb } = membersByGroup(peers, c);
+      for (let g = 0; g < c.groups; g++) c.team.forEach((_, m) => {
+        const key = g + '-' + m;
+        if (gb[g][m].length) LD.gstaff[key] = gb[g][m][0].peer;
+        else { LD.gsim[key] = { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0 }; LD.gw[key] = { rem: 0, dur: 0 }; }
+      });
+      LD.gcount = Array(c.groups).fill(0);
+    }
+    if (!isG(c)) c.stations.forEach((ids, j) => {
+      if (by[j].length) LD.staff[j] = by[j][0].peer;
+      else { LD.sim[j] = { tk: 0, sn: 0, tr: 0, s: 'starved', ti: 0, sp: 0, acc: [0, 0, 0] }; LD.w[j] = { busy: false, rem: 0, dur: 0, cyc: [], start: 0 }; }
+    });
+    LD.del = 0; LD.plc = 0; LD.orders = []; LD.nextOrder = c.shiftMin * 60 / c.demand; LD.lastDelWall = null; LD.late = 0;
+    LD.obs = { starts: [], ends: [], wipInt: 0, maxQ: c.stations.map(() => 0), gEnds: Array.from({ length: c.groups || 1 }, () => []) };
+    LD.stamp = Date.now(); LD.lastTick = Date.now();
+    sel = null;
+    publishLeader(true); buildLine(); renderAll(); renderRoster();
+  }
+  function abortLive() {
+    if (!LD) return;
+    LD.ph = 'lobby'; LD.rid = null; LD.cfg = null; LD.staff = {}; LD.sim = {};
+    publishLeader(true); buildLine(); renderAll(); renderRoster();
+  }
+  function simWorkerTick(j, dt, LP, peers) {
+    const c = LD.cfg, n = c.stations.length, B = c.batch;
+    const s = LD.sim[j], w = LD.w[j];
+    const tasks = c.stations[j].map(id => T[id]);
+    const t = (Date.now() - LD.at) / 1000;
+    const begin = () => { w.dur = tasks[s.ti].t * (1 + c.variation * (Math.random() * 2 - 1)); w.rem = w.dur; };
+    if (w.busy) {
+      w.rem -= dt;
+      while (w.busy && w.rem <= 0) {
+        s.ti++;
+        if (s.ti >= tasks.length) { w.busy = false; s.tr++; w.cyc.push(t - w.start); s.ti = 0; }
+        else { const carry = w.rem; begin(); w.rem += carry; }
+      }
+    }
+    while (s.tr >= B) {
+      if (j === n - 1 || !c.pull || s.sn - num(countersFor(j + 1, LP, peers).tk) <= 0) { s.sn += B; s.tr -= B; }
+      else break;
+    }
+    if (!w.busy && s.tr < B) {
+      const avail = j === 0 ? 1 : num(countersFor(j - 1, LP, peers).sn) - s.tk;
+      if (avail > 0) {
+        s.tk++; s.ti = 0; w.start = t;
+        if (!tasks.length) { s.tr++; w.cyc.push(0); }
+        else { w.busy = true; begin(); }
+      }
+    }
+    s.s = w.busy ? 'work' : s.tr >= B ? 'blocked' : 'starved';
+    s.sp = w.busy ? Math.round((1 - w.rem / w.dur) * 10) / 10 : 0;
+    const k = s.s === 'work' ? 0 : s.s === 'starved' ? 1 : 2;
+    s.acc[k] = Math.round((s.acc[k] + dt) * 10) / 10;
+  }
+  // Tavla simulerer elever som mangler i en gruppe, og fører regnskap over ferdige hus.
+  function leaderGroupRun(t, dt, nowMs) {
+    const c = LD.cfg, Tend = c.shiftMin * 60, takt = Tend / c.demand;
+    const peers = LD.r ? LD.r.peers() : [];
+    const LP = leaderPres();
+    const all = c.team.flat();
+    for (let g = 0; g < c.groups; g++) {
+      c.team.forEach((ids, m) => {
+        const key = g + '-' + m, s = LD.gsim[key], w = LD.gw[key];
+        if (!s) return;
+        if (s.c) { w.rem -= dt; if (w.rem <= 0) { s.d += s.c; s.c = ''; } }
+        let U = unionFor(c, g, s.h, LP, peers, null);
+        if (all.length && all.every(id => U.done.has(id))) { s.h++; s.d = ''; s.c = ''; U = unionFor(c, g, s.h, LP, peers, null); }
+        if (!s.c) {
+          const nx = nextTask(c, m, new Set(dec(s.d)), U);
+          if (nx.id) { s.c = enc([nx.id]); w.dur = T[nx.id].t * (1 + c.variation * (Math.random() * 2 - 1)); w.rem = w.dur; }
+          s.s = nx.id ? 'work' : nx.idle ? 'idle' : 'wait';
+        } else s.s = 'work';
+        s.sp = s.c ? Math.round((1 - w.rem / w.dur) * 10) / 10 : 0;
+        if (s.s === 'work') { s.a[0] = Math.round((s.a[0] + dt) * 10) / 10; s.w = s.a[0]; } else s.a[1] = Math.round((s.a[1] + dt) * 10) / 10;
+      });
+      const X = groupX(c, g, LP, peers, null);
+      while (LD.gcount[g] < X) { LD.gcount[g]++; LD.obs.gEnds[g].push(t); LD.obs.ends.push(t); }
+    }
+    const made = LD.gcount.reduce((a, b) => a + b, 0);
+    while (LD.plc < c.demand && t >= LD.nextOrder - 1e-9) { LD.orders.push(LD.nextOrder); LD.plc++; LD.nextOrder += takt; }
+    let fg = made - LD.del;
+    while (LD.orders.length && fg > 0) { const o = LD.orders.shift(); fg--; LD.del++; LD.lastDelWall = nowMs; if (t - o > 1) LD.late++; }
+    LD.obs.wipInt += (all.length ? c.groups : 0) * dt;
+    if (t >= Tend) finishLiveGroup(peers, LP);
+  }
+  function finishLiveGroup(peers, LP) {
+    const c = LD.cfg, Tend = c.shiftMin * 60, ob = LD.obs, M = c.team.length, G = c.groups;
+    LD.ph = 'done';
+    const leads = [];
+    ob.gEnds.forEach(list => list.forEach((e, k) => leads.push(e - (k ? list[k - 1] : 0))));
+    const src = (g, m) => gSrc(g, m, LP, peers, null);
+    const meas = c.team.map((_, m) => {
+      let wsum = 0, hs = 0;
+      for (let g = 0; g < G; g++) { wsum += num(src(g, m).w); hs += LD.gcount[g]; }
+      return hs ? Math.round(wsum / hs * 10) / 10 : null;
+    });
+    const who = c.team.map((_, m) => {
+      const names = [];
+      for (let g = 0; g < G; g++) { const sp = LD.gstaff[g + '-' + m]; if (sp) { const p = peers.find(x => x.peer === sp); names.push(cleanNick(p && p.presence.nick) || 'Elev'); } }
+      return names.length ? names.join('/') : null;
+    });
+    const per = k => c.team.map((_, m) => { let s = 0; for (let g = 0; g < G; g++) { const a = src(g, m).a; s += Array.isArray(a) ? num(a[k]) : 0; } return s / (G * Tend); });
+    const firsts = ob.gEnds.map(l => l[0]).filter(x => x != null);
+    pushHistory({
+      cfg: c, an: analyze(c), live: true, staffed: Object.keys(LD.gstaff).length, meas, who,
+      res: {
+        delivered: LD.del, demand: c.demand, produced: LD.gcount.reduce((a, b) => a + b, 0), late: LD.late,
+        lead: leads.length ? leads.reduce((a, b) => a + b, 0) / leads.length : null,
+        wip: ob.wipInt / Tend, first: firsts.length ? Math.min(...firsts) : null,
+        util: per(0), starve: per(1), block: Array(M).fill(0), maxQ: [],
+      },
+    });
+    publishLeader(true); renderRoster();
+  }
+  function liveGroupVM() {
+    const c = lineCfg(), Tend = c.shiftMin * 60;
+    const peers = LD.r ? LD.r.peers() : [];
+    const LP = leaderPres();
+    const running = LD.ph === 'run' || LD.ph === 'done' || LD.ph === 'count';
+    const t = running ? clamp((Date.now() - LD.at) / 1000, -10, Tend) : 0;
+    const { by } = membersByGroup(peers, c);
+    const all = c.team.flat();
+    const groups = Array.from({ length: c.groups }, (_, g) => {
+      const X = running ? groupX(c, g, LP, peers, null) : 0;
+      const U = running ? unionFor(c, g, X, LP, peers, null) : { done: new Set(), working: new Map() };
+      const ends = LD.obs && LD.obs.gEnds[g] ? LD.obs.gEnds[g] : [];
+      const members = c.team.map((ids, m) => {
+        const key = g + '-' + m;
+        let who, whoSim = false;
+        if (running) {
+          const sp = LD.gstaff[key], p = sp && peers.find(x => x.peer === sp);
+          if (sp) who = cleanNick(p && p.presence.nick) || 'Elev'; else { who = 'simulert'; whoSim = true; }
+        } else if (by[g][m].length) who = by[g][m].map(p => cleanNick(p.presence.nick) || 'Elev').join(', ');
+        else { who = 'simuleres'; whoSim = true; }
+        const s = running ? gSrc(g, m, LP, peers, null) : ZEROG;
+        const cur = dec(s.c)[0];
+        const status = !running || LD.ph === 'count' ? 'idle' : cur && num(s.h) === X ? 'work' : s.s === 'idle' && num(s.h) === X ? 'idle' : 'wait';
+        const task = !running ? (ids.length ? ids.map(id => T[id].short).join(', ') : 'Ingen oppgaver') : cur ? T[cur].short : status === 'idle' ? 'Ferdig' : 'Venter';
+        return { status, who, whoSim, task };
+      });
+      return { done: U.done, working: new Set(U.working.keys()), members, count: running ? (LD.gcount ? LD.gcount[g] : 0) : 0, frac: all.length ? U.done.size / all.length : 0, elapsed: Math.max(0, t - (ends.length ? ends[ends.length - 1] : 0)) };
+    });
+    let round;
+    if (LD.ph === 'lobby') round = `Lag ${LD.code} · klar for runde ${history.length + 1}`;
+    else if (LD.ph === 'count') round = `Starter om ${Math.max(1, Math.ceil((LD.at - Date.now()) / 1000))}`;
+    else if (LD.ph === 'run') round = `Live-runde ${history.length + 1} · gruppe`;
+    else round = `Live-runde ${history.length} ferdig`;
+    const made = running && LD.gcount ? LD.gcount.reduce((a, b) => a + b, 0) : 0;
+    return {
+      group: true, c, t: Math.max(0, t), T: Tend, groups, takt: Tend / c.demand,
+      fg: Math.max(0, made - LD.del), delivered: LD.ph === 'lobby' ? 0 : LD.del, placed: LD.ph === 'lobby' ? 0 : LD.plc,
+      backlog: LD.ph === 'lobby' ? 0 : LD.orders.length, wip: running && all.length ? c.groups : 0,
+      nextIn: LD.ph === 'run' && LD.plc < c.demand ? Math.max(0, LD.nextOrder - t) : null,
+      delAgo: LD.lastDelWall != null && LD.ph !== 'lobby' ? (Date.now() - LD.lastDelWall) / 1000 : null, round,
+    };
+  }
+  function leaderTick() {
+    if (!LD) return;
+    const nowMs = Date.now();
+    const dt = Math.min(0.5, (nowMs - LD.lastTick) / 1000);
+    LD.lastTick = nowMs;
+    if (nowMs - LD.stamp >= 1000) LD.stamp = nowMs;
+    if (LD.ph === 'count' && nowMs >= LD.at) LD.ph = 'run';
+    if (LD.ph === 'run' && isG(LD.cfg)) leaderGroupRun((nowMs - LD.at) / 1000, dt, nowMs);
+    else if (LD.ph === 'run') {
+      const c = LD.cfg, n = c.stations.length, Tend = c.shiftMin * 60, takt = Tend / c.demand;
+      const t = (nowMs - LD.at) / 1000;
+      const peers = LD.r ? LD.r.peers() : [];
+      const LP = leaderPres();
+      for (let j = n - 1; j >= 0; j--) if (LD.sim[j]) simWorkerTick(j, dt, LP, peers);
+      const cn = j => countersFor(j, LP, peers);
+      const fgCount = num(cn(n - 1).sn) - LD.del;
+      while (LD.plc < c.demand && t >= LD.nextOrder - 1e-9) { LD.orders.push(LD.nextOrder); LD.plc++; LD.nextOrder += takt; }
+      let fg = fgCount;
+      while (LD.orders.length && fg > 0) { const o = LD.orders.shift(); fg--; LD.del++; LD.lastDelWall = nowMs; if (t - o > 1) LD.late++; }
+      const ob = LD.obs, tk0 = num(cn(0).tk), snN = num(cn(n - 1).sn);
+      while (ob.starts.length < tk0) ob.starts.push(t);
+      while (ob.ends.length < snN) ob.ends.push(t);
+      ob.wipInt += Math.max(0, tk0 - snN) * dt;
+      for (let j = 1; j < n; j++) ob.maxQ[j] = Math.max(ob.maxQ[j], num(cn(j - 1).sn) - num(cn(j).tk));
+      if (t >= Tend) finishLive(peers, LP);
+    }
+    publishLeader(false);
+    updateLine();
+    if (LD && LD.r && nowMs % 1000 < 110) updateConnMsg();
+  }
+  function finishLive(peers, LP) {
+    const c = LD.cfg, n = c.stations.length, Tend = c.shiftMin * 60, ob = LD.obs;
+    LD.ph = 'done';
+    const cs = c.stations.map((_, j) => countersFor(j, LP, peers));
+    const acc = cs.map(x => Array.isArray(x.acc) ? x.acc.map(num) : [0, 0, 0]);
+    const leads = ob.ends.map((e, k) => ob.starts[k] != null ? e - ob.starts[k] : null).filter(x => x != null);
+    const meas = c.stations.map((_, j) => {
+      if (LD.sim[j]) { const cy = LD.w[j].cyc; return cy.length ? Math.round(cy.reduce((a, b) => a + b, 0) / cy.length * 10) / 10 : null; }
+      const x = cs[j];
+      return num(x.nc) > 0 ? num(x.av) : null;
+    });
+    const who = c.stations.map((_, j) => {
+      if (!LD.staff[j]) return null;
+      const p = peers.find(x => x.peer === LD.staff[j]);
+      return cleanNick(p && p.presence.nick) || 'Elev';
+    });
+    pushHistory({
+      cfg: c, an: analyze(c), live: true, staffed: Object.keys(LD.staff).length, meas, who,
+      res: {
+        delivered: LD.del, demand: c.demand, produced: ob.ends.length, late: LD.late,
+        lead: leads.length ? leads.reduce((a, b) => a + b, 0) / leads.length : null,
+        wip: ob.wipInt / Tend, first: ob.ends.length ? ob.ends[0] : null,
+        util: acc.map(a => a[0] / Tend), starve: acc.map(a => a[1] / Tend), block: acc.map(a => a[2] / Tend), maxQ: ob.maxQ,
+      },
+    });
+    publishLeader(true); renderRoster();
+  }
+  function liveVM() {
+    const c = lineCfg(), n = c.stations.length, Tend = c.shiftMin * 60, takt = Tend / c.demand;
+    const peers = LD.r ? LD.r.peers() : [];
+    const LP = leaderPres();
+    const running = LD.ph === 'run' || LD.ph === 'done' || LD.ph === 'count';
+    const t = running ? clamp((Date.now() - LD.at) / 1000, -10, Tend) : 0;
+    const { by } = studentsByStation(peers, n);
+    const cn = j => countersFor(j, LP, peers);
+    const stations = c.stations.map((ids, i) => {
+      const x = running ? cn(i) : ZERO;
+      let who, whoSim = false;
+      if (running) {
+        const sp = LD.staff[i] && peers.find(p => p.peer === LD.staff[i]);
+        if (LD.staff[i]) who = cleanNick(sp && sp.presence.nick) || 'Elev';
+        else { who = 'Simulert'; whoSim = true; }
+      } else if (by[i].length) who = by[i].map(p => cleanNick(p.presence.nick) || 'Elev').join(', ');
+      else { who = 'Simuleres'; whoSim = true; }
+      const tk = num(x.tk), sn = num(x.sn), tr = num(x.tr), ti = clamp(Math.round(num(x.ti)), 0, Math.max(0, ids.length - 1));
+      const busy = running && tk - sn - tr > 0;
+      const status = !running || LD.ph === 'count' ? 'idle' : (['work', 'starved', 'blocked'].includes(x.s) ? x.s : 'starved');
+      const accA = Array.isArray(x.acc) ? x.acc.map(num) : [0, 0, 0];
+      const v = { status, q: i > 0 ? Math.max(0, num(cn(i - 1).sn) - tk) : 0, tray: tr, who, whoSim, util: running && t > 0 ? 'Arbeid ' + pct(clamp(accA[0] / t, 0, 1)) : '' };
+      if (busy && ids.length) {
+        const done = partsAfter(c, i - 1);
+        ids.slice(0, ti).forEach(id => { if (T[id].part) done.add(T[id].part); });
+        const tkObj = T[ids[ti]];
+        Object.assign(v, { key: tk + ':' + ti, done, working: tkObj.part, task: `<b>${esc(tkObj.name)}</b>`, prog: num(x.sp) });
+      } else {
+        Object.assign(v, { key: 'idle:' + status, done: new Set(), working: null, prog: 0,
+          task: !running ? (ids.length ? 'Klar' : 'Ingen oppgaver') : LD.ph === 'count' ? 'Klar til start' : LD.ph === 'done' ? 'Skiftet er over' : status === 'blocked' ? 'Blokkert: neste ledd er fullt' : 'Venter på hus' });
+      }
+      return v;
+    });
+    const snN = running ? num(cn(n - 1).sn) : 0, tk0 = running ? num(cn(0).tk) : 0;
+    let round;
+    if (LD.ph === 'lobby') round = `Lag ${LD.code} · klar for runde ${history.length + 1}`;
+    else if (LD.ph === 'count') round = `Starter om ${Math.max(1, Math.ceil((LD.at - Date.now()) / 1000))}`;
+    else if (LD.ph === 'run') round = `Live-runde ${history.length + 1}`;
+    else round = `Live-runde ${history.length} ferdig`;
+    return {
+      c, t: Math.max(0, t), T: Tend, stations, takt, fg: Math.max(0, snN - LD.del), delivered: LD.ph === 'lobby' ? 0 : LD.del, placed: LD.ph === 'lobby' ? 0 : LD.plc,
+      backlog: LD.ph === 'lobby' ? 0 : LD.orders.length, wip: Math.max(0, tk0 - snN),
+      nextIn: LD.ph === 'run' && LD.plc < c.demand ? Math.max(0, LD.nextOrder - t) : null,
+      delAgo: LD.lastDelWall != null && LD.ph !== 'lobby' ? (Date.now() - LD.lastDelWall) / 1000 : null, round,
+    };
+  }
+
+  // =====================================================================
+  // ---------- Stasjon (elev) ----------
+  // =====================================================================
+  const TAPS = 3;
+  const PIECES = {
+    base:  { cx: 19.5, cy: 32.5, w: 35, h: 3, label: 'grunnplaten', svg: '<rect x="2" y="31" width="35" height="3" rx=".6" fill="var(--wood)"/>' },
+    front: { cx: 16, cy: 24, w: 22, h: 14, label: 'frontveggen', svg: '<rect x="5" y="17" width="22" height="14" fill="var(--wall)"/>' },
+    side:  { cx: 31, cy: 24, w: 8, h: 14, label: 'sideveggen', svg: '<rect x="27" y="17" width="8" height="14" fill="var(--wall-2)"/>' },
+    win1:  { cx: 10, cy: 22.5, w: 5, h: 5, label: 'vinduene', svg: '<rect x="7.5" y="20" width="5" height="5" fill="var(--glass)"/>' },
+    win2:  { cx: 22.5, cy: 22.5, w: 5, h: 5, label: 'vinduene', svg: '<rect x="20" y="20" width="5" height="5" fill="var(--glass)"/>' },
+    door:  { cx: 16.25, cy: 27, w: 4.5, h: 8, label: 'døra', svg: '<rect x="14" y="23" width="4.5" height="8" fill="var(--door)"/>' },
+    roof1: { cx: 16, cy: 13.8, w: 26, h: 11, label: 'takplatene', svg: '<path d="M3 17.5L16 6.5l13 11z" fill="var(--roof)"/>' },
+    roof2: { cx: 25.5, cy: 12, w: 19, h: 11, label: 'takplatene', svg: '<path d="M16 6.5h6l13 11h-6z" fill="var(--roof)"/>' },
+    chim:  { cx: 27, cy: 8.5, w: 3, h: 7, label: 'pipa', svg: '<rect x="25.5" y="5" width="3" height="7" fill="var(--brick)"/>' },
+  };
+  const JOBS = {
+    base: [{ drag: ['base'] }, { screws: [[5, 32.5], [19.5, 32.5], [34, 32.5]] }],
+    front: [{ drag: ['front'] }, { screws: [[6.5, 18.5], [16, 18.5], [25.5, 18.5], [6.5, 29.5], [11, 29.5], [25.5, 29.5]] }],
+    side: [{ drag: ['side'] }, { screws: [[28.5, 19], [33.5, 19], [28.5, 24], [33.5, 24], [28.5, 29.5], [33.5, 29.5]] }],
+    win: [{ drag: ['win1', 'win2'] }, { screws: [[8.5, 21], [11.5, 24], [21, 21], [24, 24]] }],
+    door: [{ drag: ['door'] }, { screws: [[15.2, 24.5], [15.2, 29.5]] }],
+    roof: [{ drag: ['roof1', 'roof2'] }, { screws: [[8, 15.5], [16, 9.5], [24, 15.5], [21, 8.2], [27.5, 13.2], [31, 16]] }],
+    chim: [{ drag: ['chim'] }, { screws: [[27, 7], [27, 10.5]] }],
+    qc: [{ check: [[10, 22.5], [16.25, 27], [22.5, 22.5], [16, 12.5], [31, 24]] }],
+    fetch: [{ hold: 3, dir: 1, label: 'Hold inne for å gå til lageret' }, { pick: true }, { hold: 3, dir: -1, label: 'Hold inne for å gå tilbake' }],
+    search: [{ find: true }, { find: true }],
+    waitTool: [{ wait: 5 }],
+    recheck: [{ screws: [[6.5, 18.5], [25.5, 29.5], [28.5, 19], [16, 9.5], [19.5, 32.5]], again: true }],
+  };
+  const BRICK_COLORS = [['red', 'rød'], ['blue', 'blå'], ['yellow', 'gul'], ['green', 'grønn'], ['white', 'hvit']];
+
+  const ST = { r: null, code: null, nick: '', i: null, practice: false, rid: null, tk: 0, sn: 0, tr: 0, s: 'starved', job: null, cyc: [], acc: [0, 0, 0], offset: null, leaderPeer: null, lastUA: 0, lastPub: '', lastPubAt: 0, lastFrame: 0, pStart: 0, benchKey: '', drag: null, holding: false, screen: 'join' };
+
+  function showScreen(name) {
+    ST.screen = name;
+    $('st-join').hidden = name !== 'join';
+    $('st-pick').hidden = name !== 'pick';
+    $('st-work').hidden = name !== 'work';
+  }
+  function leaderPeerOf() {
+    if (!ST.r) return null;
+    return ST.r.peers().find(p => p.presence && p.presence.role === 'leder') || null;
+  }
+  function stCfg(LPp) {
+    if (ST.practice) return cfg;
+    return LPp ? cleanCfg(LPp.presence.cfg) : null;
+  }
+  function renderBoards() {
+    const el = $('boards');
+    if (roomState === 'pending') { el.innerHTML = '<p class="help">Ser etter tavler …</p>'; return; }
+    if (!room) { el.innerHTML = '<p class="help">Live-runder er ikke tilgjengelige her. Siden må åpnes på claude.ai, og du må være logget inn og ha fått tilgang. Du kan fortsatt øve.</p>'; return; }
+    const seen = new Set();
+    const boards = room.peers().filter(p => p.presence && p.presence.role === 'leder' && /^\d{4}$/.test(String(p.presence.code)) && !seen.has(p.presence.code) && seen.add(p.presence.code));
+    el.innerHTML = boards.length ? boards.map(p => `<button type="button" class="board-btn" data-board="${esc(p.presence.code)}"><span>Tavle</span><span class="code-s">${esc(p.presence.code)}</span></button>`).join('')
+      : '<p class="help">Ingen tavle er åpen ennå. Be læreren åpne Tavle, eller skriv inn koden.</p>';
+  }
+  async function joinTeam(code) {
+    if (!/^\d{4}$/.test(code)) { $('join-msg').textContent = 'Koden har fire sifre.'; return; }
+    if (!room) { $('join-msg').textContent = 'Live-runder er ikke tilgjengelige i denne visningen.'; return; }
+    ST.nick = cleanNick($('in-nick').value);
+    store('taktlinja-nick', ST.nick);
+    $('join-msg').textContent = 'Kobler til …';
+    try {
+      if (ST.r) await ST.r.leave().catch(() => {});
+      ST.r = await room.join(roomName(code));
+      ST.code = code; ST.i = null; ST.practice = false; ST.rid = null; ST.offset = null;
+      ST.r.onPeers(() => onStPeers());
+      $('join-msg').textContent = '';
+      publishSt(true);
+      showScreen('pick'); renderPicks();
+    } catch (e) {
+      $('join-msg').textContent = 'Kunne ikke bli med. Sjekk koden og prøv igjen.';
+    }
+  }
+  function leaveTeam() {
+    if (ST.r) ST.r.leave().catch(() => {});
+    ST.r = null; ST.code = null; ST.i = null; ST.job = null; ST.practice = false;
+    showScreen('join'); renderBoards();
+  }
+  function onStPeers() {
+    const lp = leaderPeerOf();
+    if (lp) {
+      if (ST.leaderPeer !== lp.peer) { ST.leaderPeer = lp.peer; ST.offset = null; ST.lastUA = 0; }
+      if (lp.updatedAt !== ST.lastUA && Number.isFinite(lp.presence.now)) {
+        ST.lastUA = lp.updatedAt;
+        const sample = lp.updatedAt - lp.presence.now;
+        ST.offset = ST.offset == null ? sample : Math.min(ST.offset, sample);
+      }
+    }
+    if (ST.screen === 'pick') renderPicks();
+  }
+  function renderPicks() {
+    const lp = leaderPeerOf();
+    const c = stCfg(lp);
+    $('pick-sub').textContent = `Lag ${ST.code || '····'}`;
+    if (!lp || !c) {
+      $('pick-msg').textContent = 'Venter på tavla. Sjekk at læreren har tavla åpen.';
+      $('picks').innerHTML = '';
+      return;
+    }
+    const ph = lp.presence.ph;
+    $('pick-msg').textContent = ph === 'run' || ph === 'count' ? 'En runde er i gang. Velg stasjon nå, så er du med i neste runde.' : 'Velg den stasjonen læreren har gitt deg. Runden starter når læreren trykker start.';
+    const peers = ST.r.peers();
+    if (isG(c)) {
+      const { by: gb } = membersByGroup(peers, c);
+      let h = '';
+      for (let g = 0; g < c.groups; g++) c.team.forEach((ids, m) => {
+        const others = gb[g][m].filter(p => !(p.isMe && p.sameTab)).map(p => cleanNick(p.presence.nick) || 'Elev');
+        const mine = ST.group && ST.g === g && ST.i === m;
+        h += `<button type="button" class="pick" data-gpick="${g}-${m}" aria-pressed="${mine}"><b>Gruppe ${GL[g]} · elev ${m + 1}</b>
+          <span>${ids.length ? ids.map(id => esc(T[id].short)).join(' · ') : 'Ingen oppgaver'}</span>
+          <span class="who">${others.length ? 'Valgt av ' + esc(others.join(', ')) : 'Ledig'}</span></button>`;
+      });
+      $('picks').innerHTML = h;
+      return;
+    }
+    const { by } = studentsByStation(peers, c.stations.length);
+    $('picks').innerHTML = c.stations.map((ids, i) => {
+      const others = by[i].filter(p => !(p.isMe && p.sameTab)).map(p => cleanNick(p.presence.nick) || 'Elev');
+      return `<button type="button" class="pick" data-pick="${i}" aria-pressed="${ST.i === i}"><b>Stasjon ${i + 1}</b>
+        <span>${ids.length ? ids.map(id => esc(T[id].short)).join(' · ') : 'Ingen oppgaver'}</span>
+        <span class="who">${others.length ? 'Valgt av ' + esc(others.join(', ')) : 'Ledig'}</span></button>`;
+    }).join('');
+  }
+  function pickStation(i) {
+    ST.group = false; ST.i = i; ST.job = null; ST.benchKey = '';
+    publishSt(true);
+    showScreen('work');
+  }
+  function pickMember(g, m) {
+    ST.group = true; ST.g = g; ST.i = m; ST.job = null; ST.benchKey = '';
+    ST.gm = { g, m, h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0 };
+    ST.hStart = 0;
+    publishSt(true);
+    showScreen('work');
+  }
+  function startPractice() {
+    ST.nick = cleanNick($('in-nick').value);
+    ST.practice = true;
+    showScreen('pick');
+    $('pick-sub').textContent = 'Øving';
+    $('pick-msg').textContent = 'Velg en stasjon å øve på. Oppgavene følger linjebalansen fra simuleringen på denne enheten.';
+    $('picks').innerHTML = cfg.stations.map((ids, i) => `<button type="button" class="pick" data-pick="${i}"><b>Stasjon ${i + 1}</b><span>${ids.length ? ids.map(id => esc(T[id].short)).join(' · ') : 'Ingen oppgaver'}</span></button>`).join('');
+  }
+  function resetCounters() {
+    ST.tk = 0; ST.sn = 0; ST.tr = 0; ST.s = 'starved'; ST.job = null; ST.cyc = []; ST.acc = [0, 0, 0]; ST.benchKey = ''; ST.hStart = 0;
+    if (ST.gm) Object.assign(ST.gm, { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0 });
+  }
+  function stPresence() {
+    const cyc = ST.cyc;
+    const av = cyc.length ? Math.round(cyc.reduce((a, b) => a + b, 0) / cyc.length * 10) / 10 : 0;
+    if (ST.group && ST.gm) {
+      const gm = ST.gm;
+      return { role: 'gm', g: gm.g, m: gm.m, nick: ST.nick, rid: ST.rid, h: gm.h, d: gm.d, c: gm.c, s: gm.s, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0, a: gm.a.map(x => Math.round(x)), w: Math.round(gm.a[0] * 10) / 10, av, nc: cyc.length };
+    }
+    if (ST.i == null) return { role: 'st', i: null, nick: ST.nick };
+    return {
+      role: 'st', i: ST.i, nick: ST.nick, rid: ST.rid, tk: ST.tk, sn: ST.sn, tr: ST.tr, s: ST.s,
+      ti: ST.job ? ST.job.ti : 0, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0,
+      acc: ST.acc.map(x => Math.round(x)), av, nc: cyc.length,
+    };
+  }
+  function publishSt(force) {
+    if (!ST.r || ST.practice) return;
+    const p = stPresence();
+    const s = JSON.stringify(p);
+    const nowMs = Date.now();
+    if (!force && (s === ST.lastPub || nowMs - ST.lastPubAt < 150)) return;
+    ST.lastPub = s; ST.lastPubAt = nowMs;
+    ST.r.presence(p).catch(() => {});
+  }
+  function jobProgress(j) {
+    const steps = JOBS[j.tasks[j.ti]];
+    return steps ? clamp(j.si / steps.length, 0, 1) : 0;
+  }
+
+  // -- jobb (ett hus) --
+  function makeJob(tasks, baseParts, t) {
+    const j = { tasks, ti: 0, si: 0, parts: new Set(baseParts), placed: [], st: null, start: t };
+    initStep(j);
+    return j;
+  }
+  function initStep(j) {
+    const id = j.tasks[j.ti];
+    if (!id) { j.st = null; return; }
+    const stp = JOBS[id][j.si];
+    j.st = {};
+    if (stp.screws) j.st.taps = stp.screws.map(() => 0);
+    if (stp.check) j.st.chk = stp.check.map(() => false);
+    if (stp.hold) j.st.hold = 0;
+    if (stp.wait) j.st.wait = stp.wait;
+    if (stp.find) j.st.find = makeFind();
+  }
+  function makeFind() {
+    const target = { c: BRICK_COLORS[Math.floor(Math.random() * 5)][0], s: Math.random() < 0.5 ? 2 : 4 };
+    const bricks = [{ ...target, ok: true }];
+    bricks.push({ c: target.c, s: target.s === 2 ? 4 : 2 });
+    bricks.push({ c: target.c, s: target.s === 2 ? 4 : 2 });
+    while (bricks.length < 12) {
+      const b = { c: BRICK_COLORS[Math.floor(Math.random() * 5)][0], s: Math.random() < 0.5 ? 2 : 4 };
+      if (b.c === target.c && b.s === target.s) continue;
+      bricks.push(b);
+    }
+    for (let i = bricks.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [bricks[i], bricks[k]] = [bricks[k], bricks[i]]; }
+    return { target, bricks, miss: -1 };
+  }
+  function advance(j) {
+    const id = j.tasks[j.ti];
+    j.si++;
+    if (j.si >= JOBS[id].length) {
+      if (T[id].part) j.parts.add(T[id].part);
+      j.ti++; j.si = 0; j.placed = [];
+    }
+    if (j.ti >= j.tasks.length) { if (ST.group) completeGroupTask(); else completeHouse(); return; }
+    initStep(j);
+    ST.benchKey = '';
+  }
+
+  // -- tidsstyring per bilde --
+  function stContext() {
+    if (ST.practice) {
+      return { c: Object.assign({}, cfg, { form: 'linje' }), t: (performance.now() - ST.pStart) / 1000, phase: 'run', Tend: Infinity, n: cfg.stations.length, B: 1, pull: false, staffed: true, LP: null, peers: [] };
+    }
+    const lp = leaderPeerOf();
+    if (!lp) return { phase: 'gone' };
+    const LP = lp.presence;
+    const c = cleanCfg(LP.cfg);
+    if (!c) return { phase: 'gone' };
+    const Tend = c.shiftMin * 60;
+    const t = ST.offset != null && Number.isFinite(LP.at) ? (Date.now() - ST.offset - LP.at) / 1000 : -1;
+    let phase = LP.ph === 'run' || LP.ph === 'count' ? (t < 0 ? 'count' : t >= Tend ? 'done' : 'run') : LP.ph === 'done' ? 'done' : 'lobby';
+    const me = ST.r.peers().find(p => p.isMe && p.sameTab);
+    const staffed = ST.group ? !!(LP.gstaff && me && LP.gstaff[ST.g + '-' + ST.i] === me.peer) : !!(LP.staff && me && LP.staff[ST.i] === me.peer);
+    return { c, t, phase, Tend, n: c.stations.length, B: c.batch, pull: c.pull, staffed, LP, peers: ST.r.peers(), rid: LP.rid };
+  }
+  function stTick() {
+    if (ST.screen !== 'work' || ST.i == null) return;
+    const nowMs = performance.now();
+    const dt = Math.min(0.25, (nowMs - (ST.lastFrame || nowMs)) / 1000);
+    ST.lastFrame = nowMs;
+    const x = stContext();
+    if (x.phase === 'gone') { renderWork(x, 'Tavla er ikke tilgjengelig', 'Venter på at læreren åpner tavla igjen.'); return; }
+    if (!ST.practice && x.rid !== ST.rid) { ST.rid = x.rid; resetCounters(); }
+    const misfit = !ST.practice && (ST.group !== isG(x.c) || (ST.group ? (ST.g >= x.c.groups || ST.i >= x.c.team.length) : ST.i >= x.n));
+    if (misfit || (ST.practice && ST.i >= x.n)) { ST.i = null; ST.group = false; ST.gm = null; showScreen('pick'); if (ST.practice) startPractice(); else renderPicks(); return; }
+    ST.ctx = x;
+    if (!ST.practice && x.phase === 'lobby') { renderWork(x, 'Venter på start', 'Læreren starter runden fra tavla. Du kan øve mens du venter.'); return; }
+    if (!ST.practice && !x.staffed && (x.phase === 'run' || x.phase === 'count')) { renderWork(x, 'Du er ikke med i denne runden', 'Stasjonen ble fordelt før du valgte den. Du er med i neste runde.'); return; }
+    if (x.phase === 'count') { ST.s = 'starved'; renderWork(x, 'Gjør deg klar', `Runden starter om ${Math.ceil(-x.t)} s.`); publishSt(false); return; }
+    if (x.phase === 'done') {
+      ST.job = null; ST.drag = null;
+      const av = ST.cyc.length ? ST.cyc.reduce((a, b) => a + b, 0) / ST.cyc.length : null;
+      renderWork(x, 'Skiftet er over', `${ST.group ? "Gruppa bygde" : "Du bygde"} ${ST.cyc.length} hus${av != null ? ` med ${fmt(av, 1)} s i snitt` : ''}. Takt-tiden var ${fmt(x.Tend / x.c.demand, 1)} s. Se resultatet på tavla.`);
+      publishSt(false); return;
+    }
+    if (ST.group) { stTickGroup(x, dt); return; }
+    // runde i gang
+    const i = ST.i, ids = x.c.stations[i];
+    const counters = j => countersFor(j, x.LP || {}, x.peers, null);
+    const trySend = () => {
+      while (ST.tr >= x.B) {
+        if (ST.practice || i === x.n - 1 || !x.pull || ST.sn - num(counters(i + 1).tk) <= 0) { ST.sn += x.B; ST.tr -= x.B; }
+        else break;
+      }
+    };
+    if (ST.job) {
+      const j = ST.job, stp = JOBS[j.tasks[j.ti]][j.si];
+      if (stp.wait) { j.st.wait -= dt; if (j.st.wait <= 0) advance(j); }
+      else if (stp.hold && ST.holding) { j.st.hold += dt; if (j.st.hold >= stp.hold) { ST.holding = false; advance(j); } }
+    }
+    if (!ST.job) {
+      trySend();
+      const inbound = ST.practice || i === 0 ? Infinity : num(counters(i - 1).sn) - ST.tk;
+      if (ST.tr < x.B && inbound > 0) {
+        ST.tk++;
+        ST.job = makeJob(ids, partsAfter(x.c, i - 1), x.t);
+        ST.benchKey = '';
+        if (!ids.length) completeHouse();
+      }
+    }
+    ST.s = ST.job ? 'work' : ST.tr >= x.B ? 'blocked' : 'starved';
+    if (!ST.practice) { const k = ST.s === 'work' ? 0 : ST.s === 'starved' ? 1 : 2; ST.acc[k] += dt; }
+    if (ST.job) renderWork(x);
+    else if (ST.s === 'blocked') renderWork(x, 'Blokkert', `Bufferen til stasjon ${i + 2} er full. Vent til de har tatt neste parti.`);
+    else renderWork(x, 'Venter på hus', `Stasjon ${i} har ikke sendt noe hus ennå.`);
+    publishSt(false);
+  }
+  // -- gruppebygging: ett felles hus, hver elev gjør sine oppgaver når forutsetningene er på plass --
+  function stTickGroup(x, dt) {
+    const c = x.c, gm = ST.gm, g = ST.g, m = ST.i;
+    const all = c.team.flat();
+    let U = unionFor(c, g, gm.h, x.LP, x.peers, gm);
+    if (all.length && all.every(id => U.done.has(id))) {
+      ST.cyc.push(Math.round((x.t - ST.hStart) * 10) / 10);
+      ST.hStart = x.t; gm.h++; gm.d = ''; gm.c = ''; ST.job = null; ST.benchKey = '';
+      U = unionFor(c, g, gm.h, x.LP, x.peers, gm);
+      publishSt(true);
+    }
+    if (ST.job) {
+      const j = ST.job, stp = JOBS[j.tasks[j.ti]][j.si];
+      if (stp.wait) { j.st.wait -= dt; if (j.st.wait <= 0) advance(j); }
+      else if (stp.hold && ST.holding) { j.st.hold += dt; if (j.st.hold >= stp.hold) { ST.holding = false; advance(j); } }
+    }
+    let nx = null;
+    if (!ST.job) {
+      nx = nextTask(c, m, new Set(dec(gm.d)), U);
+      if (nx.id) {
+        ST.job = makeJob([nx.id], [...partsOf(U.done)], x.t);
+        ST.job.taskStart = x.t;
+        gm.c = enc([nx.id]); ST.benchKey = '';
+        publishSt(true);
+      }
+    }
+    if (ST.job) {
+      // Huset oppdateres fortløpende med det de andre i gruppa blir ferdige med.
+      const own = T[ST.job.tasks[0]].part;
+      ST.job.parts = partsOf(U.done);
+      ST.job.others = partsOf([...U.working.keys()].filter(id => U.working.get(id) !== m));
+      if (own) ST.job.parts.delete(own);
+    }
+    gm.s = ST.job ? 'work' : nx && nx.idle ? 'idle' : 'wait';
+    ST.s = gm.s === 'work' ? 'work' : 'starved';
+    if (gm.s === 'work') gm.a[0] += dt; else gm.a[1] += dt;
+    ST.ctx = x;
+    if (ST.job) renderWork(x);
+    else if (nx && nx.idle) renderWork(x, 'Dine oppgaver er gjort', 'Venter på at resten av gruppa blir ferdig med huset.');
+    else if (nx && nx.wait) {
+      const o = nx.owner >= 0 ? gSrc(g, nx.owner, x.LP, x.peers, gm) : null;
+      const who = nx.owner >= 0 ? `elev ${nx.owner + 1}${o && o.nick ? ' (' + cleanNick(o.nick) + ')' : ''}` : 'de andre';
+      renderWork(x, 'Venter på gruppa', `«${T[nx.wait].name}» kan ikke startes før ${who} er ferdig med «${T[nx.on] ? T[nx.on].name : 'sin oppgave'}».`);
+    } else renderWork(x, 'Venter', 'Venter på gruppa.');
+    publishSt(false);
+  }
+  function completeGroupTask() {
+    const gm = ST.gm, j = ST.job;
+    if (gm && j) gm.d += enc(j.tasks);
+    gm.c = ''; ST.job = null; ST.drag = null; ST.holding = false; ST.benchKey = '';
+    publishSt(true);
+  }
+  function completeHouse() {
+    const x = ST.ctx || stContext();
+    const j = ST.job;
+    ST.tr++;
+    ST.cyc.push(Math.round((x.t - j.start) * 10) / 10);
+    ST.job = null; ST.drag = null; ST.holding = false; ST.benchKey = '';
+    const B = ST.practice ? 1 : x.B;
+    while (ST.tr >= B) {
+      if (ST.practice || ST.i === x.n - 1 || !x.pull || ST.sn - num(countersFor(ST.i + 1, x.LP || {}, x.peers, null).tk) <= 0) { ST.sn += B; ST.tr -= B; }
+      else break;
+    }
+    publishSt(true);
+  }
+
+  // -- tegning av arbeidsbenken --
+  const VX = x => 20 + x * 4, VY = y => 4 + y * 4;
+  function pieceT(id, x, y, s) { const p = PIECES[id]; return `translate(${x} ${y}) scale(${s}) translate(${-p.cx} ${-p.cy})`; }
+  function trayLayout(list) {
+    const k = list.length;
+    return list.map((id, n) => { const p = PIECES[id]; return { id, x: 200 * (n + 1) / (k + 1), y: 194, s: Math.min(4, (170 / k) / p.w, 46 / p.h) }; });
+  }
+  function benchMessage(title, sub) {
+    const words = String(sub).split(' ');
+    const lines = []; let cur = '';
+    for (const w of words) { if ((cur + ' ' + w).trim().length > 34) { lines.push(cur.trim()); cur = w; } else cur += ' ' + w; }
+    if (cur.trim()) lines.push(cur.trim());
+    return `<g transform="translate(20,0) scale(4)" opacity=".35">${GHOST}</g>
+      <rect class="tray" x="4" y="150" width="192" height="76" rx="6"/>
+      <text x="100" y="172" text-anchor="middle" font-size="12" font-weight="700">${esc(title)}</text>
+      ${lines.map((l, k) => `<text x="100" y="${190 + k * 12}" text-anchor="middle" font-size="9" class="muted">${esc(l)}</text>`).join('')}`;
+  }
+  function benchJob(j) {
+    const id = j.tasks[j.ti], stp = JOBS[id][j.si], st = j.st;
+    const scene = stp.hold || stp.pick || stp.find || stp.wait;
+    let s = `<g transform="translate(20,4) scale(4)"${scene ? ' opacity=".2"' : ''}>${GHOST}${houseInner(j.parts, j.others || null)}${j.placed.map(p => PIECES[p].svg).join('')}`;
+    if (stp.drag) s += stp.drag.filter(p => !j.placed.includes(p)).map(p => `<g class="tgt">${PIECES[p].svg}</g>`).join('');
+    s += '</g>';
+    s += '<rect class="tray" x="4" y="158" width="192" height="68" rx="6"/>';
+    if (stp.drag) {
+      s += '<text x="10" y="170" font-size="8" class="muted">DELER</text>';
+      for (const p of trayLayout(stp.drag.filter(p => !j.placed.includes(p))))
+        s += `<g class="piece" data-act="piece" data-id="${p.id}" data-s="${p.s}" transform="${pieceT(p.id, p.x, p.y, p.s)}">${PIECES[p.id].svg}</g>`;
+    }
+    if (stp.screws) {
+      stp.screws.forEach(([x, y], k) => {
+        const n = st.taps[k], done = n >= TAPS;
+        s += `<g class="screw${done ? ' done' : ''}" data-act="screw" data-k="${k}" transform="translate(${VX(x)} ${VY(y)})"><circle r="10" fill="transparent"/><circle class="head" r="6"/><path class="slot" d="M-3.4 0H3.4" transform="rotate(${45 + n * 60})"/></g>`;
+      });
+      const left = st.taps.filter(n => n < TAPS).length;
+      s += `<text x="100" y="196" text-anchor="middle" font-size="11" font-weight="700">${left} skrue${left === 1 ? '' : 'r'} igjen</text>`;
+      s += `<text x="100" y="210" text-anchor="middle" font-size="8" class="muted">Trykk ${TAPS} ganger på hver skrue</text>`;
+    }
+    if (stp.check) {
+      stp.check.forEach(([x, y], k) => {
+        const done = st.chk[k];
+        s += `<g class="chk${done ? ' done' : ''}" data-act="chk" data-k="${k}" transform="translate(${VX(x)} ${VY(y)})"><circle r="11" fill="transparent"/><circle class="c" r="7"/>${done ? '<path d="M-3 0l2 2 4-4.5" stroke="var(--on-ok)" stroke-width="1.6" fill="none"/>' : '<text y="3.2" text-anchor="middle" font-size="9" font-weight="700">?</text>'}</g>`;
+      });
+      const left = st.chk.filter(v => !v).length;
+      s += `<text x="100" y="198" text-anchor="middle" font-size="11" font-weight="700">${left} punkt${left === 1 ? '' : 'er'} igjen</text>`;
+    }
+    if (stp.hold) {
+      const p = clamp(st.hold / stp.hold, 0, 1);
+      const wx = stp.dir > 0 ? 30 + 140 * p : 170 - 140 * p;
+      s += `<line x1="30" y1="80" x2="170" y2="80" stroke="var(--muted)" stroke-dasharray="4 4"/>
+        <rect x="14" y="62" width="32" height="18" rx="2" fill="var(--surface)" stroke="var(--ink)"/><text x="30" y="74" text-anchor="middle" font-size="7">Stasjon</text>
+        <rect x="152" y="58" width="36" height="22" rx="2" fill="var(--wood)" stroke="var(--ink)"/><text x="170" y="72" text-anchor="middle" font-size="7">Lager</text>
+        <circle id="bw" cx="${wx}" cy="96" r="6" fill="var(--accent)" stroke="var(--ink)"/>
+        <text x="100" y="124" text-anchor="middle" font-size="8" class="muted">${stp.dir > 0 ? 'Delene ligger på lageret, 30 meter unna.' : 'Bær delene tilbake til stasjonen.'}</text>
+        <g class="hold" data-act="hold"><rect class="b" x="20" y="168" width="160" height="48" rx="8"/><rect id="bp" class="pbar" x="20" y="168" width="${160 * p}" height="48" rx="8"/><text x="100" y="197" text-anchor="middle" font-size="11" class="hold-l">${esc(stp.label)}</text></g>`;
+    }
+    if (stp.pick) {
+      s += `<line x1="30" y1="80" x2="170" y2="80" stroke="var(--muted)" stroke-dasharray="4 4"/>
+        <g data-act="crate" style="cursor:pointer"><rect x="118" y="40" width="70" height="46" rx="3" fill="var(--wood)" stroke="var(--ink)" stroke-width="1.5"/><text x="153" y="60" text-anchor="middle" font-size="9" font-weight="700">Deler</text><text x="153" y="74" text-anchor="middle" font-size="7">trykk for å ta</text></g>
+        <circle cx="170" cy="96" r="6" fill="var(--accent)" stroke="var(--ink)"/>
+        <text x="100" y="196" text-anchor="middle" font-size="11" font-weight="700">Ta med kassen med deler</text>`;
+    }
+    if (stp.find) {
+      const f = st.find;
+      f.bricks.forEach((b, k) => {
+        const cx = 28 + (k % 4) * 48, cy = 28 + Math.floor(k / 4) * 38, w = b.s * 8.5 + 1;
+        let studs = '';
+        for (let q = 0; q < b.s; q++) studs += `<rect x="${-w / 2 + 2.2 + q * 8.5}" y="-11" width="4.2" height="3.5" rx=".8" fill="var(--b-${b.c})" stroke="var(--ink)" stroke-width=".6"/>`;
+        s += `<g class="brick${f.miss === k ? ' miss' : ''}" data-act="brick" data-k="${k}" transform="translate(${cx} ${cy})"><rect x="-23" y="-17" width="46" height="34" fill="transparent"/>${studs}<rect x="${-w / 2}" y="-7.5" width="${w}" height="13" rx="1.5" fill="var(--b-${b.c})" stroke="var(--ink)" stroke-width=".8"/></g>`;
+      });
+      const name = BRICK_COLORS.find(c => c[0] === f.target.c)[1];
+      const w = f.target.s * 8.5 + 1;
+      let studs = '';
+      for (let q = 0; q < f.target.s; q++) studs += `<rect x="${-w / 2 + 2.2 + q * 8.5}" y="-11" width="4.2" height="3.5" rx=".8" fill="var(--b-${f.target.c})" stroke="var(--ink)" stroke-width=".6"/>`;
+      s += `<text x="14" y="188" font-size="10" font-weight="700">Finn: ${name} 2×${f.target.s}</text><text x="14" y="202" font-size="8" class="muted">Søk ${j.si + 1} av 2</text>
+        <g transform="translate(160 194)">${studs}<rect x="${-w / 2}" y="-7.5" width="${w}" height="13" rx="1.5" fill="var(--b-${f.target.c})" stroke="var(--ink)" stroke-width=".8"/></g>`;
+    }
+    if (stp.wait) {
+      const p = clamp(1 - st.wait / stp.wait, 0, 1);
+      s += `<g transform="translate(100 62)"><path d="M-14 14l18-18m-4-8a8 8 0 1 0 12 12l-4-1-3-3-1-4z" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <text x="100" y="104" text-anchor="middle" font-size="10" font-weight="700">Verktøyet er i bruk ved en annen stasjon</text>
+        <rect x="20" y="180" width="160" height="16" rx="4" fill="var(--surface)" stroke="var(--line)"/><rect id="bp" x="20" y="180" width="${160 * p}" height="16" rx="4" fill="var(--warn)"/>
+        <text x="100" y="212" text-anchor="middle" font-size="8" class="muted">Du kan ikke gjøre noe annet mens du venter</text>`;
+    }
+    return s;
+  }
+  function instrFor(j) {
+    const id = j.tasks[j.ti], stp = JOBS[id][j.si];
+    let what;
+    if (stp.drag) what = `Dra ${PIECES[stp.drag[0]].label} på plass i det stiplede feltet.`;
+    else if (stp.screws) what = stp.again ? 'Én av skruene var løs. Stram alle skruene på nytt.' : 'Skru fast delene.';
+    else if (stp.check) what = 'Kontroller huset: trykk på alle punktene.';
+    else if (stp.hold) what = stp.dir > 0 ? 'Gå til lageret for å hente deler.' : 'Gå tilbake til stasjonen.';
+    else if (stp.pick) what = 'Ta kassen med deler.';
+    else if (stp.find) what = 'Finn riktig kloss i kassa.';
+    else if (stp.wait) what = 'Vent til verktøyet blir ledig.';
+    return `<b>${esc(T[id].name)}</b> · ${what} <span class="help">(oppgave ${j.ti + 1} av ${j.tasks.length})</span>`;
+  }
+  function renderWork(x, title, sub) {
+    const c = x.c || cfg;
+    const i = ST.i;
+    const grp = ST.group && ST.gm && isG(c);
+    const takt = c ? c.shiftMin * 60 / c.demand * (grp ? c.groups : 1) : 20;
+    $('ws-title').textContent = grp ? `Gruppe ${GL[ST.g]} · elev ${i + 1}` : `Stasjon ${i + 1}${ST.practice ? ' · øving' : ''}`;
+    $('ws-andon').dataset.s = !title ? 'work' : x.phase === 'run' ? (ST.s === 'blocked' ? 'blocked' : 'starved') : 'idle';
+    $('ws-status').textContent = title || STATUS_TXT.work;
+    $('ws-clock').textContent = ST.practice ? clock(x.t || 0) : `${clock(Math.max(0, x.t || 0))} / ${clock(x.Tend || 0)}`;
+    const n = c ? c.stations.length : 1;
+    const LP = x.LP || {};
+    const peers = x.peers || [];
+    const teamEl = $('ws-team');
+    teamEl.hidden = !grp;
+    if (grp) {
+      const gm = ST.gm, mine = new Set(dec(gm.d));
+      $('ws-in').textContent = `nr. ${gm.h + 1}`;
+      $('ws-tray').textContent = `${mine.size}/${c.team[i].length}`;
+      $('ws-out-l').textContent = 'Ferdige hus';
+      $('ws-out').textContent = gm.h;
+      $('ws-in').previousElementSibling.textContent = 'Hus';
+      $('ws-tray').previousElementSibling.textContent = 'Mine oppgaver';
+      if (x.phase === 'run' || x.phase === 'count') {
+        const U = unionFor(c, ST.g, gm.h, LP, peers, gm);
+        const rows = c.team.map((ids, m) => {
+          const s = gSrc(ST.g, m, LP, peers, gm);
+          const cur = num(s.h) === gm.h ? dec(s.c)[0] : null;
+          const left = ids.filter(id => !U.done.has(id));
+          const st = cur ? 'work' : left.length ? 'starved' : 'idle';
+          const nm = m === i ? 'deg' : (s.nick ? cleanNick(s.nick) : (LP.gstaff && LP.gstaff[ST.g + '-' + m] ? 'elev' : 'simulert'));
+          const txt = cur ? T[cur].name : left.length ? `${left.length} oppgave${left.length > 1 ? 'r' : ''} igjen` : 'ferdig';
+          return `<div class="tm${m === i ? ' me' : ''}"><span class="andon" data-s="${st}"></span><b>Elev ${m + 1}</b><span class="tm-n">${esc(nm)}</span><span class="tm-t">${esc(txt)}</span></div>`;
+        }).join('');
+        if (teamEl.dataset.k !== rows) { teamEl.innerHTML = rows; teamEl.dataset.k = rows; }
+      }
+    } else {
+      $('ws-in').previousElementSibling.textContent = 'Inn';
+      $('ws-tray').previousElementSibling.textContent = 'Parti';
+      $('ws-in').textContent = ST.practice || i === 0 ? '∞' : Math.max(0, num(countersFor(i - 1, LP, peers, null).sn) - ST.tk);
+      $('ws-tray').textContent = ST.practice ? '–' : `${ST.tr}/${c ? c.batch : 1}`;
+      $('ws-out-l').textContent = i === n - 1 ? 'Ferdiglager' : `Til st. ${i + 2}`;
+      $('ws-out').textContent = ST.practice ? ST.sn : i === n - 1 ? ST.sn : Math.max(0, ST.sn - num(countersFor(i + 1, LP, peers, null).tk));
+    }
+    const tb = $('ws-takt');
+    if (grp && x.phase === 'run') {
+      const el = (x.t || 0) - ST.hStart;
+      tb.querySelector('i').style.width = clamp(el / takt * 100, 0, 100) + '%';
+      tb.classList.toggle('over', el > takt);
+      tb.querySelector('span').textContent = `Dette huset: ${fmt(el, 1)} s · gruppetakt ${fmt(takt, 1)} s`;
+    } else if (ST.job) {
+      const el = (x.t || 0) - ST.job.start;
+      tb.querySelector('i').style.width = clamp(el / takt * 100, 0, 100) + '%';
+      tb.classList.toggle('over', el > takt);
+      tb.querySelector('span').textContent = `Dette huset: ${fmt(el, 1)} s · takt ${fmt(takt, 1)} s`;
+    } else {
+      tb.querySelector('i').style.width = '0%'; tb.classList.remove('over');
+      tb.querySelector('span').textContent = `Takt ${fmt(takt, 1)} s per hus`;
+    }
+    const cy = ST.cyc;
+    $('ws-n').textContent = cy.length;
+    const last = cy[cy.length - 1];
+    $('ws-last').textContent = last != null ? fmt(last, 1) + ' s' : '–';
+    $('ws-last').classList.toggle('over', last != null && last > takt);
+    const av = cy.length ? cy.reduce((a, b) => a + b, 0) / cy.length : null;
+    $('ws-avg').textContent = av != null ? fmt(av, 1) + ' s' : '–';
+    $('ws-avg').classList.toggle('over', av != null && av > takt);
+    // benk
+    if (ST.drag) return;
+    if (ST.job) {
+      const j = ST.job, stp = JOBS[j.tasks[j.ti]][j.si];
+      const key = `job:${ST.tk}:${ST.gm ? ST.gm.h : 0}:${[...j.parts].join("")}:${[...(j.others || [])].join("")}:${j.ti}:${j.si}:${j.placed.join(',')}:${JSON.stringify(j.st.taps || j.st.chk || '')}:${j.st.find ? j.st.find.miss : ''}`;
+      if (key !== ST.benchKey) { $('bench').innerHTML = benchJob(j); $('ws-instr').innerHTML = instrFor(j); ST.benchKey = key; }
+      else if (stp.hold || stp.wait) {
+        const bp = document.getElementById('bp');
+        if (bp) bp.setAttribute('width', 160 * clamp(stp.hold ? j.st.hold / stp.hold : 1 - j.st.wait / stp.wait, 0, 1));
+        const bw = document.getElementById('bw');
+        if (bw && stp.hold) { const p = clamp(j.st.hold / stp.hold, 0, 1); bw.setAttribute('cx', stp.dir > 0 ? 30 + 140 * p : 170 - 140 * p); }
+      }
+    } else {
+      const key = 'msg:' + title + ':' + sub;
+      if (key !== ST.benchKey) { $('bench').innerHTML = benchMessage(title || '', sub || ''); $('ws-instr').textContent = ''; ST.benchKey = key; }
+    }
+  }
+
+  // -- pekerhendelser på benken --
+  const bench = $('bench');
+  function svgPt(e) { const pt = bench.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(bench.getScreenCTM().inverse()); }
+  bench.addEventListener('pointerdown', e => {
+    const el = e.target.closest('[data-act]');
+    const j = ST.job;
+    if (!el || !j) return;
+    e.preventDefault();
+    const act = el.dataset.act, stp = JOBS[j.tasks[j.ti]][j.si];
+    if (act === 'piece' && stp.drag) {
+      const p = svgPt(e);
+      ST.drag = { id: el.dataset.id, el, pid: e.pointerId };
+      bench.appendChild(el);
+      el.setAttribute('transform', pieceT(ST.drag.id, p.x, p.y - 10, 4));
+      try { bench.setPointerCapture(e.pointerId); } catch (err) {}
+    } else if (act === 'screw' && stp.screws) {
+      const k = +el.dataset.k;
+      if (j.st.taps[k] < TAPS) j.st.taps[k]++;
+      if (j.st.taps.every(n => n >= TAPS)) advance(j);
+      if (ST.ctx) renderWork(ST.ctx);
+    } else if (act === 'chk' && stp.check) {
+      j.st.chk[+el.dataset.k] = true;
+      if (j.st.chk.every(Boolean)) advance(j);
+      if (ST.ctx) renderWork(ST.ctx);
+    } else if (act === 'hold' && stp.hold) {
+      ST.holding = true;
+      try { bench.setPointerCapture(e.pointerId); } catch (err) {}
+    } else if (act === 'crate' && stp.pick) {
+      advance(j); if (ST.ctx) renderWork(ST.ctx);
+    } else if (act === 'brick' && stp.find) {
+      const k = +el.dataset.k, f = j.st.find;
+      if (f.bricks[k].ok) advance(j);
+      else { f.miss = k; setTimeout(() => { if (ST.job && ST.job.st && ST.job.st.find === f) { f.miss = -1; if (ST.ctx) renderWork(ST.ctx); } }, 350); }
+      if (ST.ctx) renderWork(ST.ctx);
+    }
+  });
+  bench.addEventListener('pointermove', e => {
+    if (!ST.drag || e.pointerId !== ST.drag.pid) return;
+    const p = svgPt(e);
+    ST.drag.el.setAttribute('transform', pieceT(ST.drag.id, p.x, p.y - 10, 4));
+  });
+  function endPointer(e, cancel) {
+    ST.holding = false;
+    if (!ST.drag || e.pointerId !== ST.drag.pid) return;
+    const d = ST.drag; ST.drag = null;
+    const j = ST.job;
+    if (!cancel && j) {
+      const p = svgPt(e), pc = PIECES[d.id];
+      if (Math.hypot(p.x - VX(pc.cx), p.y - 10 - VY(pc.cy)) < 26) {
+        j.placed.push(d.id);
+        const stp = JOBS[j.tasks[j.ti]][j.si];
+        if (stp.drag.every(x => j.placed.includes(x))) advance(j);
+      }
+    }
+    ST.benchKey = '';
+    if (ST.ctx) renderWork(ST.ctx);
+  }
+  bench.addEventListener('pointerup', e => endPointer(e, false));
+  bench.addEventListener('pointercancel', e => endPointer(e, true));
+  bench.addEventListener('lostpointercapture', () => { ST.holding = false; });
+
+  // ---------- Modus ----------
+  function setMode(m) {
+    if (!['sim', 'tavle', 'stasjon'].includes(m)) m = 'sim';
+    if (m !== 'tavle' && LD) closeTavle();
+    if (m !== 'stasjon' && ST.r) leaveTeam();
+    if (m !== 'stasjon') { ST.practice = false; ST.i = null; }
+    if (m !== 'sim' && sim) { sim = null; playing = false; }
+    mode = m;
+    store('taktlinja-mode', m);
+    document.body.dataset.mode = m;
+    document.querySelectorAll('.modes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+    $('view-main').hidden = m === 'stasjon';
+    $('view-station').hidden = m !== 'stasjon';
+    $('lobby-sec').hidden = m !== 'tavle';
+    if (m === 'tavle') openTavle();
+    if (m === 'stasjon') { showScreen('join'); renderBoards(); }
+    buildLine(); renderAll();
+  }
+
+  // ---------- Hendelser ----------
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button, .yz-col');
+    if (!b) return;
+    if (b.dataset.mode) { if (b.dataset.mode !== mode) setMode(b.dataset.mode); return; }
+    if (b.id === 'btn-start') {
+      if (mode === 'tavle') { startLive(); return; }
+      if (analyze(cfg).viol.length) return;
+      sim = makeSimAny(cfg); playing = true; sel = null;
+      buildLine(); renderAll();
+    } else if (b.id === 'btn-pause') { playing = !playing; renderControls(); }
+    else if (b.id === 'btn-skip') { while (!sim.done) stepAny(sim); updateLine(); finishRound(); }
+    else if (b.id === 'btn-cancel') { if (mode === 'tavle') abortLive(); else { sim = null; playing = false; buildLine(); renderAll(); } }
+    else if (b.id === 'btn-clear') armConfirm(b, 'Klikk igjen for å slette', () => { history = []; save(); renderLog(); renderObs(); renderAll(); updateLine(); });
+    else if (b.id === 'btn-reset') armConfirm(b, 'Klikk igjen for å tilbakestille', () => { cfg = clone(DEFAULT); sel = null; edited(); });
+    else if (b.id === 'btn-code') joinTeam($('in-code').value.trim());
+    else if (b.dataset.board) joinTeam(b.dataset.board);
+    else if (b.id === 'btn-practice') startPractice();
+    else if (b.id === 'btn-leave-team') { if (ST.practice) { ST.practice = false; showScreen('join'); renderBoards(); } else leaveTeam(); }
+    else if (b.id === 'btn-leave-st') {
+      const wasPractice = ST.practice;
+      ST.i = null; ST.job = null; ST.drag = null; ST.group = false; ST.gm = null; publishSt(true);
+      if (wasPractice) startPractice(); else { showScreen('pick'); renderPicks(); }
+    }
+    else if (b.dataset.gpick) {
+      const [g, m] = b.dataset.gpick.split('-').map(Number);
+      pickMember(g, m);
+    }
+    else if (b.dataset.pick != null) {
+      if (ST.practice) { resetCounters(); ST.pStart = performance.now(); }
+      pickStation(+b.dataset.pick);
+    }
+    else if (b.dataset.speed) { speed = +b.dataset.speed; renderControls(); }
+    else if (b.classList.contains('blk')) { sel = sel === b.dataset.id ? null : b.dataset.id; renderYZ(); }
+    else if (b.dataset.move) { const i = analyze(cfg).where[sel]; moveTask(sel, i + (+b.dataset.move)); }
+    else if (b.dataset.fix) removeWaste(b.dataset.fix);
+    else if (b.dataset.restore) restoreWaste(b.dataset.restore);
+    else if (b.hasAttribute('data-unsel')) { sel = null; renderYZ(); }
+    else if (b.dataset.st) {
+      if (locked()) return;
+      const A = arr(cfg);
+      if (+b.dataset.st > 0 && A.length < 6) A.push([]);
+      else if (+b.dataset.st < 0 && A.length > 2) { const last = A.pop(); const p = A[A.length - 1]; p.push(...last); sortIds(p); }
+      edited();
+    } else if (b.dataset.grp) {
+      if (locked()) return;
+      cfg.groups = clamp(cfg.groups + (+b.dataset.grp), 1, 4);
+      edited();
+    } else if (b.dataset.set) {
+      if (locked()) return;
+      const k = b.dataset.set, v = b.dataset.v;
+      cfg[k] = k === 'pull' ? v === 'true' : k === 'form' ? (v === 'gruppe' ? 'gruppe' : 'linje') : +v;
+      if (k === 'form') sel = null;
+      edited();
+    } else if (b.classList.contains('yz-col') && sel) moveTask(sel, +b.dataset.col);
+  });
+  document.addEventListener('change', e => {
+    if (e.target.id === 'in-nick') { ST.nick = cleanNick(e.target.value); store('taktlinja-nick', ST.nick); publishSt(true); return; }
+    if (locked()) return;
+    if (e.target.id === 'in-shift') cfg.shiftMin = clamp(Math.round(+e.target.value) || 8, 1, 60);
+    else if (e.target.id === 'in-demand') cfg.demand = clamp(Math.round(+e.target.value) || 24, 1, 200);
+    else return;
+    edited();
+  });
+  $('in-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinTeam($('in-code').value.trim()); });
+  const yz = $('yz');
+  yz.addEventListener('dragstart', e => {
+    const b = e.target.closest('.blk'); if (!b || locked()) return;
+    dragId = b.dataset.id; e.dataTransfer.setData('text/plain', dragId); e.dataTransfer.effectAllowed = 'move';
+  });
+  yz.addEventListener('dragover', e => { const c = e.target.closest('.yz-col'); if (c && dragId) { e.preventDefault(); c.classList.add('drop'); } });
+  yz.addEventListener('dragleave', e => { const c = e.target.closest('.yz-col'); if (c && !c.contains(e.relatedTarget)) c.classList.remove('drop'); });
+  yz.addEventListener('drop', e => { const c = e.target.closest('.yz-col'); if (c && dragId) { e.preventDefault(); const id = dragId; dragId = null; moveTask(id, +c.dataset.col); } });
+  yz.addEventListener('dragend', () => { dragId = null; renderYZ(); });
+
+  function initRoom() {
+    const use = window.claude && window.claude.use;
+    const p = use ? window.claude.use('room') : Promise.resolve(null);
+    p.then(r => {
+      room = r; roomState = 'ready';
+      if (room) {
+        room.onPeers(() => { if (mode === 'stasjon' && ST.screen === 'join') renderBoards(); });
+        if (mode === 'tavle' && LD && !LD.r) openTavle();
+      }
+      updateConnMsg(); renderBoards(); renderControls();
+    }).catch(() => { room = null; roomState = 'ready'; updateConnMsg(); renderBoards(); });
+  }
+
+  function start(data) {
+    const stored = (data && data.cfg) ? data : fetchStore(KEY);
+    cfg = stored && stored.cfg ? stored.cfg : clone(DEFAULT);
+    cfg.home = cfg.home || {};
+    cfg.removed = cfg.removed || [];
+    cfg.homeT = cfg.homeT || {};
+    cfg.form = cfg.form === 'gruppe' ? 'gruppe' : 'linje';
+    cfg.groups = clamp(Math.round(num(cfg.groups)) || 1, 1, 4);
+    const OLD_TEAM = '[["fetch","base","front"],["side","search","win"],["door","waitTool","roof"],["chim","qc","recheck"]]';
+    if (!Array.isArray(cfg.team) || cfg.team.length < 2 || JSON.stringify(cfg.team) === OLD_TEAM) cfg.team = clone(DEFAULT.team).map(ids => ids.filter(id => !cfg.removed.includes(id)));
+    history = stored && Array.isArray(stored.history) ? stored.history : [];
+    ST.nick = cleanNick(fetchStore('taktlinja-nick') || '');
+    $('in-nick').value = ST.nick;
+    const hash = (location.hash || '').slice(1);
+    const m = hash === 'stasjon' || hash === 'tavle' || hash === 'simulering' ? (hash === 'simulering' ? 'sim' : hash) : (fetchStore('taktlinja-mode') || 'sim');
+    initRoom();
+    setMode(m);
+    renderObs(); renderLog();
+    requestAnimationFrame(frame);
+  }
+  const hot = window.claude && window.claude.hot;
+  if (hot && hot.snapshot) hot.snapshot(() => ({ cfg, history }));
+  hot && hot.ready ? hot.ready(start) : start(hot && hot.data || {});
+})();
+</script>
