@@ -687,7 +687,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   for (const id in T) T[id].id = id;
   const PARTS = ['base', 'front', 'side', 'win', 'door', 'roof', 'chim', 'qc'];
   const DEFAULT = {
-    shiftMin: 200 / 60, demand: 10, warmup: 30, batch: 4, pull: false, variation: 0.15,
+    shiftMin: 200 / 60, demand: 10, warmup: 45, batch: 4, pull: false, variation: 0.15,
     stations: [['fetch', 'base', 'front', 'side'], ['search', 'win', 'polish'], ['waitTool', 'door', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
     removed: [], home: {},
     form: 'linje', groups: 1, homeT: {},
@@ -706,15 +706,15 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   // Takten i oppdragene ganges med klassens tempo (cfg.tempo), og tk() er takten som gjelder for klassen.
   const mset = (takt, warmup, extra = {}) => ({ shiftMin: Math.round(takt * 10 / 60 * 1000) / 1000, demand: 10, warmup, form: 'linje', dist: 'av', ...extra });
   const MISSIONS = [
-    { id: 'o1', name: 'Finn sløsingen', text: () => 'Kjør linja og se etter arbeid som ikke gjør huset bedre for kunden.', goalText: () => 'Fjern minst tre sløsingsoppgaver og kjør en runde.', takt: 20, deliver: false, goal: e => (e.cfg.removed || []).length >= 3, set: mset(20, 30) },
-    { id: 'o2', name: 'All sløsing borte', text: () => 'Det finnes mer sløsing enn det som er lett å se.', goalText: () => 'Fjern all sløsing og kjør en runde.', takt: 20, deliver: false, goal: e => e.an && e.an.waste === 0, set: mset(20, 30) },
-    { id: 'o3', name: 'Balanser linja', text: () => 'Ingen stasjon skal bruke lengre tid per hus enn takten.', goalText: tk => `Få syklustiden ned til ${tk} s eller lavere med fire stasjoner.`, takt: 20, maxSt: 4, deliver: false, goal: (e, tk) => !isG(e.cfg) && e.an && e.an.max <= tk + 1e-9, set: mset(20, 30) },
-    { id: 'o4', name: 'Første ordre', text: tk => `Kunden bestiller ett hus hvert ${tk}. sekund.`, goalText: () => 'Lever alle 10 husene.', takt: 20, set: mset(20, 30) },
-    { id: 'o5', name: 'Storkunden', text: tk => `En ny kunde vil ha ett hus hvert ${tk}. sekund.`, goalText: tk => `Lever alle 10 husene med takt ${tk} s.`, takt: 16, set: mset(16, 30) },
-    { id: 'o6', name: 'Kostnadskutt', text: () => 'Bedriften har bare råd til tre stasjoner.', goalText: tk => `Lever alle 10 husene med høyst tre stasjoner og takt ${tk} s.`, takt: 24, maxSt: 3, set: mset(24, 30) },
+    { id: 'o1', name: 'Finn sløsingen', text: () => 'Kjør linja og se etter arbeid som ikke gjør huset bedre for kunden.', goalText: () => 'Fjern minst tre sløsingsoppgaver og kjør en runde.', takt: 20, deliver: false, goal: e => (e.cfg.removed || []).length >= 3, set: mset(20, 45) },
+    { id: 'o2', name: 'All sløsing borte', text: () => 'Det finnes mer sløsing enn det som er lett å se.', goalText: () => 'Fjern all sløsing og kjør en runde.', takt: 20, deliver: false, goal: e => e.an && e.an.waste === 0, set: mset(20, 45) },
+    { id: 'o3', name: 'Balanser linja', text: () => 'Ingen stasjon skal bruke lengre tid per hus enn takten.', goalText: tk => `Få syklustiden ned til ${tk} s eller lavere med fire stasjoner.`, takt: 20, maxSt: 4, deliver: false, goal: (e, tk) => !isG(e.cfg) && e.an && e.an.max <= tk + 1e-9, set: mset(20, 45) },
+    { id: 'o4', name: 'Første ordre', text: tk => `Kunden bestiller ett hus hvert ${tk}. sekund.`, goalText: () => 'Lever alle 10 husene.', takt: 20, set: mset(20, 45) },
+    { id: 'o5', name: 'Storkunden', text: tk => `En ny kunde vil ha ett hus hvert ${tk}. sekund.`, goalText: tk => `Lever alle 10 husene med takt ${tk} s.`, takt: 16, set: mset(16, 45) },
+    { id: 'o6', name: 'Kostnadskutt', text: () => 'Bedriften har bare råd til tre stasjoner.', goalText: tk => `Lever alle 10 husene med høyst tre stasjoner og takt ${tk} s.`, takt: 24, maxSt: 3, set: mset(24, 45) },
     { id: 'o7', name: 'Urolig hverdag', text: () => 'Maskiner stopper og deler har feil.', goalText: () => 'Lever alle 10 husene med mange forstyrrelser.', takt: 20, minDist: 'hoy', set: mset(20, 60, { dist: 'hoy' }) },
     { id: 'o8', name: 'Gruppebygging', text: () => 'Fire elever bygger det samme huset, og to grupper deler på kunden.', goalText: () => 'Lever alle 10 husene med to grupper på høyst fire elever.', takt: 20, form: 'gruppe', groupsMax: 2, maxSt: 4, set: mset(20, 30, { form: 'gruppe', groups: 2 }) },
-    { id: 'o9', name: 'Mesterprøven', text: () => 'Strammere takt, færre stasjoner og noen forstyrrelser på én gang.', goalText: tk => `Lever alle 10 husene med takt ${tk} s, høyst fem stasjoner og noen forstyrrelser.`, takt: 18, maxSt: 5, minDist: 'lav', set: mset(18, 30, { dist: 'lav' }) },
+    { id: 'o9', name: 'Mesterprøven', text: () => 'Strammere takt, færre stasjoner og noen forstyrrelser på én gang.', goalText: tk => `Lever alle 10 husene med takt ${tk} s, høyst fem stasjoner og noen forstyrrelser.`, takt: 18, maxSt: 5, minDist: 'lav', set: mset(18, 45, { dist: 'lav' }) },
   ];
   // Takt og oppstart for et oppdrag, tilpasset klassens tempo.
   const missionTakt = (m, c) => Math.round(m.takt * ((c && c.tempo) || 1));
@@ -1605,7 +1605,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const a = e.an, r = e.res, c = e.cfg, out = [];
     const E = m => `elev ${m + 1}${e.who && e.who[m] ? ' (' + e.who[m] + ')' : ''}`;
     if (r.delivered >= r.demand) out.push(['good', `Gruppene holdt takten. Kunden fikk alle ${r.demand} husene.`, 'mål']);
-    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`, 'mål']);
+    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered === 1 ? "1 bestilling står" : (r.demand - r.delivered) + " bestillinger står"} igjen som restordre ved skiftslutt.`, 'mål']);
     const real = r.lead;
     if (real != null) out.push([real > a.takt ? 'warn' : 'good', `Et hus tok i snitt ${fmt(real, 1)} s fra start til ferdig. Hver gruppe måtte klare ett hus hvert ${fmt(a.takt, 1)}. sekund${c.groups > 1 ? ` (${c.groups} grupper deler på kundens takt på ${fmt(a.custTakt, 1)} s)` : ''}.`, 'fakta']);
     if (a.cp > a.takt) out.push(['warn', `Selv med perfekt fordeling tar et hus minst ${fmt(a.cp)} s, fordi grunnplate, vegger, tak, pipe og kontroll må gjøres etter hverandre. Én gruppe kan ikke nå takten alene. Flere grupper, eller å la neste hus starte før det forrige er ferdig, er det som hjelper.`, 'råd']);
@@ -1628,7 +1628,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const S = i => 'stasjon ' + (i + 1);
     const Cap = s => s[0].toUpperCase() + s.slice(1);
     if (r.delivered >= r.demand) out.push(['good', `Linja holdt takten. Kunden fikk alle ${r.demand} husene.`, 'mål']);
-    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`, 'mål']);
+    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered === 1 ? "1 bestilling står" : (r.demand - r.delivered) + " bestillinger står"} igjen som restordre ved skiftslutt.`, 'mål']);
     if (r.lead != null) out.push(['info', `Første hus var ferdig etter ${fmt(r.first)} s. Et hus brukte i snitt ${fmt(r.lead)} s gjennom linja, og i snitt var ${fmt(r.wip, 1)} hus i arbeid.`, 'fakta']);
     if (e.meas) {
       const parts = e.meas.map((m, i) => `${S(i)}${e.who && e.who[i] ? ' (' + e.who[i] + ')' : ' (simulert)'}: ${m == null ? 'ingen hus' : fmt(m, 1) + ' s'}`);
@@ -1639,6 +1639,13 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     } else if (a.max > a.takt + 1e-9) out.push(['warn', `${Cap(S(a.bn))} er flaskehalsen med ${fmt(a.max)} s per hus, ${fmt(a.max - a.takt, 1)} s over takt-tiden. Linja kan aldri gå fortere enn denne stasjonen.`, 'fakta']);
     else if (a.max > a.takt * 0.92) out.push(['info', `Flaskehalsen (${S(a.bn)}, ${fmt(a.max)} s) ligger tett opp mot takt-tiden på ${fmt(a.takt, 1)} s. Med variasjon i arbeidet blir det lite slakk.`, 'fakta']);
     else out.push(['good', `Alle stasjoner ligger under takt-tiden. Mest belastet er ${S(a.bn)} med ${fmt(a.max)} s.`, 'fakta']);
+    // Under takt, men ikke levert: forklar hvorfor, også når rådene er skjult.
+    if (a.max <= a.takt + 1e-9 && r.delivered < r.demand) {
+      const firstOrder = (c.warmup || 0) + a.takt;
+      if (c.batch > 1) out.push(['warn', `Stasjonene holder takten, men husene flyttes ${c.batch} og ${c.batch} sammen. ${r.first == null ? 'Ingen hus ble ferdige' : `Første hus var ferdig etter ${fmt(r.first)} s`}, og kunden ventet fra ${fmt(firstOrder)} s.`, 'fakta']);
+      else if (r.first != null && r.first > firstOrder) out.push(['warn', `Stasjonene holder takten, men første hus var ferdig først etter ${fmt(r.first)} s. Kunden bestilte det første huset etter ${fmt(firstOrder)} s.`, 'fakta']);
+      else if (r.down && r.down.some(x => x > 0)) out.push(['warn', 'Stasjonene holder takten når alt går som planlagt, men stopp og feil tok marginen.', 'fakta']);
+    }
     if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`, 'sløsing']);
     let qi = -1, qm = 0;
     r.maxQ.forEach((q, i) => { if (q > qm) { qm = q; qi = i; } });
@@ -3178,6 +3185,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (!('hint' in c)) out.hint = DEFAULT.hint;
     // Eldre oppsett (lange runder, gamle oppdrag) flyttes over til første korte oppdrag.
     if (!('mission' in c) || (typeof c.mission === 'string' && /^m[0-9]$/.test(c.mission))) { out.mission = 'o1'; Object.assign(out, missionSet(MISSIONS[0], out)); }
+    // Oppstarten i oppdragene ble økt fra 30 til 45 s, så en linje under takt rekker å fylles. Oppdater lagrede oppsett.
+    const om = MISSIONS.find(m => m.id === out.mission);
+    if (om && om.set.warmup === 45 && out.warmup === Math.round(30 * (out.tempo || 1) / 5) * 5) out.warmup = missionSet(om, out).warmup;
     return out;
   }
   function start(data) {
