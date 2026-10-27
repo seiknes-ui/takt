@@ -35,6 +35,7 @@
   --b-yellow: #F2C230;
   --b-green: #3C9A4A;
   --b-white: #F4F4EF;
+  --qr-light: #FFFFFF;
   --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
@@ -133,6 +134,25 @@ input[type="text"], input[type="number"] { padding: 7px 10px; border: 1px solid 
 .roster .r .sim { color: var(--muted); }
 .roster .r .dup { color: var(--bad); font-size: 12px; }
 .conn-msg { font-size: 13px; color: var(--muted); }
+.lobby-right { display: grid; gap: 14px; min-width: 0; }
+.lobby-ctl { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: end; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.lobby-ctl .ctl { display: grid; gap: 4px; }
+.lobby-ctl .eyebrow { color: var(--ink); }
+.grp-add { border: 2px dashed var(--ink); background: transparent; border-radius: 6px; padding: 14px; font-weight: 700; display: grid; gap: 2px; text-align: center; width: 290px; }
+.grp-add span { font-weight: 400; font-size: 12px; color: var(--muted); }
+.grp-add:hover { background: var(--surface); }
+.qr-card { display: flex; gap: 14px; align-items: center; margin-top: 16px; }
+.qr-box { background: var(--qr-light); padding: 8px; border-radius: 6px; border: 1px solid var(--line); line-height: 0; flex: none; }
+button.qr-box { cursor: zoom-in; }
+.qr-box img, .qr-box canvas { display: block; max-width: 100%; height: auto; }
+.qr-box.big { padding: 16px; }
+.qr-text { display: grid; gap: 4px; justify-items: start; min-width: 0; }
+.qr-url { word-break: break-all; }
+.qr-overlay { position: fixed; inset: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 92%, transparent); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.qr-sheet { background: var(--surface); border: 2px solid var(--ink); border-radius: 10px; padding: 24px; display: grid; gap: 12px; justify-items: center; text-align: center; max-width: 100%; }
+.qr-sheet h2 { font-size: 40px; }
+.qr-code-line { font-size: 22px; }
+.qr-code-line b { font-family: var(--display); font-size: 48px; letter-spacing: .06em; vertical-align: -6px; }
 .login { display: grid; gap: 6px; margin-top: 10px; font-size: 13px; }
 .login input { width: 160px; }
 #lobby-who button { margin-left: 6px; }
@@ -383,6 +403,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       <p class="eyebrow">Lean-verksted · linjebalansering</p>
       <h1>Taktlinja</h1>
       <p class="lede">Stasjonene bygger små hus, og kunden demonterer dem i takt med bestillingene. Kjør linja som simulering, eller la elevene bygge husene selv på hver sin enhet mens tavla viser flyten.</p>
+      <div class="qr-card">
+        <button type="button" class="qr-box" id="qr-small" aria-label="Vis QR-koden i stort format"></button>
+        <div class="qr-text">
+          <b>Elever: skann for å bli med</b>
+          <span class="help qr-url" id="qr-url"></span>
+          <button type="button" class="btn small" id="btn-qr-big">Vis stort</button>
+        </div>
+      </div>
     </div>
     <div class="kpis" id="kpis"></div>
   </header>
@@ -406,6 +434,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
           <span class="eyebrow">Lagkode</span>
           <div class="code num" id="lobby-code">····</div>
           <span class="conn-msg" id="lobby-conn">Kobler til …</span>
+          <button class="btn small" type="button" id="btn-qr-lobby">Vis QR-kode for elevene</button>
           <div class="login" id="lobby-login" hidden>
             <label for="in-laerer">Lærerkode</label>
             <div class="code-row"><input id="in-laerer" type="password" autocomplete="current-password" maxlength="64"><button class="btn" type="button" id="btn-login">Logg inn</button></div>
@@ -413,7 +442,10 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
           </div>
           <div class="help" id="lobby-who" hidden></div>
         </div>
-        <div class="roster" id="roster"></div>
+        <div class="lobby-right">
+          <div class="lobby-ctl" id="lobby-ctl"></div>
+          <div class="roster" id="roster"></div>
+        </div>
       </div>
     </section>
 
@@ -583,6 +615,18 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   </div>
 </div>
 
+<div class="qr-overlay" id="qr-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="qr-title">
+  <div class="qr-sheet">
+    <p class="eyebrow">Taktlinja · elevside</p>
+    <h2 id="qr-title">Skann for å bli med</h2>
+    <div class="qr-box big" id="qr-large"></div>
+    <p class="qr-url" id="qr-url-big"></p>
+    <p class="qr-code-line" id="qr-code-line" hidden></p>
+    <button type="button" class="btn" id="btn-qr-close">Lukk</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 (() => {
   const DT = 0.05;
@@ -613,7 +657,10 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     hint: 'delvis', dist: 'av', tpm: false, poka: false, kanban: 1, mission: 'm1',
   };
   const SPEEDS = [1, 5, 15, 40];
-  const GL = ['A', 'B', 'C', 'D'];
+  const GL = ['A', 'B', 'C', 'D', 'E'];
+  const MAX_GROUPS = 5;
+  // Lenken QR-koden peker til. På Azure er det sidens egen adresse; på claude.ai er det Artifact-lenken.
+  const ARTIFACT_URL = 'https://claude.ai/artifact/UmJeZhSpjJVTZRQzVifoJk';
   // Oppdrag: hvert oppdrag har et mål (kundens takt) og noen rammer. Tallene er kontrollert med simuleringen.
   const MISSIONS = [
     { id: 'm1', name: 'Første ordre', text: 'Kunden bestiller ett hus hvert 20. sekund. Lever alt kunden bestiller.', takt: 20, set: { shiftMin: 8, demand: 24, form: 'linje', dist: 'av' } },
@@ -836,7 +883,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       shiftMin: clamp(Math.round(num(c.shiftMin)) || 8, 1, 60), demand: clamp(Math.round(num(c.demand)) || 24, 1, 200),
       batch: clamp(Math.round(num(c.batch)) || 1, 1, 6), pull: c.pull === true, variation: clamp(num(c.variation), 0, 0.3),
       stations: lists(c.stations), removed: Array.isArray(c.removed) ? c.removed.filter(id => T[id]) : [],
-      form: c.form === 'gruppe' ? 'gruppe' : 'linje', groups: clamp(Math.round(num(c.groups)) || 1, 1, 4), team: lists(c.team),
+      form: c.form === 'gruppe' ? 'gruppe' : 'linje', groups: clamp(Math.round(num(c.groups)) || 1, 1, MAX_GROUPS), team: lists(c.team),
       hint: ['full', 'delvis', 'ingen'].includes(c.hint) ? c.hint : 'full', dist: ['av', 'lav', 'hoy'].includes(c.dist) ? c.dist : 'av',
       tpm: c.tpm === true, poka: c.poka === true, kanban: clamp(Math.round(num(c.kanban)) || 1, 1, 3),
       mission: typeof c.mission === 'string' && MISSIONS.some(m => m.id === c.mission) ? c.mission : null,
@@ -1120,6 +1167,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       });
       h += `</div></div><div class="bar"><i id="gb${g}"></i></div><div class="st-meta"><span id="gx${g}"></span><span>plan ${fmt(a.span)} s</span></div></div>`;
     }
+    if (!locked() && c === cfg && c.groups < maxGroups()) h += `<button type="button" class="grp-add" data-grp="1">+ Legg til gruppe <span>${c.team.length} elever bygger samme hus</span></button>`;
     h += '</div>' + ENDS;
     $('line').innerHTML = h;
     L = { group: true, G: c.groups, M: c.team.length, keys: [], cuKey: '', full: houseSVG(new Set(PARTS), null) };
@@ -1383,7 +1431,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   // ---------- Innstillinger ----------
   const activeMission = () => MISSIONS.find(m => m.id === cfg.mission) || null;
   const maxUnits = () => { const m = activeMission(); return m && m.maxSt && (m.form || 'linje') === (cfg.form || 'linje') ? m.maxSt : 6; };
-  const maxGroups = () => { const m = activeMission(); return m && m.groupsMax ? m.groupsMax : 4; };
+  const maxGroups = () => { const m = activeMission(); return m && m.groupsMax ? m.groupsMax : MAX_GROUPS; };
   function renderSettings() {
     const a = analyze(cfg), lk = locked() ? ' disabled' : '';
     const seg = (name, items, cur) => `<div class="seg" role="group">${items.map(([v, l]) => `<button type="button" data-set="${name}" data-v="${v}" aria-pressed="${v === cur}"${lk}>${l}</button>`).join('')}</div>`;
@@ -1637,6 +1685,30 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     sel = null;
     edited();
   }
+  const studentUrl = () => (AZ && /^https?:/.test(location.protocol) ? location.origin + location.pathname : ARTIFACT_URL) + '#stasjon';
+  function drawQR(el, size) {
+    el.innerHTML = '';
+    if (window.QRCode) {
+      try { new window.QRCode(el, { text: studentUrl(), width: size, height: size, colorDark: '#111311', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M }); return; } catch (e) {}
+    }
+    el.innerHTML = '<span class="help">QR-koden kunne ikke lastes. Bruk lenken.</span>';
+  }
+  function renderQR() {
+    drawQR($('qr-small'), 104);
+    $('qr-url').textContent = studentUrl().replace(/^https?:\/\//, '');
+  }
+  function showQR(open) {
+    const o = $('qr-overlay');
+    o.hidden = !open;
+    if (!open) return;
+    const size = Math.max(200, Math.min(520, Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.6)));
+    drawQR($('qr-large'), size);
+    $('qr-url-big').textContent = studentUrl().replace(/^https?:\/\//, '');
+    const line = $('qr-code-line');
+    line.hidden = !(mode === 'tavle' && LD);
+    if (LD) line.innerHTML = `Lagkode <b>${esc(LD.code)}</b>`;
+    $('btn-qr-close').focus();
+  }
   function renderAll() { renderKPIs(); renderYZ(); renderSettings(); renderControls(); renderMissions(); renderObs(); }
   function edited() {
     if (mode === 'tavle' && LD) {
@@ -1839,8 +1911,22 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (free) h += `<p class="help">${free} elev${free > 1 ? 'er' : ''} har ikke valgt plass i en gruppe ennå.</p>`;
     $('roster').innerHTML = h;
   }
+  function renderLobbyCtl() {
+    const lk = locked() ? ' disabled' : '';
+    const G = isG(cfg);
+    $('h-lobby').textContent = G ? 'Lag og grupper' : 'Lag og stasjoner';
+    $('lobby-ctl').innerHTML = `
+      <div class="ctl"><span class="eyebrow">Arbeidsform</span><div class="seg" role="group">
+        <button type="button" data-set="form" data-v="linje" aria-pressed="${!G}"${lk}>Linje</button>
+        <button type="button" data-set="form" data-v="gruppe" aria-pressed="${G}"${lk}>Gruppe</button></div></div>
+      ${G ? `<div class="ctl"><span class="eyebrow">Grupper</span><div class="stepper"><button class="btn small" type="button" data-grp="-1"${cfg.groups <= 1 || lk ? ' disabled' : ''} aria-label="Fjern en gruppe">−</button><span class="num">${cfg.groups}</span><button class="btn small" type="button" data-grp="1"${cfg.groups >= maxGroups() || lk ? ' disabled' : ''} aria-label="Legg til en gruppe">+</button></div></div>
+      <div class="ctl"><span class="eyebrow">Elever per gruppe</span><div class="stepper"><button class="btn small" type="button" data-st="-1"${cfg.team.length <= 2 || lk ? ' disabled' : ''} aria-label="Færre elever">−</button><span class="num">${cfg.team.length}</span><button class="btn small" type="button" data-st="1"${cfg.team.length >= maxUnits() || lk ? ' disabled' : ''} aria-label="Flere elever">+</button></div></div>`
+        : `<div class="ctl"><span class="eyebrow">Stasjoner</span><div class="stepper"><button class="btn small" type="button" data-st="-1"${cfg.stations.length <= 2 || lk ? ' disabled' : ''} aria-label="Færre stasjoner">−</button><span class="num">${cfg.stations.length}</span><button class="btn small" type="button" data-st="1"${cfg.stations.length >= maxUnits() || lk ? ' disabled' : ''} aria-label="Flere stasjoner">+</button></div></div>`}
+      <span class="help">${G ? `Plass til ${cfg.groups * cfg.team.length} elever. Plasser uten elev blir simulert.` : `Plass til ${cfg.stations.length} elever. Stasjoner uten elev blir simulert.`}</span>`;
+  }
   function renderRoster() {
     if (!LD) return;
+    renderLobbyCtl();
     const c = LD.ph === 'lobby' || !LD.cfg ? cfg : LD.cfg;
     const peers = LD.r ? LD.r.peers() : [];
     if (isG(c)) { renderRosterGroups(c, peers); return; }
@@ -2800,6 +2886,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     else if (b.id === 'btn-cancel') { if (mode === 'tavle') abortLive(); else { sim = null; playing = false; buildLine(); renderAll(); } }
     else if (b.id === 'btn-clear') armConfirm(b, 'Klikk igjen for å slette', () => { history = []; save(); renderLog(); renderObs(); renderAll(); updateLine(); if (AZ && AUTH) api('DELETE', 'runder').catch(() => {}); });
     else if (b.id === 'btn-login') login($('in-laerer').value);
+    else if (b.id === 'btn-qr-big' || b.id === 'qr-small' || b.id === 'btn-qr-lobby') showQR(true);
+    else if (b.id === 'btn-qr-close') showQR(false);
     else if (b.id === 'btn-logout') logout();
     else if (b.id === 'btn-reset') armConfirm(b, 'Klikk igjen for å tilbakestille', () => { cfg = clone(DEFAULT); sel = null; edited(); });
     else if (b.id === 'btn-code') joinTeam($('in-code').value.trim());
@@ -2857,6 +2945,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   });
   $('in-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinTeam($('in-code').value.trim()); });
   $('in-laerer').addEventListener('keydown', e => { if (e.key === 'Enter') login($('in-laerer').value); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('qr-overlay').hidden) showQR(false); });
+  $('qr-overlay').addEventListener('click', e => { if (e.target.id === 'qr-overlay') showQR(false); });
   const yz = $('yz');
   yz.addEventListener('dragstart', e => {
     const b = e.target.closest('.blk'); if (!b || locked()) return;
@@ -2907,7 +2997,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     cfg.removed = cfg.removed || [];
     cfg.homeT = cfg.homeT || {};
     cfg.form = cfg.form === 'gruppe' ? 'gruppe' : 'linje';
-    cfg.groups = clamp(Math.round(num(cfg.groups)) || 1, 1, 4);
+    cfg.groups = clamp(Math.round(num(cfg.groups)) || 1, 1, MAX_GROUPS);
 
     history = stored && Array.isArray(stored.history) ? stored.history : [];
     ST.nick = cleanNick(fetchStore('taktlinja-nick') || '');
@@ -2916,6 +3006,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const m = hash === 'stasjon' || hash === 'tavle' || hash === 'simulering' ? (hash === 'simulering' ? 'sim' : hash) : (fetchStore('taktlinja-mode') || 'sim');
     initRoom();
     setMode(m);
+    renderQR();
     renderObs(); renderLog();
     requestAnimationFrame(frame);
   }
