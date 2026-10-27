@@ -376,6 +376,23 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
 .gm-t { grid-column: 2 / -1; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .blk.wait { background: repeating-linear-gradient(45deg, transparent 0 5px, color-mix(in srgb, var(--muted) 22%, transparent) 5px 10px); border: 1px dashed var(--muted); color: var(--muted); }
 .instr { font-size: 16px; min-height: 2.8em; }
+.ws-extra { display: grid; gap: 12px; border: 1px solid var(--line); border-radius: 6px; padding: 12px; background: var(--surface); }
+.ws-extra.waiting { border: 2px solid var(--warn); }
+.ws-live { display: grid; gap: 6px; }
+.lv { display: grid; grid-template-columns: 14px 78px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13px; }
+.lv .andon { width: 10px; height: 10px; box-shadow: none; }
+.lv.me { font-weight: 700; }
+.lv .lv-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.lv .lv-q { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.report { display: grid; gap: 6px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.report-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.report select { font: inherit; font-size: 14px; padding: 6px 8px; border: 1px solid var(--ink); border-radius: 4px; background: var(--bg); color: var(--ink); min-width: 0; max-width: 100%; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sugg { display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px; }
+.sg { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13px; padding: 6px 10px; background: var(--bg); border-radius: 4px; }
+.sg[data-res="ok"] { border-left: 4px solid var(--ok); }
+.sg[data-res="feil"] { border-left: 4px solid var(--bad); }
+.sg .sg-r { font-size: 12px; color: var(--muted); }
 .instr b { font-weight: 700; }
 .ws-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .ws-stats div { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; }
@@ -447,6 +464,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <div class="lobby-right">
           <div class="lobby-ctl" id="lobby-ctl"></div>
           <div class="roster" id="roster"></div>
+          <div class="sugg" id="sugg" hidden></div>
         </div>
       </div>
     </section>
@@ -540,7 +558,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
           <h3 style="margin-bottom: 14px">Forslag til økt</h3>
           <ol class="steps">
             <li><div><b>Øv på stasjonene · 15 min</b><span>Elevene velger Stasjon og trykker «Øv uten tavle» for å lære håndgrepene. Sett hjelpenivået til Delvis eller Ingen, så sløsingen ikke er merket.</span></div></li>
-            <li><div><b>Finn sløsingen og All sløsing borte · 30–45 min</b><span>Elevene kjenner sløsingen på kroppen og må selv si hvilken type det er før den fjernes. De to siste sløsingsoppgavene er vanskeligere å få øye på.</span></div></li>
+            <li><div><b>Finn sløsingen og All sløsing borte · 30–45 min</b><span>Elevene kjenner sløsingen på kroppen og melder den fra sin egen enhet mens de venter. Forslagene kommer opp på tavla, og dere prøver dem sammen etter runden. De to siste sløsingsoppgavene er vanskeligere å få øye på.</span></div></li>
+            <li><div><b>Juster tempoet · 2 min</b><span>Etter første live-runde foreslår tavla et tempo for klassen ut fra de målte tidene. Trykk «Bruk», så passer takten i oppdragene til elevene dine.</span></div></li>
             <li><div><b>Balanser linja og Første ordre · 30–45 min</b><span>Først får de syklustiden under takten, så må de oppdage at store partier gjør at kunden ikke får husene i tide.</span></div></li>
             <li><div><b>Storkunden og Kostnadskutt · 40–60 min</b><span>Strammere takt krever flere stasjoner. Med bare tre stasjoner er det svært få fordelinger som holder.</span></div></li>
             <li><div><b>Urolig hverdag · 20–30 min</b><span>Maskiner stopper og deler har feil. Diskuter vedlikehold, feilsikring og buffere.</span></div></li>
@@ -614,6 +633,21 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <div><span>Siste hus</span><b id="ws-last">–</b></div>
         <div><span>Snitt</span><b id="ws-avg">–</b></div>
       </div>
+      <div class="ws-extra" id="ws-extra" hidden>
+        <div class="ws-live">
+          <p class="eyebrow">Linja nå</p>
+          <div id="ws-line"></div>
+        </div>
+        <div class="report">
+          <p><b>Ser du sløsing?</b> <span class="help">Meld fra til tavla, så tar dere det opp sammen etter runden.</span></p>
+          <div class="report-row">
+            <label for="rp-task" class="sr">Oppgave</label><select id="rp-task"></select>
+            <label for="rp-type" class="sr">Type sløsing</label><select id="rp-type"></select>
+            <button class="btn small" type="button" id="btn-report">Send til tavla</button>
+          </div>
+          <p class="help" id="rp-msg"></p>
+        </div>
+      </div>
       <div class="controls"><button class="btn small" type="button" id="btn-leave-st">Bytt stasjon</button></div>
     </div>
   </div>
@@ -658,7 +692,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     removed: [], home: {},
     form: 'linje', groups: 1, homeT: {},
     team: [['fetch', 'base', 'front', 'side', 'search'], ['win', 'polish'], ['door', 'waitTool', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
-    hint: 'delvis', dist: 'av', tpm: false, poka: false, kanban: 1, mission: 'o1',
+    hint: 'delvis', dist: 'av', tpm: false, poka: false, kanban: 1, mission: 'o1', tempo: 1,
   };
   const SPEEDS = [1, 5, 15, 40];
   const GL = ['A', 'B', 'C', 'D', 'E'];
@@ -669,18 +703,25 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   // Lenken QR-koden peker til. På Azure er det sidens egen adresse; på claude.ai er det Artifact-lenken.
   const ARTIFACT_URL = 'https://claude.ai/artifact/UmJeZhSpjJVTZRQzVifoJk';
   // Oppdrag: korte runder på 10 hus. Hvert oppdrag har ett mål og noen rammer. Tallene er kontrollert med simuleringen.
+  // Takten i oppdragene ganges med klassens tempo (cfg.tempo), og tk() er takten som gjelder for klassen.
   const mset = (takt, warmup, extra = {}) => ({ shiftMin: Math.round(takt * 10 / 60 * 1000) / 1000, demand: 10, warmup, form: 'linje', dist: 'av', ...extra });
   const MISSIONS = [
-    { id: 'o1', name: 'Finn sløsingen', text: 'Kjør linja og se etter arbeid som ikke gjør huset bedre for kunden.', goalText: 'Fjern minst tre sløsingsoppgaver og kjør en runde.', takt: 20, deliver: false, goal: e => (e.cfg.removed || []).length >= 3, set: mset(20, 30) },
-    { id: 'o2', name: 'All sløsing borte', text: 'Det finnes mer sløsing enn det som er lett å se.', goalText: 'Fjern all sløsing og kjør en runde.', takt: 20, deliver: false, goal: e => e.an && e.an.waste === 0, set: mset(20, 30) },
-    { id: 'o3', name: 'Balanser linja', text: 'Ingen stasjon skal bruke lengre tid per hus enn takten.', goalText: 'Få syklustiden ned til 20 s eller lavere med fire stasjoner.', takt: 20, maxSt: 4, deliver: false, goal: e => !isG(e.cfg) && e.an && e.an.max <= 20 + 1e-9, set: mset(20, 30) },
-    { id: 'o4', name: 'Første ordre', text: 'Kunden bestiller ett hus hvert 20. sekund.', goalText: 'Lever alle 10 husene.', takt: 20, set: mset(20, 30) },
-    { id: 'o5', name: 'Storkunden', text: 'En ny kunde vil ha ett hus hvert 16. sekund.', goalText: 'Lever alle 10 husene med takt 16 s.', takt: 16, set: mset(16, 30) },
-    { id: 'o6', name: 'Kostnadskutt', text: 'Bedriften har bare råd til tre stasjoner.', goalText: 'Lever alle 10 husene med høyst tre stasjoner og takt 24 s.', takt: 24, maxSt: 3, set: mset(24, 30) },
-    { id: 'o7', name: 'Urolig hverdag', text: 'Maskiner stopper og deler har feil.', goalText: 'Lever alle 10 husene med mange forstyrrelser.', takt: 20, minDist: 'hoy', set: mset(20, 60, { dist: 'hoy' }) },
-    { id: 'o8', name: 'Gruppebygging', text: 'Fire elever bygger det samme huset, og to grupper deler på kunden.', goalText: 'Lever alle 10 husene med to grupper på høyst fire elever.', takt: 20, form: 'gruppe', groupsMax: 2, maxSt: 4, set: mset(20, 30, { form: 'gruppe', groups: 2 }) },
-    { id: 'o9', name: 'Mesterprøven', text: 'Strammere takt, færre stasjoner og noen forstyrrelser på én gang.', goalText: 'Lever alle 10 husene med takt 18 s, høyst fem stasjoner og noen forstyrrelser.', takt: 18, maxSt: 5, minDist: 'lav', set: mset(18, 30, { dist: 'lav' }) },
+    { id: 'o1', name: 'Finn sløsingen', text: () => 'Kjør linja og se etter arbeid som ikke gjør huset bedre for kunden.', goalText: () => 'Fjern minst tre sløsingsoppgaver og kjør en runde.', takt: 20, deliver: false, goal: e => (e.cfg.removed || []).length >= 3, set: mset(20, 30) },
+    { id: 'o2', name: 'All sløsing borte', text: () => 'Det finnes mer sløsing enn det som er lett å se.', goalText: () => 'Fjern all sløsing og kjør en runde.', takt: 20, deliver: false, goal: e => e.an && e.an.waste === 0, set: mset(20, 30) },
+    { id: 'o3', name: 'Balanser linja', text: () => 'Ingen stasjon skal bruke lengre tid per hus enn takten.', goalText: tk => `Få syklustiden ned til ${tk} s eller lavere med fire stasjoner.`, takt: 20, maxSt: 4, deliver: false, goal: (e, tk) => !isG(e.cfg) && e.an && e.an.max <= tk + 1e-9, set: mset(20, 30) },
+    { id: 'o4', name: 'Første ordre', text: tk => `Kunden bestiller ett hus hvert ${tk}. sekund.`, goalText: () => 'Lever alle 10 husene.', takt: 20, set: mset(20, 30) },
+    { id: 'o5', name: 'Storkunden', text: tk => `En ny kunde vil ha ett hus hvert ${tk}. sekund.`, goalText: tk => `Lever alle 10 husene med takt ${tk} s.`, takt: 16, set: mset(16, 30) },
+    { id: 'o6', name: 'Kostnadskutt', text: () => 'Bedriften har bare råd til tre stasjoner.', goalText: tk => `Lever alle 10 husene med høyst tre stasjoner og takt ${tk} s.`, takt: 24, maxSt: 3, set: mset(24, 30) },
+    { id: 'o7', name: 'Urolig hverdag', text: () => 'Maskiner stopper og deler har feil.', goalText: () => 'Lever alle 10 husene med mange forstyrrelser.', takt: 20, minDist: 'hoy', set: mset(20, 60, { dist: 'hoy' }) },
+    { id: 'o8', name: 'Gruppebygging', text: () => 'Fire elever bygger det samme huset, og to grupper deler på kunden.', goalText: () => 'Lever alle 10 husene med to grupper på høyst fire elever.', takt: 20, form: 'gruppe', groupsMax: 2, maxSt: 4, set: mset(20, 30, { form: 'gruppe', groups: 2 }) },
+    { id: 'o9', name: 'Mesterprøven', text: () => 'Strammere takt, færre stasjoner og noen forstyrrelser på én gang.', goalText: tk => `Lever alle 10 husene med takt ${tk} s, høyst fem stasjoner og noen forstyrrelser.`, takt: 18, maxSt: 5, minDist: 'lav', set: mset(18, 30, { dist: 'lav' }) },
   ];
+  // Takt og oppstart for et oppdrag, tilpasset klassens tempo.
+  const missionTakt = (m, c) => Math.round(m.takt * ((c && c.tempo) || 1));
+  const missionSet = (m, c) => { const t = (c && c.tempo) || 1, tk = missionTakt(m, c); return { ...clone(m.set), shiftMin: Math.round(tk * 10 / 60 * 1000) / 1000, warmup: Math.round(m.set.warmup * t / 5) * 5 }; };
+  // Planlagte oppgavetider ganges med tempoet, så diagrammet, simuleringen og takten bruker samme tidsskala.
+  const BASE_T = {};
+  const applyTempo = f => { f = clamp(num(f) || 1, 0.8, 2.5); for (const id in T) { if (BASE_T[id] == null) BASE_T[id] = T[id].t; T[id].t = Math.round(BASE_T[id] * f * 10) / 10; } REWORK.t = Math.round(6 * f * 10) / 10; };
   const DIST_RANK = { av: 0, lav: 1, hoy: 2 };
   const WASTE_TYPES = ['Transport', 'Lager', 'Bevegelse', 'Venting', 'Overproduksjon', 'Overprosessering', 'Feil og omarbeid'];
   const REWORK = { id: 'feil', name: 'Rett feil på huset', short: 'Feil', t: 6, part: null };
@@ -709,10 +750,10 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function missionMet(e) {
     const m = MISSIONS.find(x => x.id === e.mission);
     if (!m || !e.cfg || !e.res) return false;
-    const c = e.cfg, takt = c.shiftMin * 60 / c.demand;
-    if (takt > m.takt + 0.05) return false;
+    const c = e.cfg, takt = c.shiftMin * 60 / c.demand, tk = missionTakt(m, c);
+    if (takt > tk + 0.05) return false;
     if (m.deliver !== false && e.res.delivered < c.demand) return false;
-    if (m.goal && !m.goal(e)) return false;
+    if (m.goal && !m.goal(e, tk)) return false;
     if ((m.form || 'linje') !== (c.form || 'linje')) return false;
     if (m.maxSt && arr(c).length > m.maxSt) return false;
     if (m.groupsMax && (c.groups || 1) > m.groupsMax) return false;
@@ -889,7 +930,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   // Konfigurasjon som sendes til elevene (og lagres i loggen)
-  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), warmup: c.warmup || 0, form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []), hint: c.hint || 'full', dist: c.dist || 'av', tpm: !!c.tpm, poka: !!c.poka, kanban: c.kanban || 1, mission: c.mission || null }; }
+  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), warmup: c.warmup || 0, form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []), hint: c.hint || 'full', dist: c.dist || 'av', tpm: !!c.tpm, poka: !!c.poka, kanban: c.kanban || 1, mission: c.mission || null, tempo: c.tempo || 1 }; }
   function cleanCfg(c) {
     if (!c || !Array.isArray(c.stations) || !c.stations.length) return null;
     const lists = a => Array.isArray(a) ? a.slice(0, 6).map(x => Array.isArray(x) ? sortIds(x.filter(id => typeof id === 'string' && T[id])) : []) : [];
@@ -902,6 +943,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       hint: ['full', 'delvis', 'ingen'].includes(c.hint) ? c.hint : 'full', dist: ['av', 'lav', 'hoy'].includes(c.dist) ? c.dist : 'av',
       tpm: c.tpm === true, poka: c.poka === true, kanban: clamp(Math.round(num(c.kanban)) || 1, 1, 3),
       mission: typeof c.mission === 'string' && MISSIONS.some(m => m.id === c.mission) ? c.mission : null,
+      tempo: Math.round(clamp(num(c.tempo) || 1, 0.8, 2.5) * 10) / 10,
     };
     if (out.form === 'gruppe' && out.team.length < 2) return null;
     return out;
@@ -1344,8 +1386,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       let blks = '';
       for (const id of ids) {
         const k = T[id], hp = k.t * sc - 2;
-        blks += `<button type="button" class="blk${k.waste && hintLvl() === 'full' ? ' waste' : ''}${sel === id ? ' sel' : ''}${violIds.has(id) ? ' viol' : ''}" draggable="${!locked()}" data-id="${id}" style="height:${hp}px" title="${esc(k.name)} · ${k.t} s"${locked() ? ' disabled' : ''}>
-          ${hp >= 26 ? `<span>${esc(k.short)}</span>` : ''}<span class="t">${hp >= 26 ? k.t + ' s' : esc(k.short) + ' ' + k.t + ' s'}</span></button>`;
+        blks += `<button type="button" class="blk${k.waste && hintLvl() === 'full' ? ' waste' : ''}${sel === id ? ' sel' : ''}${violIds.has(id) ? ' viol' : ''}" draggable="${!locked()}" data-id="${id}" style="height:${hp}px" title="${esc(k.name)} · ${fmt(k.t, 1)} s"${locked() ? ' disabled' : ''}>
+          ${hp >= 26 ? `<span>${esc(k.short)}</span>` : ''}<span class="t">${hp >= 26 ? fmt(k.t, 1) + ' s' : esc(k.short) + ' ' + fmt(k.t, 1) + ' s'}</span></button>`;
       }
       if (G && a.wait[i] > 0.5) blks += `<div class="blk wait" style="height:${a.wait[i] * sc - 2}px" title="Venter på resten av gruppa"><span class="t">venter ${fmt(a.wait[i])} s</span></div>`;
       const m = meas && meas[i] != null ? `<div class="yz-meas" style="bottom:${num(meas[i]) * sc}px"><span>målt ${fmt(meas[i], 1)}</span></div>` : '';
@@ -1372,7 +1414,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const k = T[sel], i = a.where[sel], n = arr(cfg).length, lk = locked(), U = unitName(cfg);
     const pre = (k.pre || []).map(p => T[p].short).join(', ');
     box.innerHTML = `
-      <div class="row"><span class="tag${k.waste ? ' waste' : ''}">${k.waste ? 'Sløsing: ' + esc(k.waste) : 'Verdiskapende'}</span><b>${esc(k.name)}</b><span class="num">${k.t} s</span><span class="hint">· ${U.toLowerCase()} ${i + 1}</span></div>
+      <div class="row"><span class="tag${k.waste ? ' waste' : ''}">${k.waste ? 'Sløsing: ' + esc(k.waste) : 'Verdiskapende'}</span><b>${esc(k.name)}</b><span class="num">${fmt(k.t, 1)} s</span><span class="hint">· ${U.toLowerCase()} ${i + 1}</span></div>
       ${k.waste ? '' : `<p class="hint">${pre ? 'Må gjøres etter: ' + esc(pre) + '.' : 'Ingen forutsetninger, kan gjøres først.'}</p>`}
       <div class="row">
         <button class="btn small" type="button" data-move="-1"${i === 0 || lk ? ' disabled' : ''}>← ${U} ${Math.max(1, i)}</button>
@@ -1388,7 +1430,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const pre = (k.pre || []).map(p => T[p].short).join(', ');
     const box = $('selbox');
     box.innerHTML = `
-      <div class="row"><span class="tag neutral">Oppgave</span><b>${esc(k.name)}</b><span class="num">${k.t} s</span><span class="hint">· ${U.toLowerCase()} ${i + 1}</span></div>
+      <div class="row"><span class="tag neutral">Oppgave</span><b>${esc(k.name)}</b><span class="num">${fmt(k.t, 1)} s</span><span class="hint">· ${U.toLowerCase()} ${i + 1}</span></div>
       ${pre ? `<p class="hint">Må gjøres etter: ${esc(pre)}.</p>` : ''}
       <div class="row">
         <button class="btn small" type="button" data-move="-1"${i === 0 || lk ? ' disabled' : ''}>← ${U} ${Math.max(1, i)}</button>
@@ -1444,6 +1486,22 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   }
 
   // ---------- Innstillinger ----------
+  // Forslag til tempo ut fra siste live-runde: medianen av målt / planlagt tid for stasjoner med elev.
+  function tempoSuggestion() {
+    const e = [...history].reverse().find(x => x.live && Array.isArray(x.meas) && Array.isArray(x.who));
+    if (!e || !e.an || !Array.isArray(e.an.times)) return null;
+    const r = e.meas.map((m, i) => (e.who[i] && m != null && e.an.times[i] > 0 ? m / e.an.times[i] : null)).filter(x => x != null).sort((a, b) => a - b);
+    if (!r.length) return null;
+    const med = r.length % 2 ? r[(r.length - 1) / 2] : (r[r.length / 2 - 1] + r[r.length / 2]) / 2;
+    return { f: Math.round(clamp(med * ((e.cfg && e.cfg.tempo) || 1), 0.8, 2.5) * 10) / 10, n: r.length, round: e.round };
+  }
+  function setTempo(f) {
+    if (locked()) return;
+    cfg.tempo = Math.round(clamp(f, 0.8, 2.5) * 10) / 10;
+    const m = activeMission();
+    if (m) { const ms = missionSet(m, cfg); cfg.shiftMin = Math.round(missionTakt(m, cfg) * cfg.demand / 60 * 1000) / 1000; cfg.warmup = ms.warmup; }
+    edited();
+  }
   const activeMission = () => MISSIONS.find(m => m.id === cfg.mission) || null;
   const maxUnits = () => { const m = activeMission(); return m && m.maxSt && (m.form || 'linje') === (cfg.form || 'linje') ? m.maxSt : 6; };
   const maxGroups = () => { const m = activeMission(); return m && m.groupsMax ? m.groupsMax : MAX_GROUPS; };
@@ -1494,6 +1552,12 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <span class="help">Gjelder simulerte stasjoner. ±5 % tilsvarer standardisert arbeid.</span>
       </div>
       <div class="set">
+        <span class="eyebrow">Klassens tempo</span>
+        <div class="stepper"><button class="btn small" type="button" data-tempo="-0.1"${cfg.tempo <= 0.8 || lk ? ' disabled' : ''} aria-label="Raskere tempo">−</button><span class="num">×${fmt(cfg.tempo || 1, 1)}</span><button class="btn small" type="button" data-tempo="0.1"${cfg.tempo >= 2.5 || lk ? ' disabled' : ''} aria-label="Roligere tempo">+</button></div>
+        <span class="help">Planlagte tider og takten i oppdragene ganges med tempoet. ×1,0 passer for elever som jobber raskt og sikkert.</span>
+        ${tempoSuggestion() ? `<div class="row-l"><span class="help">Målt i runde ${tempoSuggestion().round}: ×${fmt(tempoSuggestion().f, 1)} (median av ${tempoSuggestion().n} elever)</span><button class="btn small" type="button" data-tempo-set="${tempoSuggestion().f}"${lk}${tempoSuggestion().f === (cfg.tempo || 1) ? ' disabled' : ''}>Bruk</button></div>` : ''}
+      </div>
+      <div class="set">
         <span class="eyebrow">Forstyrrelser</span>
         ${seg('dist', [['av', 'Av'], ['lav', 'Noen'], ['hoy', 'Mange']], cfg.dist)}
         <span class="help">${cfg.dist === 'av' ? 'Ingen maskinstopp eller feil på deler.' : 'Maskiner stopper av og til, og noen hus har feil som må rettes.'}</span>
@@ -1510,7 +1574,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       </div>
       <div class="set">
         <span class="eyebrow">Gjennomførte tiltak</span>
-        <div class="removed">${cfg.removed.length ? cfg.removed.map(id => `<div><span>${esc(T[id].fix)} <span class="help">(−${T[id].t} s)</span></span><button class="btn small" type="button" data-restore="${id}"${lk}>Angre</button></div>`).join('') : `<span class="help">${hintLvl() === 'full' ? 'Ingen ennå. Velg en rød blokk i diagrammet.' : 'Ingen ennå. Velg en blokk og merk den som sløsing.'}</span>`}</div>
+        <div class="removed">${cfg.removed.length ? cfg.removed.map(id => `<div><span>${esc(T[id].fix)} <span class="help">(−${fmt(T[id].t, 1)} s)</span></span><button class="btn small" type="button" data-restore="${id}"${lk}>Angre</button></div>`).join('') : `<span class="help">${hintLvl() === 'full' ? 'Ingen ennå. Velg en rød blokk i diagrammet.' : 'Ingen ennå. Velg en blokk og merk den som sløsing.'}</span>`}</div>
       </div>
       <div class="set">
         <button class="btn small" type="button" id="btn-reset"${lk}>Tilbake til utgangspunktet</button>
@@ -1535,7 +1599,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (missionMet(e)) {
       const next = MISSIONS[MISSIONS.indexOf(m) + 1];
       out.unshift(['good', `Oppdraget «${m.name}» er løst.${next ? ` Neste oppdrag er «${next.name}».` : ' Alle oppdragene er løst.'}`, 'mål']);
-    } else out.unshift(['info', `Oppdraget «${m.name}» er ikke løst ennå. Mål: ${m.goalText}`, 'mål']);
+    } else out.unshift(['info', `Oppdraget «${m.name}» er ikke løst ennå. Mål: ${m.goalText(missionTakt(m, e.cfg))}`, 'mål']);
   }
   function observationsTeam(e) {
     const a = e.an, r = e.res, c = e.cfg, out = [];
@@ -1603,7 +1667,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const m = activeMission();
       $('obs-sub').textContent = 'Ingen runder er kjørt ennå. Dette er utgangspunktet.';
       list = [['info', isG(cfg) ? `Hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund, men med denne fordelingen tar et hus ${fmt(a.span)} s. Hvor mange hus tror dere kunden får?` : `Kunden bestiller ett hus hvert ${fmt(a.takt, 1)}. sekund, men den tregeste stasjonen bruker ${fmt(a.max)} s. Hvor mange hus tror dere kunden får?`, 'fakta'],
-              ['info', m ? `Oppdrag «${m.name}»: ${m.text} Mål: ${m.goalText}` : 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.', 'mål']];
+              ['info', m ? `Oppdrag «${m.name}»: ${m.text(missionTakt(m, cfg))} Mål: ${m.goalText(missionTakt(m, cfg))}` : 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.', 'mål']];
     } else {
       $('obs-sub').textContent = `Det linja forteller etter runde ${last.round}${last.live ? ' (live)' : ''}.${lvl !== 'full' ? ' Hjelpenivå: ' + lvl + '.' : ''}`;
       list = observations(last);
@@ -1633,6 +1697,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (Math.abs(taktOf(p) - taktOf(c)) > 0.05) out.push(`Takt ${fmt(taktOf(c), 1)} s`);
     if (p.demand !== c.demand) out.push(`${c.demand} hus`);
     if ((p.warmup || 0) !== (c.warmup || 0)) out.push(`Oppstart ${c.warmup || 0} s`);
+    if ((p.tempo || 1) !== (c.tempo || 1)) out.push(`Tempo ×${fmt(c.tempo || 1, 1)}`);
     return out.length ? out : ['Ingen endring'];
   }
   function renderLog() {
@@ -1680,7 +1745,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (m) {
       if ((m.form || 'linje') !== (cfg.form || 'linje')) warn.push(m.form === 'gruppe' ? 'Oppdraget skal løses i grupper.' : 'Oppdraget skal løses på linje.');
       if (m.maxSt && arr(cfg).length > m.maxSt) warn.push(`Oppdraget tillater høyst ${m.maxSt} ${isG(cfg) ? 'elever per gruppe' : 'stasjoner'}.`);
-      if (cfg.shiftMin * 60 / cfg.demand > m.takt + 0.05) warn.push(`Takten er satt slakkere enn oppdraget krever (${fmt(m.takt, 1)} s).`);
+      if (cfg.shiftMin * 60 / cfg.demand > missionTakt(m, cfg) + 0.05) warn.push(`Takten er satt slakkere enn oppdraget krever (${missionTakt(m, cfg)} s).`);
       if (m.minDist && (DIST_RANK[cfg.dist] || 0) < DIST_RANK[m.minDist]) warn.push('Oppdraget krever mange forstyrrelser.');
     }
     $('missions').innerHTML = MISSIONS.map((x, i) => {
@@ -1688,7 +1753,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const on = cur === x.id;
       return `<button type="button" class="mis" data-mission="${x.id}" aria-pressed="${on}" data-done="${!!done}">
         <span class="ms${on && !done ? ' active' : ''}">${done ? 'Løst i runde ' + done : on ? 'Aktivt' : 'Oppdrag ' + (i + 1)}</span>
-        <b>${esc(x.name)}</b><span class="mt">${esc(x.text)}</span><span class="mg">Mål: ${esc(x.goalText)}</span>
+        <b>${esc(x.name)}</b><span class="mt">${esc(x.text(missionTakt(x, cfg)))}</span><span class="mg">Mål: ${esc(x.goalText(missionTakt(x, cfg)))}</span>
         ${on && warn.length ? `<span class="mis-warn">${warn.map(esc).join(' ')}</span>` : ''}</button>`;
     }).join('') + `<button type="button" class="mis" data-mission="" aria-pressed="${!cur}"><span class="ms">Fritt</span><b>Fritt spill</b><span class="mt">Ingen mål. Still inn takt og rammer selv.</span></button>`;
   }
@@ -1696,7 +1761,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const m = MISSIONS.find(x => x.id === id);
     cfg.mission = m ? m.id : null;
     if (m) {
-      Object.assign(cfg, clone(m.set));
+      Object.assign(cfg, missionSet(m, cfg));
       const A = arr(cfg);
       while (m.maxSt && A.length > m.maxSt) { const last = A.pop(); A[A.length - 1].push(...last); sortIds(A[A.length - 1]); }
     }
@@ -1727,7 +1792,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (LD) line.innerHTML = `Lagkode <b>${esc(LD.code)}</b>`;
     $('btn-qr-close').focus();
   }
-  function renderAll() { renderKPIs(); renderYZ(); renderSettings(); renderControls(); renderMissions(); renderObs(); }
+  function renderAll() { applyTempo(cfg.tempo); renderKPIs(); renderYZ(); renderSettings(); renderControls(); renderMissions(); renderObs(); }
   function edited() {
     if (mode === 'tavle' && LD) {
       if (LD.ph === 'done') { LD.ph = 'lobby'; LD.rid = null; }
@@ -1942,9 +2007,51 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         : `<div class="ctl"><span class="eyebrow">Stasjoner</span><div class="stepper"><button class="btn small" type="button" data-st="-1"${cfg.stations.length <= 2 || lk ? ' disabled' : ''} aria-label="Færre stasjoner">−</button><span class="num">${cfg.stations.length}</span><button class="btn small" type="button" data-st="1"${cfg.stations.length >= maxUnits() || lk ? ' disabled' : ''} aria-label="Flere stasjoner">+</button></div></div>`}
       <span class="help">${G ? `Plass til ${cfg.groups * cfg.team.length} elever. Plasser uten elev blir simulert.` : `Plass til ${cfg.stations.length} elever. Stasjoner uten elev blir simulert.`}</span>`;
   }
+  // Forslag fra elevene samles fra presence og vises på tavla. Læreren prøver dem mellom rundene.
+  function collectSuggestions(peers) {
+    if (!LD) return;
+    LD.sugg = LD.sugg || new Map();
+    for (const pp of peers) {
+      const pr = pp.presence || {};
+      if (!Array.isArray(pr.fx) || (pr.role !== 'st' && pr.role !== 'gm')) continue;
+      for (const f of pr.fx.slice(-3)) {
+        if (!f || !T[f.t] || !Number.isInteger(f.w) || !WASTE_TYPES[f.w]) continue;
+        const key = pp.peer + ':' + num(f.n);
+        if (LD.sugg.has(key)) continue;
+        const where = pr.role === 'gm' ? `gruppe ${GL[pr.g] || '?'}` : Number.isInteger(pr.i) ? `stasjon ${pr.i + 1}` : '';
+        LD.sugg.set(key, { key, nick: cleanNick(pr.nick) || 'Elev', where, t: f.t, w: f.w, at: Date.now(), res: null });
+      }
+    }
+    if (LD.sugg.size > 30) { const keys = [...LD.sugg.keys()]; keys.slice(0, LD.sugg.size - 30).forEach(k => LD.sugg.delete(k)); }
+  }
+  function renderSuggestions() {
+    const el = $('sugg');
+    if (!LD || !LD.sugg || !LD.sugg.size) { el.hidden = true; return; }
+    el.hidden = false;
+    const lk = locked();
+    const list = [...LD.sugg.values()].reverse();
+    el.innerHTML = `<p class="eyebrow" style="color:var(--ink)">Forslag fra elevene (${list.length})</p>` + list.map(sg => {
+      const gone = !arr(cfg).flat().includes(sg.t);
+      const res = sg.res === 'ok' ? 'Riktig, tiltaket er gjennomført.' : sg.res === 'feil' ? sg.why : gone && !sg.res ? 'Oppgaven er allerede fjernet.' : '';
+      return `<div class="sg" data-res="${sg.res || ''}"><div><b>${esc(sg.nick)}</b>${sg.where ? ' · ' + esc(sg.where) : ''}: «${esc(T[sg.t].name)}» er ${esc(WASTE_TYPES[sg.w].toLowerCase())}${res ? `<div class="sg-r">${esc(res)}</div>` : ''}</div>
+        ${sg.res || gone ? '' : `<button class="btn small" type="button" data-sugg="${esc(sg.key)}"${lk ? ' disabled title="Kan prøves når runden er ferdig"' : ''}>Prøv</button>`}</div>`;
+    }).join('');
+  }
+  function trySuggestion(key) {
+    if (!LD || !LD.sugg || locked()) return;
+    const sg = LD.sugg.get(key);
+    if (!sg || !T[sg.t]) return;
+    const k = T[sg.t], type = WASTE_TYPES[sg.w];
+    if (!k.waste) { sg.res = 'feil'; sg.why = 'Ikke sløsing. Dette er verdiskapende arbeid.'; }
+    else if (k.waste !== type) { sg.res = 'feil'; sg.why = 'Det er sløsing, men av en annen type.'; }
+    else { sg.res = 'ok'; flash = `${sg.nick} hadde rett: ${type.toLowerCase()}. Tiltak: ${k.fix}.`; sel = null; removeWaste(sg.t); }
+    renderSuggestions();
+  }
   function renderRoster() {
     if (!LD) return;
     renderLobbyCtl();
+    if (LD.r) collectSuggestions(LD.r.peers());
+    renderSuggestions();
     const c = LD.ph === 'lobby' || !LD.cfg ? cfg : LD.cfg;
     const peers = LD.r ? LD.r.peers() : [];
     if (isG(c)) { renderRosterGroups(c, peers); return; }
@@ -2403,13 +2510,13 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const av = cyc.length ? Math.round(cyc.reduce((a, b) => a + b, 0) / cyc.length * 10) / 10 : 0;
     if (ST.group && ST.gm) {
       const gm = ST.gm;
-      return { role: 'gm', g: gm.g, m: gm.m, nick: ST.nick, rid: ST.rid, h: gm.h, d: gm.d, c: gm.c, s: gm.s, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0, a: gm.a.map(x => Math.round(x)), w: Math.round(gm.a[0] * 10) / 10, av, nc: cyc.length, dn: Math.round(gm.dn || 0), df: gm.df || 0 };
+      return { role: 'gm', g: gm.g, m: gm.m, nick: ST.nick, rid: ST.rid, h: gm.h, d: gm.d, c: gm.c, s: gm.s, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0, a: gm.a.map(x => Math.round(x)), w: Math.round(gm.a[0] * 10) / 10, av, nc: cyc.length, dn: Math.round(gm.dn || 0), df: gm.df || 0, fx: ST.fx || [] };
     }
     if (ST.i == null) return { role: 'st', i: null, nick: ST.nick };
     return {
       role: 'st', i: ST.i, nick: ST.nick, rid: ST.rid, tk: ST.tk, sn: ST.sn, tr: ST.tr, s: ST.s,
       ti: ST.job ? ST.job.ti : 0, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0,
-      acc: ST.acc.map(x => Math.round(x)), av, nc: cyc.length, dn: Math.round(ST.dn || 0), df: ST.df || 0,
+      acc: ST.acc.map(x => Math.round(x)), av, nc: cyc.length, dn: Math.round(ST.dn || 0), df: ST.df || 0, fx: ST.fx || [],
     };
   }
   function publishSt(force) {
@@ -2731,7 +2838,61 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (id === 'feil') what = 'Det er funnet en feil på huset. Løsne og fest skruene på nytt.';
     return `<b>${esc(TT(id).name)}</b> · ${what} <span class="help">(oppgave ${j.ti + 1} av ${j.tasks.length})</span>`;
   }
+  // Mens eleven venter: hvordan går det med resten av linja, og et skjema for å melde sløsing.
+  function renderExtra(x, waiting) {
+    const box = $('ws-extra');
+    const live = !ST.practice && x && x.c && x.LP && (x.phase === 'run' || x.phase === 'count' || x.phase === 'done');
+    box.hidden = !live;
+    if (!live) return;
+    box.classList.toggle('waiting', !!waiting);
+    const c = x.c, LP = x.LP, peers = x.peers || [];
+    let rows = '';
+    if (isG(c)) {
+      for (let g = 0; g < c.groups; g++) {
+        const X = groupX(c, g, LP, peers, ST.group && ST.g === g ? ST.gm : null);
+        const U = unionFor(c, g, X, LP, peers, ST.group && ST.g === g ? ST.gm : null);
+        const all = c.team.flat().length || 1;
+        rows += `<div class="lv${ST.group && ST.g === g ? ' me' : ''}"><span class="andon" data-s="${U.working.size ? 'work' : 'starved'}"></span><span>Gruppe ${GL[g]}</span><span class="lv-n">${Math.round(U.done.size / all * 100)} % av huset</span><span class="lv-q">${X} hus</span></div>`;
+      }
+    } else {
+      c.stations.forEach((ids, i) => {
+        const cs = i === ST.i ? { s: ST.s, sn: ST.sn, tk: ST.tk } : countersFor(i, LP, peers, null);
+        const sp = LP.staff && LP.staff[i] && peers.find(pp => pp.peer === LP.staff[i]);
+        const nm = i === ST.i ? 'deg' : LP.staff && LP.staff[i] ? (cleanNick(sp && sp.presence.nick) || 'elev') : 'simulert';
+        const q = i > 0 ? Math.max(0, num((i - 1 === ST.i ? { sn: ST.sn } : countersFor(i - 1, LP, peers, null)).sn) - num(cs.tk)) : null;
+        const st = ['work', 'starved', 'blocked', 'down'].includes(cs.s) ? cs.s : 'starved';
+        rows += `<div class="lv${i === ST.i ? ' me' : ''}"><span class="andon" data-s="${st}"></span><span>Stasjon ${i + 1}</span><span class="lv-n">${esc(nm)}</span><span class="lv-q">${q != null ? q + ' i kø' : ''}</span></div>`;
+      });
+    }
+    const lv = $('ws-line');
+    if (lv.dataset.k !== rows) { lv.innerHTML = rows; lv.dataset.k = rows; }
+    // valgene i skjemaet: alle oppgaver i linja
+    const ids = sortIds([...new Set(arr(c).flat())]);
+    const key = ids.join(',');
+    const sel = $('rp-task');
+    if (sel.dataset.k !== key) {
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">Velg oppgave</option>' + ids.map(id => `<option value="${id}">${esc(T[id].name)}</option>`).join('');
+      if (ids.includes(prev)) sel.value = prev;
+      sel.dataset.k = key;
+    }
+    const ty = $('rp-type');
+    if (!ty.options.length) ty.innerHTML = '<option value="">Hvilken type?</option>' + WASTE_TYPES.map((w, k) => `<option value="${k}">${esc(w)}</option>`).join('');
+  }
+  function sendReport() {
+    const id = $('rp-task').value, w = $('rp-type').value, msg = $('rp-msg');
+    if (!id || w === '') { msg.textContent = 'Velg både oppgave og type sløsing.'; return; }
+    const now = Date.now();
+    if (ST.lastReport && now - ST.lastReport < 4000) { msg.textContent = 'Vent litt før du sender et nytt forslag.'; return; }
+    ST.lastReport = now;
+    ST.fxn = (ST.fxn || 0) + 1;
+    ST.fx = [...(ST.fx || []), { t: id, w: +w, n: ST.fxn }].slice(-3);
+    publishSt(true);
+    msg.textContent = `Sendt: «${T[id].name}» som ${WASTE_TYPES[+w].toLowerCase()}. Læreren ser forslaget på tavla.`;
+    $('rp-task').value = ''; $('rp-type').value = '';
+  }
   function renderWork(x, title, sub, forceMsg) {
+    renderExtra(x, !!title);
     const c = x.c || cfg;
     const i = ST.i;
     const grp = ST.group && ST.gm && isG(c);
@@ -2938,6 +3099,10 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     else if (b.dataset.restore) restoreWaste(b.dataset.restore);
     else if (b.hasAttribute('data-unsel')) { sel = null; renderYZ(); }
     else if (b.dataset.guess) guessWaste(b.dataset.guess);
+    else if (b.dataset.tempo) setTempo((cfg.tempo || 1) + (+b.dataset.tempo));
+    else if (b.dataset.tempoSet) setTempo(+b.dataset.tempoSet);
+    else if (b.dataset.sugg) trySuggestion(b.dataset.sugg);
+    else if (b.id === 'btn-report') sendReport();
     else if (b.dataset.mission != null) { if (!locked()) applyMission(b.dataset.mission); }
     else if (b.dataset.st) {
       if (locked()) return;
@@ -3012,7 +3177,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     }
     if (!('hint' in c)) out.hint = DEFAULT.hint;
     // Eldre oppsett (lange runder, gamle oppdrag) flyttes over til første korte oppdrag.
-    if (!('mission' in c) || (typeof c.mission === 'string' && /^m[0-9]$/.test(c.mission))) { out.mission = 'o1'; Object.assign(out, clone(MISSIONS[0].set)); }
+    if (!('mission' in c) || (typeof c.mission === 'string' && /^m[0-9]$/.test(c.mission))) { out.mission = 'o1'; Object.assign(out, missionSet(MISSIONS[0], out)); }
     return out;
   }
   function start(data) {
