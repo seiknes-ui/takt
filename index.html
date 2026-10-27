@@ -161,6 +161,25 @@ input[type="text"], input[type="number"] { padding: 7px 10px; border: 1px solid 
 .andon[data-s="work"] { background: var(--ok); }
 .andon[data-s="starved"] { background: var(--warn); }
 .andon[data-s="blocked"] { background: var(--bad); }
+.andon[data-s="down"] { background: var(--bad); animation: blink .6s steps(2, start) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .andon[data-s="down"] { animation: none; outline: 2px solid var(--bad); outline-offset: 2px; } }
+.missions { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.mis { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 12px 14px; text-align: left; display: grid; gap: 6px; align-content: start; }
+.mis b { font-family: var(--display); font-size: 22px; text-transform: uppercase; line-height: 1; }
+.mis .mt { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.mis .ms { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; justify-self: start; padding: 2px 7px; border-radius: 3px; background: var(--bg); color: var(--muted); }
+.mis[data-done="true"] .ms { background: var(--ok); color: var(--on-ok); }
+.mis[aria-pressed="true"] { border: 2px solid var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
+.mis[aria-pressed="true"] .ms.active { background: var(--accent); color: var(--on-accent); }
+.mis-warn { font-size: 12px; color: var(--bad); }
+.tag.neutral { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+.guess { display: grid; gap: 6px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.guess-msg { font-size: 13px; padding: 6px 10px; border-radius: 4px; background: var(--bg); border-left: 4px solid var(--bad); }
+.guess-msg[data-ok="true"] { border-left-color: var(--ok); }
+.toggles { display: grid; gap: 4px; font-size: 13px; }
+.toggles label { display: flex; gap: 8px; align-items: center; }
+.row-l { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .node .house { width: 100%; height: 78px; }
 .st-task { font-size: 12px; min-height: 2.6em; color: var(--muted); line-height: 1.3; }
 .st-task b { color: var(--ink); font-weight: 600; }
@@ -398,6 +417,16 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       </div>
     </section>
 
+    <section aria-labelledby="h-mis">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-mis">Oppdrag</h2>
+          <p>Hvert oppdrag har et mål fra kunden. Når dere løser ett, er neste klart. Velg et oppdrag for å sette opp kundebehovet og rammene.</p>
+        </div>
+      </div>
+      <div class="missions" id="missions"></div>
+    </section>
+
     <section aria-labelledby="h-line">
       <div class="sec-head">
         <div>
@@ -476,12 +505,12 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <div class="panel">
           <h3 style="margin-bottom: 14px">Forslag til økt</h3>
           <ol class="steps">
-            <li><div><b>Øv på stasjonene</b><span>Elevene velger Stasjon og trykker «Øv uten tavle» for å lære håndgrepene: dra delene på plass, skru inn skruene, let etter klosser.</span></div></li>
-            <li><div><b>Slik gjør vi det i dag</b><span>Læreren åpner Tavle, elevene trykker på lagkoden og velger hver sin stasjon. Kjør første live-runde uten endringer.</span></div></li>
-            <li><div><b>Balanser linja</b><span>Se på de målte tidene i diagrammet. Flytt oppgaver fra de høyeste søylene til de laveste, og husk rekkefølgen.</span></div></li>
-            <li><div><b>Fjern sløsing</b><span>Elevene har kjent sløsingen på kroppen: gå til lageret, lete etter klosser, vente på verktøy. Gjennomfør tiltak mot de røde blokkene.</span></div></li>
-            <li><div><b>Skap flyt</b><span>Sett partistørrelsen til 1 og slå på trekk. Diskuter hvordan det føltes å vente og å bli blokkert.</span></div></li>
-            <li><div><b>Bygg i gruppe</b><span>Bytt arbeidsform til Gruppe. Fire elever bygger det samme huset, og du fordeler oppgavene i diagrammet. Sammenlign med linja: hvem venter, og hvorfor klarer ikke én gruppe takten alene?</span></div></li>
+            <li><div><b>Øv på stasjonene · 15 min</b><span>Elevene velger Stasjon og trykker «Øv uten tavle» for å lære håndgrepene. Sett hjelpenivået til Delvis eller Ingen, så sløsingen ikke er merket.</span></div></li>
+            <li><div><b>Første ordre · 60–90 min</b><span>Kjør første runde uten endringer. Elevene må selv finne sløsingen og hvilken type det er, før de kan fjerne den. Deretter balanserer de linja og prøver mindre partier.</span></div></li>
+            <li><div><b>Storkunden · 40–60 min</b><span>Takten strammes inn til 16 s. Det holder ikke å balansere: linja trenger flere stasjoner og raskere oppstart.</span></div></li>
+            <li><div><b>Kostnadskutt · 40–60 min</b><span>Bare tre stasjoner. Svært få fordelinger holder takten, så elevene må prøve seg fram og tenke rekkefølge.</span></div></li>
+            <li><div><b>Urolig hverdag · 40–60 min</b><span>Maskiner stopper og deler har feil. Løsningen fra første ordre holder ikke. Diskuter buffere, forebyggende vedlikehold og feilsikring.</span></div></li>
+            <li><div><b>Gruppebygging · 40–60 min</b><span>Fire elever bygger det samme huset. Sammenlign med linja: hvem venter, og hvorfor klarer ikke én gruppe takten alene?</span></div></li>
           </ol>
         </div>
         <div class="panel">
@@ -570,25 +599,72 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     chim:     { name: 'Sett på pipe', short: 'Pipe', t: 4, ord: 8, pre: ['roof'], part: 'chim' },
     qc:       { name: 'Sluttkontroll', short: 'Kontroll', t: 5, ord: 10, pre: ['base', 'front', 'side', 'win', 'door', 'roof', 'chim'], part: 'qc' },
     recheck:  { name: 'Dobbeltkontroll og omarbeid', short: 'Omarbeid', t: 6, ord: 11, waste: 'Feil og omarbeid', fix: 'Kvalitet ved kilden: sjekkliste' },
+    polish:   { name: 'Puss innsiden av veggene', short: 'Pusse', t: 4, ord: 5.5, waste: 'Overprosessering', fix: 'Avklar med kunden: innsiden skal ikke pusses' },
+    carry:    { name: 'Bær huset til kontrollbordet', short: 'Bære', t: 3, ord: 9.5, waste: 'Transport', fix: 'Kontroll rett ved stasjonen' },
   };
   for (const id in T) T[id].id = id;
   const PARTS = ['base', 'front', 'side', 'win', 'door', 'roof', 'chim', 'qc'];
   const DEFAULT = {
     shiftMin: 8, demand: 24, batch: 4, pull: false, variation: 0.15,
-    stations: [['fetch', 'base', 'front', 'side'], ['search', 'win'], ['waitTool', 'door', 'roof', 'chim'], ['qc', 'recheck']],
+    stations: [['fetch', 'base', 'front', 'side'], ['search', 'win', 'polish'], ['waitTool', 'door', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
     removed: [], home: {},
     form: 'linje', groups: 1, homeT: {},
-    team: [['fetch', 'base', 'front', 'side', 'search'], ['win'], ['door', 'waitTool', 'roof', 'chim'], ['qc', 'recheck']],
+    team: [['fetch', 'base', 'front', 'side', 'search'], ['win', 'polish'], ['door', 'waitTool', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
+    hint: 'delvis', dist: 'av', tpm: false, poka: false, kanban: 1, mission: 'm1',
   };
   const SPEEDS = [1, 5, 15, 40];
   const GL = ['A', 'B', 'C', 'D'];
+  // Oppdrag: hvert oppdrag har et mål (kundens takt) og noen rammer. Tallene er kontrollert med simuleringen.
+  const MISSIONS = [
+    { id: 'm1', name: 'Første ordre', text: 'Kunden bestiller ett hus hvert 20. sekund. Lever alt kunden bestiller.', takt: 20, set: { shiftMin: 8, demand: 24, form: 'linje', dist: 'av' } },
+    { id: 'm2', name: 'Storkunden', text: 'En ny kunde vil ha ett hus hvert 16. sekund. Dere kan bruke inntil seks stasjoner.', takt: 16, set: { shiftMin: 8, demand: 30, form: 'linje', dist: 'av' } },
+    { id: 'm3', name: 'Kostnadskutt', text: 'Bedriften har bare råd til tre stasjoner. Kunden vil ha ett hus hvert 24. sekund.', takt: 24, maxSt: 3, set: { shiftMin: 8, demand: 20, form: 'linje', dist: 'av' } },
+    { id: 'm4', name: 'Urolig hverdag', text: 'Maskiner stopper og deler har feil. Lever ett hus hvert 20. sekund likevel.', takt: 20, minDist: 'hoy', set: { shiftMin: 8, demand: 24, form: 'linje', dist: 'hoy' } },
+    { id: 'm5', name: 'Gruppebygging', text: 'Bygg i grupper på fire elever. To grupper skal sammen levere ett hus hvert 20. sekund.', takt: 20, form: 'gruppe', groupsMax: 2, maxSt: 4, set: { shiftMin: 8, demand: 24, form: 'gruppe', groups: 2, dist: 'av' } },
+  ];
+  const DIST_RANK = { av: 0, lav: 1, hoy: 2 };
+  const WASTE_TYPES = ['Transport', 'Lager', 'Bevegelse', 'Venting', 'Overproduksjon', 'Overprosessering', 'Feil og omarbeid'];
+  const REWORK = { id: 'feil', name: 'Rett feil på huset', short: 'Feil', t: 6, part: null };
+  const TT = id => T[id] || (id === 'feil' ? REWORK : null);
+  const hintLvl = () => (cfg && cfg.hint) || 'full';
+  // Forstyrrelser: maskinstopp per stasjon/elev ([nøkkel, fra s, til s]) og sannsynlighet for feil per hus.
+  function makeDist(c, rnd) {
+    if (!c || c.dist === 'av' || !c.dist) return [];
+    const perShift = (c.dist === 'hoy' ? 2 : 1) * (c.tpm ? 0.4 : 1);
+    const Tend = c.shiftMin * 60, mean = 480 / perShift;
+    const keys = isG(c) ? Array.from({ length: c.groups }, (_, g) => c.team.map((_, m) => g + '-' + m)).flat() : c.stations.map((_, i) => String(i));
+    const ev = [];
+    for (const k of keys) {
+      let t = 0;
+      for (;;) {
+        t += -Math.log(1 - rnd()) * mean;
+        if (t > Tend - 10) break;
+        const dur = (15 + rnd() * 20) * (c.tpm ? 0.6 : 1);
+        ev.push([k, Math.round(t), Math.round(t + dur)]);
+      }
+    }
+    return ev.slice(0, 40);
+  }
+  const defectP = c => !c || !c.dist || c.dist === 'av' ? 0 : (c.dist === 'hoy' ? 0.15 : 0.07) * (c.poka ? 0.25 : 1);
+  const downLeft = (ev, key, t) => { let left = 0; for (const e of ev || []) if (e[0] === key && t >= e[1] && t < e[2]) left = Math.max(left, e[2] - t); return left; };
+  function missionMet(e) {
+    const m = MISSIONS.find(x => x.id === e.mission);
+    if (!m || !e.cfg || !e.res) return false;
+    const c = e.cfg, takt = c.shiftMin * 60 / c.demand;
+    if (takt > m.takt + 0.05 || e.res.delivered < c.demand) return false;
+    if ((m.form || 'linje') !== (c.form || 'linje')) return false;
+    if (m.maxSt && arr(c).length > m.maxSt) return false;
+    if (m.groupsMax && (c.groups || 1) > m.groupsMax) return false;
+    if (m.minDist && (DIST_RANK[c.dist] || 0) < DIST_RANK[m.minDist]) return false;
+    return true;
+  }
   const isG = c => !!c && c.form === 'gruppe';
   const arr = c => isG(c) ? c.team : c.stations;
   const unitName = c => isG(c) ? 'Elev' : 'Stasjon';
   // Korte koder for oppgaver i presence (holder meldingene små)
-  const TIDS = ['fetch', 'base', 'front', 'side', 'search', 'win', 'door', 'waitTool', 'roof', 'chim', 'qc', 'recheck'];
+  const TIDS = ['fetch', 'base', 'front', 'side', 'search', 'win', 'door', 'waitTool', 'roof', 'chim', 'qc', 'recheck', 'polish', 'carry'];
   const enc = ids => ids.map(id => String.fromCharCode(97 + TIDS.indexOf(id))).join('');
-  const dec = s => Array.from(typeof s === 'string' ? s.slice(0, 12) : '').map(ch => TIDS[ch.charCodeAt(0) - 97]).filter(Boolean);
+  const dec = s => Array.from(typeof s === 'string' ? s.slice(0, 16) : '').map(ch => TIDS[ch.charCodeAt(0) - 97]).filter(Boolean);
   const VARS = [[0, 'Ingen'], [0.05, '±5 %'], [0.15, '±15 %'], [0.3, '±30 %']];
   const KEY = 'taktlinja-v1';
   const STATUS_TXT = { work: 'Arbeider', starved: 'Venter på hus', blocked: 'Blokkert', idle: 'Ikke i gang', done: 'Ferdig' };
@@ -752,7 +828,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   // Konfigurasjon som sendes til elevene (og lagres i loggen)
-  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []) }; }
+  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []), hint: c.hint || 'full', dist: c.dist || 'av', tpm: !!c.tpm, poka: !!c.poka, kanban: c.kanban || 1, mission: c.mission || null }; }
   function cleanCfg(c) {
     if (!c || !Array.isArray(c.stations) || !c.stations.length) return null;
     const lists = a => Array.isArray(a) ? a.slice(0, 6).map(x => Array.isArray(x) ? sortIds(x.filter(id => typeof id === 'string' && T[id])) : []) : [];
@@ -761,6 +837,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       batch: clamp(Math.round(num(c.batch)) || 1, 1, 6), pull: c.pull === true, variation: clamp(num(c.variation), 0, 0.3),
       stations: lists(c.stations), removed: Array.isArray(c.removed) ? c.removed.filter(id => T[id]) : [],
       form: c.form === 'gruppe' ? 'gruppe' : 'linje', groups: clamp(Math.round(num(c.groups)) || 1, 1, 4), team: lists(c.team),
+      hint: ['full', 'delvis', 'ingen'].includes(c.hint) ? c.hint : 'full', dist: ['av', 'lav', 'hoy'].includes(c.dist) ? c.dist : 'av',
+      tpm: c.tpm === true, poka: c.poka === true, kanban: clamp(Math.round(num(c.kanban)) || 1, 1, 3),
+      mission: typeof c.mission === 'string' && MISSIONS.some(m => m.id === c.mission) ? c.mission : null,
     };
     if (out.form === 'gruppe' && out.team.length < 2) return null;
     return out;
@@ -822,14 +901,15 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const T_end = c.shiftMin * 60, takt = T_end / c.demand;
     return {
       cfg: clone(c), takt, T: T_end, steps: Math.round(T_end / DT), k: 0, acc: 0, rng: mulberry32(20261027),
-      st: c.stations.map(ids => ({ tasks: ids.map(id => T[id]), inQ: [], cur: null, ti: 0, rem: 0, dur: 0, tray: [], work: 0, starve: 0, block: 0, maxQ: 0, status: 'starved' })),
+      events: makeDist(c, mulberry32(777)), defP: defectP(c), rngD: mulberry32(4242), defects: 0,
+      st: c.stations.map(ids => ({ tasks: ids.map(id => T[id]), list: [], inQ: [], cur: null, ti: 0, rem: 0, dur: 0, tray: [], work: 0, starve: 0, block: 0, down: 0, maxQ: 0, status: 'starved' })),
       fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: takt, nid: 1, started: 0, wipInt: 0,
       finished: [], firstOut: null, lastDel: null, done: false,
     };
   }
   function beginTask(sim, s) {
     const v = sim.cfg.variation;
-    s.dur = s.tasks[s.ti].t * (1 + v * (sim.rng() * 2 - 1));
+    s.dur = s.list[s.ti].t * (1 + v * (sim.rng() * 2 - 1));
     s.rem = s.dur;
   }
   function tryTransfer(sim, i) {
@@ -842,7 +922,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       return;
     }
     const d = S[i + 1];
-    if (sim.cfg.pull && d.inQ.length + s.tray.length > B) return;
+    if (sim.cfg.pull && d.inQ.length + s.tray.length > B * (sim.cfg.kanban || 1)) return;
     d.inQ.push(...s.tray);
     s.tray = [];
     d.maxQ = Math.max(d.maxQ, d.inQ.length);
@@ -856,6 +936,10 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (!u) return;
     s.cur = u; s.ti = 0;
     if (!s.tasks.length) { s.tray.push(u); s.cur = null; return; }
+    // Feil på en del gir ekstra arbeid på denne stasjonen.
+    const bad = sim.defP > 0 && sim.rngD() < sim.defP;
+    if (bad) sim.defects++;
+    s.list = bad ? [...s.tasks, REWORK] : s.tasks;
     beginTask(sim, s);
   }
   function step(sim) {
@@ -863,13 +947,18 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     sim.k++;
     for (let i = S.length - 1; i >= 0; i--) {
       const s = S[i];
+      if (sim.events.length && downLeft(sim.events, String(i), sim.k * DT) > 0) {
+        tryTransfer(sim, i);
+        s.status = 'down'; s.down += DT;
+        continue;
+      }
       if (s.cur) {
         s.rem -= DT;
         while (s.cur && s.rem <= 0) {
-          const task = s.tasks[s.ti];
+          const task = s.list[s.ti];
           if (task.part) s.cur.done.add(task.part);
           s.ti++;
-          if (s.ti >= s.tasks.length) { s.tray.push(s.cur); s.cur = null; }
+          if (s.ti >= s.list.length) { s.tray.push(s.cur); s.cur = null; }
           else { const carry = s.rem; beginTask(sim, s); s.rem += carry; }
         }
       }
@@ -895,7 +984,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       lead: f.length ? f.reduce((a, u) => a + u.end - u.start, 0) / f.length : null,
       wip: sim.wipInt / sim.T, first: sim.firstOut,
       starve: sim.st.map(s => s.starve / sim.T), block: sim.st.map(s => s.block / sim.T), util: sim.st.map(s => s.work / sim.T),
-      maxQ: sim.st.map(s => s.maxQ),
+      maxQ: sim.st.map(s => s.maxQ), down: sim.st.map(s => s.down), defects: sim.defects,
     };
   }
 
@@ -904,8 +993,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const T_end = c.shiftMin * 60, takt = T_end / c.demand, all = c.team.flat();
     return {
       group: true, cfg: clone(c), takt, T: T_end, steps: Math.round(T_end / DT), k: 0, acc: 0, rng: mulberry32(20261027),
+      events: makeDist(c, mulberry32(777)), defP: defectP(c), rngD: mulberry32(4242), defects: 0,
       all, allSet: new Set(all),
-      gs: Array.from({ length: c.groups }, () => ({ start: 0, done: new Set(), cyc: [], mem: c.team.map(() => ({ cur: null, rem: 0, dur: 0, work: 0, wait: 0, status: 'wait' })) })),
+      gs: Array.from({ length: c.groups }, () => ({ start: 0, done: new Set(), cyc: [], mem: c.team.map(() => ({ cur: null, rem: 0, dur: 0, work: 0, wait: 0, down: 0, status: 'wait' })) })),
       fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: takt, started: all.length ? c.groups : 0, wipInt: 0,
       finished: [], firstOut: null, lastDel: null, done: false,
     };
@@ -914,8 +1004,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const c = sim.cfg;
     sim.k++;
     const t = sim.k * DT;
+    sim.gs.forEach((g, gi) => g.mem.forEach((mm, m) => { mm.isDown = sim.events.length > 0 && downLeft(sim.events, gi + '-' + m, t) > 0; }));
     for (const g of sim.gs) {
-      g.mem.forEach(mm => { if (mm.cur) { mm.rem -= DT; if (mm.rem <= 0) { g.done.add(mm.cur); mm.cur = null; } } });
+      g.mem.forEach(mm => { if (mm.cur && !mm.isDown) { mm.rem -= DT; if (mm.rem <= 0) { g.done.add(mm.cur); mm.cur = null; } } });
       if (sim.all.length && g.done.size >= sim.all.length) {
         const u = { start: g.start, end: t };
         sim.fg.push(u); sim.finished.push(u); g.cyc.push(t - g.start);
@@ -923,9 +1014,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         g.done = new Set(); g.start = t;
       }
       g.mem.forEach((mm, m) => {
+        if (mm.isDown) { mm.status = 'down'; mm.down += DT; mm.wait += DT; return; }
         if (!mm.cur) {
           const id = c.team[m].find(x => !g.done.has(x) && (T[x].pre || []).every(p => !sim.allSet.has(p) || g.done.has(p)));
-          if (id) { mm.cur = id; mm.dur = T[id].t * (1 + c.variation * (sim.rng() * 2 - 1)); mm.rem = mm.dur; }
+          if (id) {
+            mm.cur = id; mm.dur = T[id].t * (1 + c.variation * (sim.rng() * 2 - 1));
+            if (sim.defP > 0 && sim.rngD() < sim.defP * 0.5) { mm.dur += 4; sim.defects++; }
+            mm.rem = mm.dur;
+          }
         }
         mm.status = mm.cur ? 'work' : c.team[m].some(x => !g.done.has(x)) ? 'wait' : 'idle';
         if (mm.cur) mm.work += DT; else mm.wait += DT;
@@ -951,6 +1047,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       util: per('work'), starve: per('wait'), block: Array(M).fill(0), maxQ: [],
       gcyc: sim.gs.map(g => g.cyc.length ? g.cyc.reduce((a, b) => a + b, 0) / g.cyc.length : null),
       memWork: Array.from({ length: M }, (_, m) => sim.gs.reduce((a, g) => a + g.mem[m].work, 0) / houses),
+      down: Array.from({ length: M }, (_, m) => sim.gs.reduce((a, g) => a + g.mem[m].down, 0) / G), defects: sim.defects,
     };
   }
   const makeSimAny = c => isG(c) ? makeGroupSim(c) : makeSim(c);
@@ -988,15 +1085,19 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.custTakt, 1)} s</b><small>${G > 1 ? `${G} grupper: ${fmt(a.takt, 1)} s hver` : `${cfg.shiftMin} min ÷ ${cfg.demand} hus`}</small></div>
         <div class="kpi" data-state="${over ? 'bad' : 'ok'}"><span class="eyebrow">Tid per hus</span><b class="num">${fmt(a.span)} s</b><small>Gruppetakt ${fmt(a.takt, 1)} s</small></div>
         <div class="kpi"><span class="eyebrow">Arbeidsbalanse</span><b class="num">${pct(a.balance)}</b><small>${cfg.team.length} elever per gruppe</small></div>
-        <div class="kpi" data-state="${a.waste ? 'bad' : 'ok'}"><span class="eyebrow">Sløsing per hus</span><b class="num">${fmt(a.waste)} s</b><small>av ${fmt(a.total)} s arbeid</small></div>`;
+        ${wasteTile(a)}`;
       return;
     }
     $('kpis').innerHTML = `
       <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.takt, 1)} s</b><small>${cfg.shiftMin} min ÷ ${cfg.demand} hus</small></div>
       <div class="kpi" data-state="${over ? 'bad' : 'ok'}"><span class="eyebrow">Syklustid</span><b class="num">${fmt(a.max)} s</b><small>${a.max ? 'Flaskehals: stasjon ' + (a.bn + 1) : 'Ingen oppgaver'}</small></div>
       <div class="kpi"><span class="eyebrow">Balansegrad</span><b class="num">${pct(a.balance)}</b><small>${cfg.stations.length} stasjoner</small></div>
-      <div class="kpi" data-state="${a.waste ? 'bad' : 'ok'}"><span class="eyebrow">Sløsing per hus</span><b class="num">${fmt(a.waste)} s</b><small>av ${fmt(a.total)} s arbeid</small></div>`;
+      ${wasteTile(a)}`;
   }
+  // Med skjult sløsing viser vi bare total arbeidstid, ikke hvor mye som er sløsing.
+  const wasteTile = a => hintLvl() === 'full'
+    ? `<div class="kpi" data-state="${a.waste ? 'bad' : 'ok'}"><span class="eyebrow">Sløsing per hus</span><b class="num">${fmt(a.waste)} s</b><small>av ${fmt(a.total)} s arbeid</small></div>`
+    : `<div class="kpi"><span class="eyebrow">Arbeid per hus</span><b class="num">${fmt(a.total)} s</b><small>${cfg.removed.length} tiltak gjennomført</small></div>`;
 
   // ---------- Linja (felles visning for simulering og live) ----------
   let L = null;
@@ -1057,7 +1158,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const status = s ? s.status : 'idle';
       const v = { status, q: s ? s.inQ.length : 0, tray: s ? s.tray.length : 0, who: '', whoSim: false, util: s && t > 0 ? 'Arbeid ' + pct(s.work / t) : '' };
       if (s && s.cur) {
-        const tk = s.tasks[s.ti];
+        const tk = (s.list[s.ti] || s.tasks[0]);
         Object.assign(v, { key: s.cur.id + ':' + s.ti, done: s.cur.done, working: tk.part, task: `<b>${esc(tk.name)}</b>`, prog: 1 - s.rem / s.dur });
       } else {
         Object.assign(v, { key: 'idle:' + status, done: new Set(), working: null, prog: 0,
@@ -1090,7 +1191,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         if (mm && mm.cur) working.add(mm.cur);
         return {
           status: !mm ? 'idle' : mm.status, who: '', whoSim: false,
-          task: !mm ? (ids.length ? ids.map(id => T[id].short).join(', ') : 'Ingen oppgaver') : mm.cur ? T[mm.cur].short : mm.status === 'wait' ? 'Venter' : 'Ferdig',
+          task: !mm ? (ids.length ? ids.map(id => T[id].short).join(', ') : 'Ingen oppgaver') : mm.status === 'down' ? 'Maskinstopp' : mm.cur ? T[mm.cur].short : mm.status === 'wait' ? 'Venter' : 'Ferdig',
         };
       });
       return { done, working, members, count: g ? g.cyc.length : 0, frac: all.length ? done.size / all.length : 0, elapsed: g ? t - g.start : 0 };
@@ -1113,7 +1214,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       g.members.forEach((mm, m) => {
         const an = $(`ga${gi}_${m}`);
         if (!an) return;
-        an.dataset.s = mm.status === 'wait' ? 'starved' : mm.status === 'work' ? 'work' : 'idle';
+        an.dataset.s = mm.status === 'wait' ? 'starved' : mm.status === 'work' ? 'work' : mm.status === 'down' ? 'down' : 'idle';
         const w = $(`gw${gi}_${m}`);
         w.textContent = mm.who; w.classList.toggle('sim', mm.whoSim);
         $(`gt${gi}_${m}`).textContent = mm.task;
@@ -1180,7 +1281,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       let blks = '';
       for (const id of ids) {
         const k = T[id], hp = k.t * sc - 2;
-        blks += `<button type="button" class="blk${k.waste ? ' waste' : ''}${sel === id ? ' sel' : ''}${violIds.has(id) ? ' viol' : ''}" draggable="${!locked()}" data-id="${id}" style="height:${hp}px" title="${esc(k.name)} · ${k.t} s"${locked() ? ' disabled' : ''}>
+        blks += `<button type="button" class="blk${k.waste && hintLvl() === 'full' ? ' waste' : ''}${sel === id ? ' sel' : ''}${violIds.has(id) ? ' viol' : ''}" draggable="${!locked()}" data-id="${id}" style="height:${hp}px" title="${esc(k.name)} · ${k.t} s"${locked() ? ' disabled' : ''}>
           ${hp >= 26 ? `<span>${esc(k.short)}</span>` : ''}<span class="t">${hp >= 26 ? k.t + ' s' : esc(k.short) + ' ' + k.t + ' s'}</span></button>`;
       }
       if (G && a.wait[i] > 0.5) blks += `<div class="blk wait" style="height:${a.wait[i] * sc - 2}px" title="Venter på resten av gruppa"><span class="t">venter ${fmt(a.wait[i])} s</span></div>`;
@@ -1200,9 +1301,11 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const box = $('selbox');
     if (!sel || a.where[sel] === undefined) {
       sel = null;
-      box.innerHTML = `<p class="hint">Velg en blokk for å flytte den til en annen stasjon. Røde blokker er sløsing som kan fjernes med et tiltak.</p>`;
+      const fl = flash; flash = null;
+      box.innerHTML = (fl ? `<p class="guess-msg" data-ok="true">${esc(fl)}</p>` : '') + `<p class="hint">${hintLvl() === 'full' ? 'Velg en blokk for å flytte den til en annen stasjon. Røde blokker er sløsing som kan fjernes med et tiltak.' : 'Velg en blokk for å flytte den til en annen stasjon, eller for å merke den som sløsing.'}</p>`;
       return;
     }
+    if (hintLvl() !== 'full') { renderSelHidden(a); return; }
     const k = T[sel], i = a.where[sel], n = arr(cfg).length, lk = locked(), U = unitName(cfg);
     const pre = (k.pre || []).map(p => T[p].short).join(', ');
     box.innerHTML = `
@@ -1215,6 +1318,35 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <button class="btn small" type="button" data-unsel>Ferdig</button>
       </div>`;
   }
+  // Skjult sløsing: elevene må selv finne ut hva som er sløsing og hvilken type det er.
+  let guessMsg = null;
+  function renderSelHidden(a) {
+    const k = T[sel], i = a.where[sel], n = arr(cfg).length, lk = locked(), U = unitName(cfg);
+    const pre = (k.pre || []).map(p => T[p].short).join(', ');
+    const box = $('selbox');
+    box.innerHTML = `
+      <div class="row"><span class="tag neutral">Oppgave</span><b>${esc(k.name)}</b><span class="num">${k.t} s</span><span class="hint">· ${U.toLowerCase()} ${i + 1}</span></div>
+      ${pre ? `<p class="hint">Må gjøres etter: ${esc(pre)}.</p>` : ''}
+      <div class="row">
+        <button class="btn small" type="button" data-move="-1"${i === 0 || lk ? ' disabled' : ''}>← ${U} ${Math.max(1, i)}</button>
+        <button class="btn small" type="button" data-move="1"${i === n - 1 || lk ? ' disabled' : ''}>${U} ${Math.min(n, i + 2)} →</button>
+        <button class="btn small" type="button" data-unsel>Ferdig</button>
+      </div>
+      <div class="guess">
+        <span class="hint">Er dette sløsing? Velg hvilken type:</span>
+        <div class="row">${WASTE_TYPES.map(w => `<button class="btn small" type="button" data-guess="${esc(w)}"${lk ? ' disabled' : ''}>${esc(w)}</button>`).join('')}</div>
+        ${guessMsg && guessMsg.id === sel ? `<p class="guess-msg" data-ok="${guessMsg.ok}">${esc(guessMsg.text)}</p>` : ''}
+      </div>`;
+  }
+  function guessWaste(type) {
+    if (locked() || !sel) return;
+    const k = T[sel];
+    if (!k.waste) guessMsg = { id: sel, ok: false, text: 'Nei. Dette er verdiskapende arbeid som kunden betaler for. Det kan ikke fjernes, men det kan flyttes.' };
+    else if (k.waste !== type) guessMsg = { id: sel, ok: false, text: `Det stemmer at dette er sløsing, men det er ikke ${type.toLowerCase()}. Prøv en annen type.` };
+    else { guessMsg = null; const id = sel; flash = `Riktig, ${type.toLowerCase()}. Tiltak: ${k.fix}.`; removeWaste(id); return; }
+    renderYZ();
+  }
+  let flash = null;
   function moveTask(id, to) {
     if (locked()) return;
     const A = arr(cfg);
@@ -1249,6 +1381,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   }
 
   // ---------- Innstillinger ----------
+  const activeMission = () => MISSIONS.find(m => m.id === cfg.mission) || null;
+  const maxUnits = () => { const m = activeMission(); return m && m.maxSt && (m.form || 'linje') === (cfg.form || 'linje') ? m.maxSt : 6; };
+  const maxGroups = () => { const m = activeMission(); return m && m.groupsMax ? m.groupsMax : 4; };
   function renderSettings() {
     const a = analyze(cfg), lk = locked() ? ' disabled' : '';
     const seg = (name, items, cur) => `<div class="seg" role="group">${items.map(([v, l]) => `<button type="button" data-set="${name}" data-v="${v}" aria-pressed="${v === cur}"${lk}>${l}</button>`).join('')}</div>`;
@@ -1261,7 +1396,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       </div>
       ${G ? `<div class="set">
         <span class="eyebrow">Grupper</span>
-        <div class="stepper"><button class="btn small" type="button" data-grp="-1"${cfg.groups <= 1 || lk ? ' disabled' : ''} aria-label="Færre grupper">−</button><span class="num">${cfg.groups}</span><button class="btn small" type="button" data-grp="1"${cfg.groups >= 4 || lk ? ' disabled' : ''} aria-label="Flere grupper">+</button></div>
+        <div class="stepper"><button class="btn small" type="button" data-grp="-1"${cfg.groups <= 1 || lk ? ' disabled' : ''} aria-label="Færre grupper">−</button><span class="num">${cfg.groups}</span><button class="btn small" type="button" data-grp="1"${cfg.groups >= maxGroups() || lk ? ' disabled' : ''} aria-label="Flere grupper">+</button></div>
         <span class="help">Gruppene bygger samtidig, så hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund.</span>
       </div>` : ''}
       <div class="set">
@@ -1275,7 +1410,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       </div>
       <div class="set">
         <span class="eyebrow">${G ? 'Elever per gruppe' : 'Stasjoner'}</span>
-        <div class="stepper"><button class="btn small" type="button" data-st="-1"${arr(cfg).length <= 2 || lk ? ' disabled' : ''} aria-label="Færre">−</button><span class="num">${arr(cfg).length}</span><button class="btn small" type="button" data-st="1"${arr(cfg).length >= 6 || lk ? ' disabled' : ''} aria-label="Flere">+</button></div>
+        <div class="stepper"><button class="btn small" type="button" data-st="-1"${arr(cfg).length <= 2 || lk ? ' disabled' : ''} aria-label="Færre">−</button><span class="num">${arr(cfg).length}</span><button class="btn small" type="button" data-st="1"${arr(cfg).length >= maxUnits() || lk ? ' disabled' : ''} aria-label="Flere">+</button></div>
         <span class="help">${G ? 'En ny elev har ingen oppgaver før du flytter noen dit. Fjernes en elev, overtar eleven foran oppgavene.' : 'En ny stasjon er tom. Fjernes en stasjon, flyttes oppgavene til stasjonen foran.'}</span>
       </div>
       ${G ? '' : `<div class="set">
@@ -1286,7 +1421,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       <div class="set">
         <span class="eyebrow">Styring</span>
         ${seg('pull', [[false, 'Skyv'], [true, 'Trekk (kanban)']], cfg.pull)}
-        <span class="help">${cfg.pull ? 'Hver buffer har plass til ett parti. En stasjon venter når neste buffer er full.' : 'Alle bygger så fort de kan, uansett om neste stasjon er klar.'}</span>
+        <span class="help">${cfg.pull ? `Hver buffer har plass til ${cfg.kanban === 1 ? 'ett parti' : cfg.kanban + ' partier'}. En stasjon venter når neste buffer er full.` : 'Alle bygger så fort de kan, uansett om neste stasjon er klar.'}</span>
+        ${cfg.pull ? `<div class="row-l"><span class="help">Kanban-kort per buffer</span>${seg('kanban', [[1, '1'], [2, '2'], [3, '3']], cfg.kanban)}</div>` : ''}
       </div>`}
       <div class="set">
         <span class="eyebrow">Variasjon i arbeidstid</span>
@@ -1294,8 +1430,23 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         <span class="help">Gjelder simulerte stasjoner. ±5 % tilsvarer standardisert arbeid.</span>
       </div>
       <div class="set">
+        <span class="eyebrow">Forstyrrelser</span>
+        ${seg('dist', [['av', 'Av'], ['lav', 'Noen'], ['hoy', 'Mange']], cfg.dist)}
+        <span class="help">${cfg.dist === 'av' ? 'Ingen maskinstopp eller feil på deler.' : 'Maskiner stopper av og til, og noen hus har feil som må rettes.'}</span>
+        ${cfg.dist !== 'av' ? `<div class="toggles">
+          <label><input type="checkbox" id="in-tpm"${cfg.tpm ? ' checked' : ''}${lk}> Forebyggende vedlikehold (TPM)</label>
+          <label><input type="checkbox" id="in-poka"${cfg.poka ? ' checked' : ''}${lk}> Feilsikring (poka-yoke)</label>
+          ${hintLvl() === 'full' ? '<span class="help">Vedlikehold gir færre og kortere stopp. Feilsikring gir færre feil.</span>' : ''}
+        </div>` : ''}
+      </div>
+      <div class="set">
+        <span class="eyebrow">Hjelp til elevene</span>
+        ${seg('hint', [['full', 'Full'], ['delvis', 'Delvis'], ['ingen', 'Ingen']], cfg.hint)}
+        <span class="help">${{ full: 'Sløsing er merket rødt, og observasjonene foreslår hva dere kan prøve.', delvis: 'Sløsing er ikke merket. Observasjonene viser tall, men gir ingen råd.', ingen: 'Sløsing er ikke merket, og observasjonene viser bare om kunden fikk husene sine.' }[cfg.hint]}</span>
+      </div>
+      <div class="set">
         <span class="eyebrow">Gjennomførte tiltak</span>
-        <div class="removed">${cfg.removed.length ? cfg.removed.map(id => `<div><span>${esc(T[id].fix)} <span class="help">(−${T[id].t} s)</span></span><button class="btn small" type="button" data-restore="${id}"${lk}>Angre</button></div>`).join('') : '<span class="help">Ingen ennå. Velg en rød blokk i diagrammet.</span>'}</div>
+        <div class="removed">${cfg.removed.length ? cfg.removed.map(id => `<div><span>${esc(T[id].fix)} <span class="help">(−${T[id].t} s)</span></span><button class="btn small" type="button" data-restore="${id}"${lk}>Angre</button></div>`).join('') : `<span class="help">${hintLvl() === 'full' ? 'Ingen ennå. Velg en rød blokk i diagrammet.' : 'Ingen ennå. Velg en blokk og merk den som sløsing.'}</span>`}</div>
       </div>
       <div class="set">
         <button class="btn small" type="button" id="btn-reset"${lk}>Tilbake til utgangspunktet</button>
@@ -1303,23 +1454,44 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   }
 
   // ---------- Observasjoner og logg ----------
+  // Hver observasjon har en type som avgjør om den vises på valgt hjelpenivå:
+  // 'mål' vises alltid, 'fakta' ved delvis og full hjelp, 'råd' og 'sløsing' bare ved full hjelp.
+  function distObs(e, out, unit) {
+    const r = e.res, c = e.cfg;
+    if (!c.dist || c.dist === 'av' || !r.down) return;
+    let di = 0;
+    r.down.forEach((v, i) => { if (v > r.down[di]) di = i; });
+    const tot = r.down.reduce((a, b) => a + b, 0);
+    out.push(['info', `Maskinstopp kostet til sammen ${fmt(tot)} s. Mest stillstand hadde ${unit(di)} med ${fmt(r.down[di])} s. ${r.defects || 0} ganger måtte noen rette en feil.`, 'fakta']);
+    if (!c.tpm || !c.poka) out.push(['info', `${!c.tpm ? 'Forebyggende vedlikehold gir færre og kortere stopp. ' : ''}${!c.poka ? 'Feilsikring gjør at færre deler har feil. ' : ''}Litt ekstra buffer rundt de sårbare stasjonene demper også virkningen.`, 'råd']);
+  }
+  function missionObs(e, out) {
+    const m = MISSIONS.find(x => x.id === e.mission);
+    if (!m) return;
+    if (missionMet(e)) {
+      const next = MISSIONS[MISSIONS.indexOf(m) + 1];
+      out.unshift(['good', `Oppdraget «${m.name}» er løst.${next ? ` Neste oppdrag er «${next.name}».` : ' Alle oppdragene er løst.'}`, 'mål']);
+    } else out.unshift(['info', `Oppdraget «${m.name}» er ikke løst ennå: ${m.text}`, 'mål']);
+  }
   function observationsTeam(e) {
     const a = e.an, r = e.res, c = e.cfg, out = [];
     const E = m => `elev ${m + 1}${e.who && e.who[m] ? ' (' + e.who[m] + ')' : ''}`;
-    if (r.delivered >= r.demand) out.push(['good', `Gruppene holdt takten. Kunden fikk alle ${r.demand} husene.`]);
-    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`]);
+    if (r.delivered >= r.demand) out.push(['good', `Gruppene holdt takten. Kunden fikk alle ${r.demand} husene.`, 'mål']);
+    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`, 'mål']);
     const real = r.lead;
-    if (real != null) out.push([real > a.takt ? 'warn' : 'good', `Et hus tok i snitt ${fmt(real, 1)} s fra start til ferdig. Hver gruppe måtte klare ett hus hvert ${fmt(a.takt, 1)}. sekund${c.groups > 1 ? ` (${c.groups} grupper deler på kundens takt på ${fmt(a.custTakt, 1)} s)` : ''}.`]);
-    if (a.cp > a.takt) out.push(['warn', `Selv med perfekt fordeling tar et hus minst ${fmt(a.cp)} s, fordi grunnplate, vegger, tak, pipe og kontroll må gjøres etter hverandre. Én gruppe kan ikke nå takten alene. Flere grupper, eller å la neste hus starte før det forrige er ferdig, er det som hjelper.`]);
+    if (real != null) out.push([real > a.takt ? 'warn' : 'good', `Et hus tok i snitt ${fmt(real, 1)} s fra start til ferdig. Hver gruppe måtte klare ett hus hvert ${fmt(a.takt, 1)}. sekund${c.groups > 1 ? ` (${c.groups} grupper deler på kundens takt på ${fmt(a.custTakt, 1)} s)` : ''}.`, 'fakta']);
+    if (a.cp > a.takt) out.push(['warn', `Selv med perfekt fordeling tar et hus minst ${fmt(a.cp)} s, fordi grunnplate, vegger, tak, pipe og kontroll må gjøres etter hverandre. Én gruppe kan ikke nå takten alene. Flere grupper, eller å la neste hus starte før det forrige er ferdig, er det som hjelper.`, 'råd']);
     let wi = 0;
     r.starve.forEach((v, i) => { if (v > r.starve[wi]) wi = i; });
-    if (r.starve[wi] > 0.2) out.push(['info', `${E(wi)[0].toUpperCase() + E(wi).slice(1)} ventet på de andre ${pct(r.starve[wi])} av tiden. I gruppe må alle vente på den som har oppgaven som står for tur.`]);
+    if (r.starve[wi] > 0.2) out.push(['info', `${E(wi)[0].toUpperCase() + E(wi).slice(1)} ventet på de andre ${pct(r.starve[wi])} av tiden.`, 'fakta']);
     if (e.meas) {
       const parts = e.meas.map((m, i) => `${E(i)}: ${m == null ? '–' : fmt(m, 1) + ' s'}`);
-      out.push(['info', `Målt arbeidstid per hus: ${parts.join(' · ')}.`]);
+      out.push(['info', `Målt arbeidstid per hus: ${parts.join(' · ')}.`, 'fakta']);
     }
-    if (a.balance < 0.8) out.push(['info', `Arbeidsbalansen er ${pct(a.balance)}. Elev ${a.bn + 1} har mest å gjøre med ${fmt(a.maxW)} s. Flytt oppgaver slik at de som venter mest får mer å gjøre.`]);
-    if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`]);
+    if (a.balance < 0.8) out.push(['info', `Arbeidsbalansen er ${pct(a.balance)}. Elev ${a.bn + 1} har mest å gjøre med ${fmt(a.maxW)} s. Flytt oppgaver slik at de som venter mest får mer å gjøre.`, 'råd']);
+    if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`, 'sløsing']);
+    distObs(e, out, m => E(m));
+    missionObs(e, out);
     return out;
   }
   function observations(e) {
@@ -1327,41 +1499,52 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const a = e.an, r = e.res, c = e.cfg, out = [];
     const S = i => 'stasjon ' + (i + 1);
     const Cap = s => s[0].toUpperCase() + s.slice(1);
-    if (r.delivered >= r.demand) out.push(['good', `Linja holdt takten. Kunden fikk alle ${r.demand} husene.`]);
-    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`]);
+    if (r.delivered >= r.demand) out.push(['good', `Linja holdt takten. Kunden fikk alle ${r.demand} husene.`, 'mål']);
+    else out.push(['warn', `Kunden fikk ${r.delivered} av ${r.demand} hus. ${r.demand - r.delivered} bestillinger står igjen som restordre ved skiftslutt.`, 'mål']);
+    if (r.lead != null) out.push(['info', `Første hus var ferdig etter ${fmt(r.first)} s. Et hus brukte i snitt ${fmt(r.lead)} s gjennom linja, og i snitt var ${fmt(r.wip, 1)} hus i arbeid.`, 'fakta']);
     if (e.meas) {
       const parts = e.meas.map((m, i) => `${S(i)}${e.who && e.who[i] ? ' (' + e.who[i] + ')' : ' (simulert)'}: ${m == null ? 'ingen hus' : fmt(m, 1) + ' s'}`);
-      out.push(['info', `Målt syklustid i snitt per hus: ${parts.join(' · ')}.`]);
+      out.push(['info', `Målt syklustid i snitt per hus: ${parts.join(' · ')}.`, 'fakta']);
       let mi = -1, mm = 0;
       e.meas.forEach((m, i) => { if (m != null && m > mm) { mm = m; mi = i; } });
-      if (mi >= 0 && mm > a.takt) out.push(['warn', `Målt flaskehals: ${S(mi)} brukte i snitt ${fmt(mm, 1)} s per hus, ${fmt(mm - a.takt, 1)} s over takt-tiden. Planlagt var ${fmt(a.times[mi])} s.`]);
-    } else if (a.max > a.takt + 1e-9) out.push(['warn', `${Cap(S(a.bn))} er flaskehalsen med ${fmt(a.max)} s per hus, ${fmt(a.max - a.takt, 1)} s over takt-tiden. Linja kan aldri gå fortere enn denne stasjonen.`]);
-    else if (a.max > a.takt * 0.92) out.push(['info', `Flaskehalsen (${S(a.bn)}, ${fmt(a.max)} s) ligger tett opp mot takt-tiden på ${fmt(a.takt, 1)} s. Med variasjon i arbeidet blir det lite slakk.`]);
-    else out.push(['good', `Alle stasjoner ligger under takt-tiden. Mest belastet er ${S(a.bn)} med ${fmt(a.max)} s.`]);
-    if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`]);
+      if (mi >= 0 && mm > a.takt) out.push(['warn', `Målt flaskehals: ${S(mi)} brukte i snitt ${fmt(mm, 1)} s per hus, ${fmt(mm - a.takt, 1)} s over takt-tiden. Planlagt var ${fmt(a.times[mi])} s.`, 'fakta']);
+    } else if (a.max > a.takt + 1e-9) out.push(['warn', `${Cap(S(a.bn))} er flaskehalsen med ${fmt(a.max)} s per hus, ${fmt(a.max - a.takt, 1)} s over takt-tiden. Linja kan aldri gå fortere enn denne stasjonen.`, 'fakta']);
+    else if (a.max > a.takt * 0.92) out.push(['info', `Flaskehalsen (${S(a.bn)}, ${fmt(a.max)} s) ligger tett opp mot takt-tiden på ${fmt(a.takt, 1)} s. Med variasjon i arbeidet blir det lite slakk.`, 'fakta']);
+    else out.push(['good', `Alle stasjoner ligger under takt-tiden. Mest belastet er ${S(a.bn)} med ${fmt(a.max)} s.`, 'fakta']);
+    if (a.waste > 0) out.push(['warn', `${fmt(a.waste)} s av hvert hus går til sløsing: ${a.wasteIds.map(id => `${T[id].short.toLowerCase()} (${T[id].waste.toLowerCase()})`).join(', ')}.`, 'sløsing']);
     let qi = -1, qm = 0;
     r.maxQ.forEach((q, i) => { if (q > qm) { qm = q; qi = i; } });
-    if (qi > 0 && qm >= Math.max(4, c.batch * 2)) out.push(['warn', `Opptil ${qm} hus hopet seg opp foran ${S(qi)}. Det er lager og overproduksjon: husene bygges før neste ledd kan ta imot dem.${c.pull ? '' : ' Prøv trekk (kanban).'}`]);
+    if (qi > 0 && qm >= Math.max(4, c.batch * 2)) {
+      out.push(['warn', `Opptil ${qm} hus hopet seg opp foran ${S(qi)}.`, 'fakta']);
+      out.push(['info', `Det er lager og overproduksjon: husene bygges før neste ledd kan ta imot dem.${c.pull ? '' : ' Prøv trekk (kanban).'}`, 'råd']);
+    }
     let si = 0;
     r.starve.forEach((v, i) => { if (v > r.starve[si]) si = i; });
-    if (r.starve[si] > 0.25) out.push(['info', `${Cap(S(si))} sto og ventet på hus ${pct(r.starve[si])} av tiden. Ubalanse gir ledig kapasitet ett sted og kø et annet.`]);
-    if (c.batch > 1) out.push(['info', `Med partistørrelse ${c.batch} venter hvert hus på resten av partiet. Første hus var ferdig etter ${fmt(r.first)} s, og gjennomløpstiden ble ${fmt(r.lead)} s. Prøv ettstykksflyt.`]);
-    if (a.balance < 0.8) out.push(['info', `Balansegraden er ${pct(a.balance)}. Flytt oppgaver fra de høye søylene til de lave.`]);
-    if (!e.meas && c.variation >= 0.15 && a.max <= a.takt && r.delivered < r.demand) out.push(['info', `Variasjonen i arbeidet (±${fmt(c.variation * 100)} %) spiser av marginen. Standardisert arbeid reduserer variasjonen.`]);
+    if (r.starve[si] > 0.25) out.push(['info', `${Cap(S(si))} sto og ventet på hus ${pct(r.starve[si])} av tiden.`, 'fakta']);
+    if (c.batch > 1) out.push(['info', `Med partistørrelse ${c.batch} venter hvert hus på resten av partiet. Prøv ettstykksflyt.`, 'råd']);
+    if (a.balance < 0.8) out.push(['info', `Balansegraden er ${pct(a.balance)}. Flytt oppgaver fra de høye søylene til de lave.`, 'råd']);
+    if (!e.meas && c.variation >= 0.15 && a.max <= a.takt && r.delivered < r.demand) out.push(['info', `Variasjonen i arbeidet (±${fmt(c.variation * 100)} %) spiser av marginen. Standardisert arbeid reduserer variasjonen.`, 'råd']);
+    if (r.delivered < r.demand && a.max <= a.takt && r.first > a.takt * 3) out.push(['info', `Linja bruker ${fmt(r.first)} s på å levere det første huset. Den tiden er tapt for kunden. Kortere tid per stasjon eller flere stasjoner gir raskere oppstart.`, 'råd']);
+    distObs(e, out, i => S(i));
+    missionObs(e, out);
     return out;
   }
   function renderObs() {
     const last = history[history.length - 1];
     let list;
+    const lvl = hintLvl();
+    const show = { full: ['mål', 'fakta', 'råd', 'sløsing'], delvis: ['mål', 'fakta'], ingen: ['mål'] }[lvl];
     if (!last) {
       const a = analyze(cfg);
+      const m = activeMission();
       $('obs-sub').textContent = 'Ingen runder er kjørt ennå. Dette er utgangspunktet.';
-      list = [['info', isG(cfg) ? `Hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund, men med denne fordelingen tar et hus ${fmt(a.span)} s. Hvor mange hus tror dere kunden får?` : `Kunden bestiller ett hus hvert ${fmt(a.takt, 1)}. sekund, men den tregeste stasjonen bruker ${fmt(a.max)} s. Hvor mange hus tror dere kunden får?`],
-              ['info', 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.']];
+      list = [['info', isG(cfg) ? `Hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund, men med denne fordelingen tar et hus ${fmt(a.span)} s. Hvor mange hus tror dere kunden får?` : `Kunden bestiller ett hus hvert ${fmt(a.takt, 1)}. sekund, men den tregeste stasjonen bruker ${fmt(a.max)} s. Hvor mange hus tror dere kunden får?`, 'fakta'],
+              ['info', m ? `Oppdrag: ${m.text}` : 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.', 'mål']];
     } else {
-      $('obs-sub').textContent = `Det linja forteller etter runde ${last.round}${last.live ? ' (live)' : ''}.`;
+      $('obs-sub').textContent = `Det linja forteller etter runde ${last.round}${last.live ? ' (live)' : ''}.${lvl !== 'full' ? ' Hjelpenivå: ' + lvl + '.' : ''}`;
       list = observations(last);
     }
+    list = list.filter(o => show.includes(o[2] || 'fakta'));
     $('obs').innerHTML = list.map(([k, txt]) => `<div class="ob" data-k="${k}"><p>${esc(txt)}</p></div>`).join('');
   }
   function diffCfg(p, c) {
@@ -1393,7 +1576,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const mm = e.meas ? Math.max(0, ...e.meas.filter(m => m != null)) : null;
       return `<tr>
         <td class="n"><b>${e.round}</b></td>
-        <td><div class="chg">${e.live ? `<span class="live">Live · ${e.staffed} elev${e.staffed === 1 ? '' : 'er'}</span>` : ''}${e.changes.map(x => `<span>${esc(x)}</span>`).join('')}</div></td>
+        <td><div class="chg">${e.mission ? `<span class="${missionMet(e) ? 'live' : ''}">${esc((MISSIONS.find(m => m.id === e.mission) || {}).name || '')}${missionMet(e) ? ' ✓' : ''}</span>` : ''}${e.live ? `<span class="live">Live · ${e.staffed} elev${e.staffed === 1 ? '' : 'er'}</span>` : ''}${e.changes.map(x => `<span>${esc(x)}</span>`).join('')}</div></td>
         <td class="n">${mm != null ? fmt(mm, 1) + ' s målt' : fmt(a.max) + ' s'} <span style="color:var(--muted)">/ ${fmt(a.takt, 1)}</span></td>
         <td class="n">${pct(a.balance)}</td>
         <td class="n">${isG(e.cfg) ? `${e.cfg.groups} gr. × ${e.cfg.team.length}` : e.cfg.batch + (e.cfg.pull ? ' · trekk' : '')}</td>
@@ -1423,7 +1606,38 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     $('speed').hidden = live;
     $('speed').innerHTML = SPEEDS.map(v => `<button type="button" data-speed="${v}" aria-pressed="${v === speed}">${v}×</button>`).join('');
   }
-  function renderAll() { renderKPIs(); renderYZ(); renderSettings(); renderControls(); }
+  function renderMissions() {
+    const cur = cfg.mission;
+    const solvedIn = id => { const e = history.find(x => x.mission === id && missionMet(x)); return e ? e.round : null; };
+    const m = activeMission();
+    const warn = [];
+    if (m) {
+      if ((m.form || 'linje') !== (cfg.form || 'linje')) warn.push(m.form === 'gruppe' ? 'Oppdraget skal løses i grupper.' : 'Oppdraget skal løses på linje.');
+      if (m.maxSt && arr(cfg).length > m.maxSt) warn.push(`Oppdraget tillater høyst ${m.maxSt} ${isG(cfg) ? 'elever per gruppe' : 'stasjoner'}.`);
+      if (cfg.shiftMin * 60 / cfg.demand > m.takt + 0.05) warn.push(`Takten er satt slakkere enn oppdraget krever (${fmt(m.takt, 1)} s).`);
+      if (m.minDist && (DIST_RANK[cfg.dist] || 0) < DIST_RANK[m.minDist]) warn.push('Oppdraget krever mange forstyrrelser.');
+    }
+    $('missions').innerHTML = MISSIONS.map((x, i) => {
+      const done = solvedIn(x.id);
+      const on = cur === x.id;
+      return `<button type="button" class="mis" data-mission="${x.id}" aria-pressed="${on}" data-done="${!!done}">
+        <span class="ms${on && !done ? ' active' : ''}">${done ? 'Løst i runde ' + done : on ? 'Aktivt' : 'Oppdrag ' + (i + 1)}</span>
+        <b>${esc(x.name)}</b><span class="mt">${esc(x.text)}</span>
+        ${on && warn.length ? `<span class="mis-warn">${warn.map(esc).join(' ')}</span>` : ''}</button>`;
+    }).join('') + `<button type="button" class="mis" data-mission="" aria-pressed="${!cur}"><span class="ms">Fritt</span><b>Fritt spill</b><span class="mt">Ingen mål. Still inn takt og rammer selv.</span></button>`;
+  }
+  function applyMission(id) {
+    const m = MISSIONS.find(x => x.id === id);
+    cfg.mission = m ? m.id : null;
+    if (m) {
+      Object.assign(cfg, clone(m.set));
+      const A = arr(cfg);
+      while (m.maxSt && A.length > m.maxSt) { const last = A.pop(); A[A.length - 1].push(...last); sortIds(A[A.length - 1]); }
+    }
+    sel = null;
+    edited();
+  }
+  function renderAll() { renderKPIs(); renderYZ(); renderSettings(); renderControls(); renderMissions(); renderObs(); }
   function edited() {
     if (mode === 'tavle' && LD) {
       if (LD.ph === 'done') { LD.ph = 'lobby'; LD.rid = null; }
@@ -1435,6 +1649,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function pushHistory(entry) {
     const prev = history[history.length - 1];
     entry.round = history.length + 1;
+    entry.mission = entry.cfg && entry.cfg.mission || null;
     entry.changes = diffCfg(prev && prev.cfg, entry.cfg);
     history.push(entry);
     save(); renderAll(); renderObs(); renderLog();
@@ -1572,7 +1787,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     else el.textContent = 'Tilkoblet. Vis koden for elevene.';
   }
   function leaderPres() {
-    return { role: 'leder', code: LD.code, rid: LD.rid, ph: LD.ph, cfg: LD.ph === 'lobby' || !LD.cfg ? slimCfg(cfg) : LD.cfg, at: LD.at, now: LD.stamp, sim: LD.sim, staff: LD.staff, gsim: LD.gsim || {}, gstaff: LD.gstaff || {}, del: LD.del, plc: LD.plc };
+    return { role: 'leder', code: LD.code, rid: LD.rid, ph: LD.ph, cfg: LD.ph === 'lobby' || !LD.cfg ? slimCfg(cfg) : LD.cfg, at: LD.at, now: LD.stamp, sim: LD.sim, staff: LD.staff, gsim: LD.gsim || {}, gstaff: LD.gstaff || {}, del: LD.del, plc: LD.plc, dist: LD.ph === 'lobby' ? [] : (LD.events || []), dp: LD.ph === 'lobby' ? 0 : (LD.dp || 0) };
   }
   function publishLeader(force) {
     if (!LD || !LD.r) return;
@@ -1660,14 +1875,15 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       for (let g = 0; g < c.groups; g++) c.team.forEach((_, m) => {
         const key = g + '-' + m;
         if (gb[g][m].length) LD.gstaff[key] = gb[g][m][0].peer;
-        else { LD.gsim[key] = { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0 }; LD.gw[key] = { rem: 0, dur: 0 }; }
+        else { LD.gsim[key] = { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0, dn: 0, df: 0 }; LD.gw[key] = { rem: 0, dur: 0 }; }
       });
       LD.gcount = Array(c.groups).fill(0);
     }
     if (!isG(c)) c.stations.forEach((ids, j) => {
       if (by[j].length) LD.staff[j] = by[j][0].peer;
-      else { LD.sim[j] = { tk: 0, sn: 0, tr: 0, s: 'starved', ti: 0, sp: 0, acc: [0, 0, 0] }; LD.w[j] = { busy: false, rem: 0, dur: 0, cyc: [], start: 0 }; }
+      else { LD.sim[j] = { tk: 0, sn: 0, tr: 0, s: 'starved', ti: 0, sp: 0, acc: [0, 0, 0], dn: 0, df: 0 }; LD.w[j] = { busy: false, rem: 0, dur: 0, cyc: [], start: 0, def: false }; }
     });
+    LD.events = makeDist(c, Math.random); LD.dp = defectP(c);
     LD.del = 0; LD.plc = 0; LD.orders = []; LD.nextOrder = c.shiftMin * 60 / c.demand; LD.lastDelWall = null; LD.late = 0;
     LD.obs = { starts: [], ends: [], wipInt: 0, maxQ: c.stations.map(() => 0), gEnds: Array.from({ length: c.groups || 1 }, () => []) };
     LD.stamp = Date.now(); LD.lastTick = Date.now();
@@ -1685,22 +1901,28 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const tasks = c.stations[j].map(id => T[id]);
     const t = (Date.now() - LD.at) / 1000;
     const begin = () => { w.dur = tasks[s.ti].t * (1 + c.variation * (Math.random() * 2 - 1)); w.rem = w.dur; };
+    const cap = B * (c.kanban || 1);
+    if (downLeft(LD.events, String(j), t) > 0) {
+      s.s = 'down'; s.dn = Math.round((s.dn + dt) * 10) / 10; s.acc[2] = Math.round((s.acc[2] + dt) * 10) / 10;
+      return;
+    }
     if (w.busy) {
       w.rem -= dt;
       while (w.busy && w.rem <= 0) {
         s.ti++;
-        if (s.ti >= tasks.length) { w.busy = false; s.tr++; w.cyc.push(t - w.start); s.ti = 0; }
+        if (s.ti >= tasks.length && w.def) { w.def = false; s.ti = tasks.length - 1; const carry = w.rem; w.dur = REWORK.t; w.rem = w.dur + carry; s.df++; }
+        else if (s.ti >= tasks.length) { w.busy = false; s.tr++; w.cyc.push(t - w.start); s.ti = 0; }
         else { const carry = w.rem; begin(); w.rem += carry; }
       }
     }
     while (s.tr >= B) {
-      if (j === n - 1 || !c.pull || s.sn - num(countersFor(j + 1, LP, peers).tk) <= 0) { s.sn += B; s.tr -= B; }
+      if (j === n - 1 || !c.pull || s.sn - num(countersFor(j + 1, LP, peers).tk) <= cap - B) { s.sn += B; s.tr -= B; }
       else break;
     }
     if (!w.busy && s.tr < B) {
       const avail = j === 0 ? 1 : num(countersFor(j - 1, LP, peers).sn) - s.tk;
       if (avail > 0) {
-        s.tk++; s.ti = 0; w.start = t;
+        s.tk++; s.ti = 0; w.start = t; w.def = LD.dp > 0 && Math.random() < LD.dp;
         if (!tasks.length) { s.tr++; w.cyc.push(0); }
         else { w.busy = true; begin(); }
       }
@@ -1720,12 +1942,13 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       c.team.forEach((ids, m) => {
         const key = g + '-' + m, s = LD.gsim[key], w = LD.gw[key];
         if (!s) return;
+        if (downLeft(LD.events, key, t) > 0) { s.s = 'down'; s.dn = Math.round((s.dn + dt) * 10) / 10; s.a[1] = Math.round((s.a[1] + dt) * 10) / 10; return; }
         if (s.c) { w.rem -= dt; if (w.rem <= 0) { s.d += s.c; s.c = ''; } }
         let U = unionFor(c, g, s.h, LP, peers, null);
         if (all.length && all.every(id => U.done.has(id))) { s.h++; s.d = ''; s.c = ''; U = unionFor(c, g, s.h, LP, peers, null); }
         if (!s.c) {
           const nx = nextTask(c, m, new Set(dec(s.d)), U);
-          if (nx.id) { s.c = enc([nx.id]); w.dur = T[nx.id].t * (1 + c.variation * (Math.random() * 2 - 1)); w.rem = w.dur; }
+          if (nx.id) { s.c = enc([nx.id]); w.dur = T[nx.id].t * (1 + c.variation * (Math.random() * 2 - 1)); if (LD.dp > 0 && Math.random() < LD.dp * 0.5) { w.dur += 4; s.df++; } w.rem = w.dur; }
           s.s = nx.id ? 'work' : nx.idle ? 'idle' : 'wait';
         } else s.s = 'work';
         s.sp = s.c ? Math.round((1 - w.rem / w.dur) * 10) / 10 : 0;
@@ -1766,6 +1989,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         lead: leads.length ? leads.reduce((a, b) => a + b, 0) / leads.length : null,
         wip: ob.wipInt / Tend, first: firsts.length ? Math.min(...firsts) : null,
         util: per(0), starve: per(1), block: Array(M).fill(0), maxQ: [],
+        down: c.team.map((_, m) => { let v = 0; for (let g = 0; g < G; g++) v += num(src(g, m).dn); return v / G; }),
+        defects: (() => { let v = 0; for (let g = 0; g < G; g++) c.team.forEach((_, m) => { v += num(src(g, m).df); }); return v; })(),
       },
     });
     publishLeader(true); renderRoster();
@@ -1865,6 +2090,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         lead: leads.length ? leads.reduce((a, b) => a + b, 0) / leads.length : null,
         wip: ob.wipInt / Tend, first: ob.ends.length ? ob.ends[0] : null,
         util: acc.map(a => a[0] / Tend), starve: acc.map(a => a[1] / Tend), block: acc.map(a => a[2] / Tend), maxQ: ob.maxQ,
+        down: cs.map(x => num(x.dn)), defects: cs.reduce((a, x) => a + num(x.df), 0),
       },
     });
     publishLeader(true); renderRoster();
@@ -1888,7 +2114,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       else { who = 'Simuleres'; whoSim = true; }
       const tk = num(x.tk), sn = num(x.sn), tr = num(x.tr), ti = clamp(Math.round(num(x.ti)), 0, Math.max(0, ids.length - 1));
       const busy = running && tk - sn - tr > 0;
-      const status = !running || LD.ph === 'count' ? 'idle' : (['work', 'starved', 'blocked'].includes(x.s) ? x.s : 'starved');
+      const status = !running || LD.ph === 'count' ? 'idle' : (['work', 'starved', 'blocked', 'down'].includes(x.s) ? x.s : 'starved');
       const accA = Array.isArray(x.acc) ? x.acc.map(num) : [0, 0, 0];
       const v = { status, q: i > 0 ? Math.max(0, num(cn(i - 1).sn) - tk) : 0, tray: tr, who, whoSim, util: running && t > 0 ? 'Arbeid ' + pct(clamp(accA[0] / t, 0, 1)) : '' };
       if (busy && ids.length) {
@@ -1944,6 +2170,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     search: [{ find: true }, { find: true }],
     waitTool: [{ wait: 5 }],
     recheck: [{ screws: [[6.5, 18.5], [25.5, 29.5], [28.5, 19], [16, 9.5], [19.5, 32.5]], again: true }],
+    polish: [{ hold: 3, kind: 'rub', label: 'Hold inne for å pusse' }],
+    carry: [{ hold: 2.5, kind: 'carry', dir: 1, label: 'Hold inne for å bære huset' }],
+    feil: [{ screws: [[6.5, 29.5], [25.5, 18.5], [31, 24]], again: true }],
   };
   const BRICK_COLORS = [['red', 'rød'], ['blue', 'blå'], ['yellow', 'gul'], ['green', 'grønn'], ['white', 'hvit']];
 
@@ -2062,21 +2291,21 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     $('picks').innerHTML = cfg.stations.map((ids, i) => `<button type="button" class="pick" data-pick="${i}"><b>Stasjon ${i + 1}</b><span>${ids.length ? ids.map(id => esc(T[id].short)).join(' · ') : 'Ingen oppgaver'}</span></button>`).join('');
   }
   function resetCounters() {
-    ST.tk = 0; ST.sn = 0; ST.tr = 0; ST.s = 'starved'; ST.job = null; ST.cyc = []; ST.acc = [0, 0, 0]; ST.benchKey = ''; ST.hStart = 0;
-    if (ST.gm) Object.assign(ST.gm, { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0 });
+    ST.tk = 0; ST.sn = 0; ST.tr = 0; ST.s = 'starved'; ST.job = null; ST.cyc = []; ST.acc = [0, 0, 0]; ST.benchKey = ''; ST.hStart = 0; ST.dn = 0; ST.df = 0; ST.isDown = false;
+    if (ST.gm) Object.assign(ST.gm, { h: 0, d: '', c: '', s: 'wait', sp: 0, a: [0, 0], w: 0, dn: 0, df: 0 });
   }
   function stPresence() {
     const cyc = ST.cyc;
     const av = cyc.length ? Math.round(cyc.reduce((a, b) => a + b, 0) / cyc.length * 10) / 10 : 0;
     if (ST.group && ST.gm) {
       const gm = ST.gm;
-      return { role: 'gm', g: gm.g, m: gm.m, nick: ST.nick, rid: ST.rid, h: gm.h, d: gm.d, c: gm.c, s: gm.s, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0, a: gm.a.map(x => Math.round(x)), w: Math.round(gm.a[0] * 10) / 10, av, nc: cyc.length };
+      return { role: 'gm', g: gm.g, m: gm.m, nick: ST.nick, rid: ST.rid, h: gm.h, d: gm.d, c: gm.c, s: gm.s, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0, a: gm.a.map(x => Math.round(x)), w: Math.round(gm.a[0] * 10) / 10, av, nc: cyc.length, dn: Math.round(gm.dn || 0), df: gm.df || 0 };
     }
     if (ST.i == null) return { role: 'st', i: null, nick: ST.nick };
     return {
       role: 'st', i: ST.i, nick: ST.nick, rid: ST.rid, tk: ST.tk, sn: ST.sn, tr: ST.tr, s: ST.s,
       ti: ST.job ? ST.job.ti : 0, sp: ST.job ? Math.round(jobProgress(ST.job) * 10) / 10 : 0,
-      acc: ST.acc.map(x => Math.round(x)), av, nc: cyc.length,
+      acc: ST.acc.map(x => Math.round(x)), av, nc: cyc.length, dn: Math.round(ST.dn || 0), df: ST.df || 0,
     };
   }
   function publishSt(force) {
@@ -2127,7 +2356,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const id = j.tasks[j.ti];
     j.si++;
     if (j.si >= JOBS[id].length) {
-      if (T[id].part) j.parts.add(T[id].part);
+      if (TT(id).part) j.parts.add(TT(id).part);
       j.ti++; j.si = 0; j.placed = [];
     }
     if (j.ti >= j.tasks.length) { if (ST.group) completeGroupTask(); else completeHouse(); return; }
@@ -2176,9 +2405,17 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     // runde i gang
     const i = ST.i, ids = x.c.stations[i];
     const counters = j => countersFor(j, x.LP || {}, x.peers, null);
+    const cap = x.B * (x.c.kanban || 1);
+    const dn = ST.practice ? 0 : downLeft(x.LP && x.LP.dist, String(i), x.t);
+    ST.isDown = dn > 0;
+    if (ST.isDown) {
+      ST.s = 'down'; ST.dn += dt; ST.acc[2] += dt; ST.drag = null; ST.holding = false;
+      renderWork(x, 'Maskinstopp', `Maskinen på stasjonen din står. Reparatøren er ferdig om ${Math.ceil(dn)} s.`, true);
+      publishSt(false); return;
+    }
     const trySend = () => {
       while (ST.tr >= x.B) {
-        if (ST.practice || i === x.n - 1 || !x.pull || ST.sn - num(counters(i + 1).tk) <= 0) { ST.sn += x.B; ST.tr -= x.B; }
+        if (ST.practice || i === x.n - 1 || !x.pull || ST.sn - num(counters(i + 1).tk) <= cap - x.B) { ST.sn += x.B; ST.tr -= x.B; }
         else break;
       }
     };
@@ -2192,7 +2429,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const inbound = ST.practice || i === 0 ? Infinity : num(counters(i - 1).sn) - ST.tk;
       if (ST.tr < x.B && inbound > 0) {
         ST.tk++;
-        ST.job = makeJob(ids, partsAfter(x.c, i - 1), x.t);
+        const bad = !ST.practice && num(x.LP && x.LP.dp) > 0 && Math.random() < num(x.LP.dp);
+        if (bad) ST.df++;
+        ST.job = makeJob(bad ? [...ids, 'feil'] : ids, partsAfter(x.c, i - 1), x.t);
         ST.benchKey = '';
         if (!ids.length) completeHouse();
       }
@@ -2208,6 +2447,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function stTickGroup(x, dt) {
     const c = x.c, gm = ST.gm, g = ST.g, m = ST.i;
     const all = c.team.flat();
+    const dn = downLeft(x.LP && x.LP.dist, g + '-' + m, x.t);
+    ST.isDown = dn > 0;
+    if (ST.isDown) {
+      gm.s = 'down'; ST.s = 'down'; gm.dn = (gm.dn || 0) + dt; gm.a[1] += dt; ST.drag = null; ST.holding = false;
+      ST.ctx = x;
+      renderWork(x, 'Maskinstopp', `Verktøyet ditt er i stykker. Det er reparert om ${Math.ceil(dn)} s.`, true);
+      publishSt(false); return;
+    }
     let U = unionFor(c, g, gm.h, x.LP, x.peers, gm);
     if (all.length && all.every(id => U.done.has(id))) {
       ST.cyc.push(Math.round((x.t - ST.hStart) * 10) / 10);
@@ -2224,7 +2471,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (!ST.job) {
       nx = nextTask(c, m, new Set(dec(gm.d)), U);
       if (nx.id) {
-        ST.job = makeJob([nx.id], [...partsOf(U.done)], x.t);
+        const bad = num(x.LP && x.LP.dp) > 0 && Math.random() < num(x.LP.dp) * 0.5;
+        if (bad) gm.df = (gm.df || 0) + 1;
+        ST.job = makeJob(bad ? [nx.id, 'feil'] : [nx.id], [...partsOf(U.done)], x.t);
         ST.job.taskStart = x.t;
         gm.c = enc([nx.id]); ST.benchKey = '';
         publishSt(true);
@@ -2252,7 +2501,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   }
   function completeGroupTask() {
     const gm = ST.gm, j = ST.job;
-    if (gm && j) gm.d += enc(j.tasks);
+    if (gm && j) gm.d += enc(j.tasks.filter(id => T[id]));
     gm.c = ''; ST.job = null; ST.drag = null; ST.holding = false; ST.benchKey = '';
     publishSt(true);
   }
@@ -2264,7 +2513,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     ST.job = null; ST.drag = null; ST.holding = false; ST.benchKey = '';
     const B = ST.practice ? 1 : x.B;
     while (ST.tr >= B) {
-      if (ST.practice || ST.i === x.n - 1 || !x.pull || ST.sn - num(countersFor(ST.i + 1, x.LP || {}, x.peers, null).tk) <= 0) { ST.sn += B; ST.tr -= B; }
+      if (ST.practice || ST.i === x.n - 1 || !x.pull || ST.sn - num(countersFor(ST.i + 1, x.LP || {}, x.peers, null).tk) <= B * ((x.c && x.c.kanban) || 1) - B) { ST.sn += B; ST.tr -= B; }
       else break;
     }
     publishSt(true);
@@ -2289,7 +2538,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   }
   function benchJob(j) {
     const id = j.tasks[j.ti], stp = JOBS[id][j.si], st = j.st;
-    const scene = stp.hold || stp.pick || stp.find || stp.wait;
+    const scene = (stp.hold && stp.kind !== 'rub') || stp.pick || stp.find || stp.wait;
     let s = `<g transform="translate(20,4) scale(4)"${scene ? ' opacity=".2"' : ''}>${GHOST}${houseInner(j.parts, j.others || null)}${j.placed.map(p => PIECES[p].svg).join('')}`;
     if (stp.drag) s += stp.drag.filter(p => !j.placed.includes(p)).map(p => `<g class="tgt">${PIECES[p].svg}</g>`).join('');
     s += '</g>';
@@ -2319,7 +2568,10 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (stp.hold) {
       const p = clamp(st.hold / stp.hold, 0, 1);
       const wx = stp.dir > 0 ? 30 + 140 * p : 170 - 140 * p;
-      s += `<line x1="30" y1="80" x2="170" y2="80" stroke="var(--muted)" stroke-dasharray="4 4"/>
+      const holdBtn = `<g class="hold" data-act="hold"><rect class="b" x="20" y="168" width="160" height="48" rx="8"/><rect id="bp" class="pbar" x="20" y="168" width="${160 * p}" height="48" rx="8"/><text x="100" y="197" text-anchor="middle" font-size="11" class="hold-l">${esc(stp.label)}</text></g>`;
+      if (stp.kind === 'rub') s += `<circle id="bw" cx="${40 + 80 * p}" cy="${80 + 14 * Math.sin(p * 18)}" r="7" fill="var(--b-yellow)" stroke="var(--ink)" opacity=".85"/>` + holdBtn;
+      else if (stp.kind === 'carry') s += `<line x1="30" y1="80" x2="170" y2="80" stroke="var(--muted)" stroke-dasharray="4 4"/><rect x="14" y="62" width="32" height="18" rx="2" fill="var(--surface)" stroke="var(--ink)"/><text x="30" y="74" text-anchor="middle" font-size="7">Stasjon</text><rect x="146" y="62" width="48" height="18" rx="2" fill="var(--surface)" stroke="var(--ink)"/><text x="170" y="74" text-anchor="middle" font-size="7">Kontrollbord</text><circle id="bw" cx="${wx}" cy="96" r="6" fill="var(--accent)" stroke="var(--ink)"/><text x="100" y="124" text-anchor="middle" font-size="8" class="muted">Kontrollen gjøres et annet sted i lokalet.</text>` + holdBtn;
+      else s += `<line x1="30" y1="80" x2="170" y2="80" stroke="var(--muted)" stroke-dasharray="4 4"/>
         <rect x="14" y="62" width="32" height="18" rx="2" fill="var(--surface)" stroke="var(--ink)"/><text x="30" y="74" text-anchor="middle" font-size="7">Stasjon</text>
         <rect x="152" y="58" width="36" height="22" rx="2" fill="var(--wood)" stroke="var(--ink)"/><text x="170" y="72" text-anchor="middle" font-size="7">Lager</text>
         <circle id="bw" cx="${wx}" cy="96" r="6" fill="var(--accent)" stroke="var(--ink)"/>
@@ -2362,19 +2614,20 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (stp.drag) what = `Dra ${PIECES[stp.drag[0]].label} på plass i det stiplede feltet.`;
     else if (stp.screws) what = stp.again ? 'Én av skruene var løs. Stram alle skruene på nytt.' : 'Skru fast delene.';
     else if (stp.check) what = 'Kontroller huset: trykk på alle punktene.';
-    else if (stp.hold) what = stp.dir > 0 ? 'Gå til lageret for å hente deler.' : 'Gå tilbake til stasjonen.';
+    else if (stp.hold) what = stp.kind === 'rub' ? 'Puss innsiden av veggene.' : stp.kind === 'carry' ? 'Bær huset bort til kontrollbordet.' : stp.dir > 0 ? 'Gå til lageret for å hente deler.' : 'Gå tilbake til stasjonen.';
     else if (stp.pick) what = 'Ta kassen med deler.';
     else if (stp.find) what = 'Finn riktig kloss i kassa.';
     else if (stp.wait) what = 'Vent til verktøyet blir ledig.';
-    return `<b>${esc(T[id].name)}</b> · ${what} <span class="help">(oppgave ${j.ti + 1} av ${j.tasks.length})</span>`;
+    if (id === 'feil') what = 'Det er funnet en feil på huset. Løsne og fest skruene på nytt.';
+    return `<b>${esc(TT(id).name)}</b> · ${what} <span class="help">(oppgave ${j.ti + 1} av ${j.tasks.length})</span>`;
   }
-  function renderWork(x, title, sub) {
+  function renderWork(x, title, sub, forceMsg) {
     const c = x.c || cfg;
     const i = ST.i;
     const grp = ST.group && ST.gm && isG(c);
     const takt = c ? c.shiftMin * 60 / c.demand * (grp ? c.groups : 1) : 20;
     $('ws-title').textContent = grp ? `Gruppe ${GL[ST.g]} · elev ${i + 1}` : `Stasjon ${i + 1}${ST.practice ? ' · øving' : ''}`;
-    $('ws-andon').dataset.s = !title ? 'work' : x.phase === 'run' ? (ST.s === 'blocked' ? 'blocked' : 'starved') : 'idle';
+    $('ws-andon').dataset.s = !title ? 'work' : x.phase === 'run' ? (ST.s === 'blocked' ? 'blocked' : ST.s === 'down' ? 'down' : 'starved') : 'idle';
     $('ws-status').textContent = title || STATUS_TXT.work;
     $('ws-clock').textContent = ST.practice ? clock(x.t || 0) : `${clock(Math.max(0, x.t || 0))} / ${clock(x.Tend || 0)}`;
     const n = c ? c.stations.length : 1;
@@ -2436,7 +2689,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     $('ws-avg').classList.toggle('over', av != null && av > takt);
     // benk
     if (ST.drag) return;
-    if (ST.job) {
+    if (ST.job && !forceMsg) {
       const j = ST.job, stp = JOBS[j.tasks[j.ti]][j.si];
       const key = `job:${ST.tk}:${ST.gm ? ST.gm.h : 0}:${[...j.parts].join("")}:${[...(j.others || [])].join("")}:${j.ti}:${j.si}:${j.placed.join(',')}:${JSON.stringify(j.st.taps || j.st.chk || '')}:${j.st.find ? j.st.find.miss : ''}`;
       if (key !== ST.benchKey) { $('bench').innerHTML = benchJob(j); $('ws-instr').innerHTML = instrFor(j); ST.benchKey = key; }
@@ -2444,7 +2697,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         const bp = document.getElementById('bp');
         if (bp) bp.setAttribute('width', 160 * clamp(stp.hold ? j.st.hold / stp.hold : 1 - j.st.wait / stp.wait, 0, 1));
         const bw = document.getElementById('bw');
-        if (bw && stp.hold) { const p = clamp(j.st.hold / stp.hold, 0, 1); bw.setAttribute('cx', stp.dir > 0 ? 30 + 140 * p : 170 - 140 * p); }
+        if (bw && stp.hold) { const p = clamp(j.st.hold / stp.hold, 0, 1); if (stp.kind === 'rub') { bw.setAttribute('cx', 40 + 80 * p); bw.setAttribute('cy', 80 + 14 * Math.sin(p * 18)); } else bw.setAttribute('cx', stp.dir > 0 ? 30 + 140 * p : 170 - 140 * p); }
       }
     } else {
       const key = 'msg:' + title + ':' + sub;
@@ -2458,7 +2711,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   bench.addEventListener('pointerdown', e => {
     const el = e.target.closest('[data-act]');
     const j = ST.job;
-    if (!el || !j) return;
+    if (!el || !j || ST.isDown) return;
     e.preventDefault();
     const act = el.dataset.act, stp = JOBS[j.tasks[j.ti]][j.si];
     if (act === 'piece' && stp.drag) {
@@ -2572,25 +2825,29 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     else if (b.dataset.fix) removeWaste(b.dataset.fix);
     else if (b.dataset.restore) restoreWaste(b.dataset.restore);
     else if (b.hasAttribute('data-unsel')) { sel = null; renderYZ(); }
+    else if (b.dataset.guess) guessWaste(b.dataset.guess);
+    else if (b.dataset.mission != null) { if (!locked()) applyMission(b.dataset.mission); }
     else if (b.dataset.st) {
       if (locked()) return;
       const A = arr(cfg);
-      if (+b.dataset.st > 0 && A.length < 6) A.push([]);
+      if (+b.dataset.st > 0 && A.length < maxUnits()) A.push([]);
       else if (+b.dataset.st < 0 && A.length > 2) { const last = A.pop(); const p = A[A.length - 1]; p.push(...last); sortIds(p); }
       edited();
     } else if (b.dataset.grp) {
       if (locked()) return;
-      cfg.groups = clamp(cfg.groups + (+b.dataset.grp), 1, 4);
+      cfg.groups = clamp(cfg.groups + (+b.dataset.grp), 1, maxGroups());
       edited();
     } else if (b.dataset.set) {
       if (locked()) return;
       const k = b.dataset.set, v = b.dataset.v;
-      cfg[k] = k === 'pull' ? v === 'true' : k === 'form' ? (v === 'gruppe' ? 'gruppe' : 'linje') : +v;
+      cfg[k] = k === 'pull' ? v === 'true' : k === 'form' ? (v === 'gruppe' ? 'gruppe' : 'linje') : k === 'hint' || k === 'dist' ? v : +v;
+      if (k === 'hint') guessMsg = null;
       if (k === 'form') sel = null;
       edited();
     } else if (b.classList.contains('yz-col') && sel) moveTask(sel, +b.dataset.col);
   });
   document.addEventListener('change', e => {
+    if ((e.target.id === 'in-tpm' || e.target.id === 'in-poka') && !locked()) { cfg[e.target.id === 'in-tpm' ? 'tpm' : 'poka'] = e.target.checked; edited(); return; }
     if (e.target.id === 'in-nick') { ST.nick = cleanNick(e.target.value); store('taktlinja-nick', ST.nick); publishSt(true); return; }
     if (locked()) return;
     if (e.target.id === 'in-shift') cfg.shiftMin = clamp(Math.round(+e.target.value) || 8, 1, 60);
@@ -2629,8 +2886,17 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     Object.assign(out, base);
     out.home = c.home || {}; out.homeT = c.homeT || {};
     if (out.form === 'gruppe' && out.team.length < 2) out.form = 'linje';
-    const OLD_TEAM = '[["fetch","base","front"],["side","search","win"],["door","waitTool","roof"],["chim","qc","recheck"]]';
-    if (out.team.length < 2 || JSON.stringify(out.team) === OLD_TEAM) out.team = clone(DEFAULT.team).map(ids => ids.filter(id => !out.removed.includes(id)));
+    const OLD_TEAMS = ['[["fetch","base","front"],["side","search","win"],["door","waitTool","roof"],["chim","qc","recheck"]]', '[["fetch","base","front","side","search"],["win"],["door","waitTool","roof","chim"],["qc","recheck"]]'];
+    const OLD_STATIONS = '[["fetch","base","front","side"],["search","win"],["waitTool","door","roof","chim"],["qc","recheck"]]';
+    if (out.team.length < 2 || OLD_TEAMS.includes(JSON.stringify(out.team))) out.team = clone(DEFAULT.team).map(ids => ids.filter(id => !out.removed.includes(id)));
+    if (JSON.stringify(out.stations) === OLD_STATIONS) out.stations = clone(DEFAULT.stations);
+    // Nye oppgaver som mangler i et eldre oppsett, legges der de hører hjemme i standardoppsettet.
+    for (const [k, def] of [['stations', DEFAULT.stations], ['team', DEFAULT.team]]) {
+      const have = new Set(out[k].flat());
+      def.forEach((ids, i) => ids.forEach(id => { if (!have.has(id) && !out.removed.includes(id)) { const to = Math.min(i, out[k].length - 1); out[k][to].push(id); sortIds(out[k][to]); } }));
+    }
+    if (!('hint' in c)) out.hint = DEFAULT.hint;
+    if (!('mission' in c)) out.mission = DEFAULT.mission;
     return out;
   }
   function start(data) {
@@ -2642,8 +2908,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     cfg.homeT = cfg.homeT || {};
     cfg.form = cfg.form === 'gruppe' ? 'gruppe' : 'linje';
     cfg.groups = clamp(Math.round(num(cfg.groups)) || 1, 1, 4);
-    const OLD_TEAM = '[["fetch","base","front"],["side","search","win"],["door","waitTool","roof"],["chim","qc","recheck"]]';
-    if (!Array.isArray(cfg.team) || cfg.team.length < 2 || JSON.stringify(cfg.team) === OLD_TEAM) cfg.team = clone(DEFAULT.team).map(ids => ids.filter(id => !cfg.removed.includes(id)));
+
     history = stored && Array.isArray(stored.history) ? stored.history : [];
     ST.nick = cleanNick(fetchStore('taktlinja-nick') || '');
     $('in-nick').value = ST.nick;
