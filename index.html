@@ -188,6 +188,7 @@ button.qr-box { cursor: zoom-in; }
 .mis { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 12px 14px; text-align: left; display: grid; gap: 6px; align-content: start; }
 .mis b { font-family: var(--display); font-size: 22px; text-transform: uppercase; line-height: 1; }
 .mis .mt { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.mis .mg { font-size: 13px; font-weight: 600; line-height: 1.35; }
 .mis .ms { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; justify-self: start; padding: 2px 7px; border-radius: 3px; background: var(--bg); color: var(--muted); }
 .mis[data-done="true"] .ms { background: var(--ok); color: var(--on-ok); }
 .mis[aria-pressed="true"] { border: 2px solid var(--ink); box-shadow: inset 0 0 0 1px var(--accent); }
@@ -539,12 +540,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
           <h3 style="margin-bottom: 14px">Forslag til økt</h3>
           <ol class="steps">
             <li><div><b>Øv på stasjonene · 15 min</b><span>Elevene velger Stasjon og trykker «Øv uten tavle» for å lære håndgrepene. Sett hjelpenivået til Delvis eller Ingen, så sløsingen ikke er merket.</span></div></li>
-            <li><div><b>Første ordre · 60–90 min</b><span>Kjør første runde uten endringer. Elevene må selv finne sløsingen og hvilken type det er, før de kan fjerne den. Deretter balanserer de linja og prøver mindre partier.</span></div></li>
-            <li><div><b>Storkunden · 40–60 min</b><span>Takten strammes inn til 16 s. Det holder ikke å balansere: linja trenger flere stasjoner og raskere oppstart.</span></div></li>
-            <li><div><b>Kostnadskutt · 40–60 min</b><span>Bare tre stasjoner. Svært få fordelinger holder takten, så elevene må prøve seg fram og tenke rekkefølge.</span></div></li>
-            <li><div><b>Urolig hverdag · 40–60 min</b><span>Maskiner stopper og deler har feil. Løsningen fra første ordre holder ikke. Diskuter buffere, forebyggende vedlikehold og feilsikring.</span></div></li>
-            <li><div><b>Gruppebygging · 40–60 min</b><span>Fire elever bygger det samme huset. Sammenlign med linja: hvem venter, og hvorfor klarer ikke én gruppe takten alene?</span></div></li>
+            <li><div><b>Finn sløsingen og All sløsing borte · 30–45 min</b><span>Elevene kjenner sløsingen på kroppen og må selv si hvilken type det er før den fjernes. De to siste sløsingsoppgavene er vanskeligere å få øye på.</span></div></li>
+            <li><div><b>Balanser linja og Første ordre · 30–45 min</b><span>Først får de syklustiden under takten, så må de oppdage at store partier gjør at kunden ikke får husene i tide.</span></div></li>
+            <li><div><b>Storkunden og Kostnadskutt · 40–60 min</b><span>Strammere takt krever flere stasjoner. Med bare tre stasjoner er det svært få fordelinger som holder.</span></div></li>
+            <li><div><b>Urolig hverdag · 20–30 min</b><span>Maskiner stopper og deler har feil. Diskuter vedlikehold, feilsikring og buffere.</span></div></li>
+            <li><div><b>Gruppebygging · 20–30 min</b><span>Fire elever bygger samme hus. Hvem venter, og hvorfor?</span></div></li>
+            <li><div><b>Mesterprøven · 20–40 min</b><span>Alt på én gang: takt 18 s, høyst fem stasjoner og noen forstyrrelser. Bare et fåtall fordelinger klarer det, og bare med vedlikehold og feilsikring.</span></div></li>
           </ol>
+          <p class="help" style="margin-top: 14px">En runde med 10 hus varer omtrent fire minutter. Med planlegging og oppsummering blir det 10–15 minutter per runde.</p>
         </div>
         <div class="panel">
           <h3 style="margin-bottom: 14px">Begreper</h3>
@@ -650,25 +653,33 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   for (const id in T) T[id].id = id;
   const PARTS = ['base', 'front', 'side', 'win', 'door', 'roof', 'chim', 'qc'];
   const DEFAULT = {
-    shiftMin: 8, demand: 24, batch: 4, pull: false, variation: 0.15,
+    shiftMin: 200 / 60, demand: 10, warmup: 30, batch: 4, pull: false, variation: 0.15,
     stations: [['fetch', 'base', 'front', 'side'], ['search', 'win', 'polish'], ['waitTool', 'door', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
     removed: [], home: {},
     form: 'linje', groups: 1, homeT: {},
     team: [['fetch', 'base', 'front', 'side', 'search'], ['win', 'polish'], ['door', 'waitTool', 'roof', 'chim'], ['carry', 'qc', 'recheck']],
-    hint: 'delvis', dist: 'av', tpm: false, poka: false, kanban: 1, mission: 'm1',
+    hint: 'delvis', dist: 'av', tpm: false, poka: false, kanban: 1, mission: 'o1',
   };
   const SPEEDS = [1, 5, 15, 40];
   const GL = ['A', 'B', 'C', 'D', 'E'];
+  // Takt og rundelengde. Kunden begynner å bestille etter oppstartstiden (warmup), så en god linje rekker å komme i gang.
+  const taktOf = c => c.shiftMin * 60 / c.demand;
+  const roundLen = c => Math.round((c.shiftMin * 60 + (c.warmup || 0)) * 10) / 10;
   const MAX_GROUPS = 5;
   // Lenken QR-koden peker til. På Azure er det sidens egen adresse; på claude.ai er det Artifact-lenken.
   const ARTIFACT_URL = 'https://claude.ai/artifact/UmJeZhSpjJVTZRQzVifoJk';
-  // Oppdrag: hvert oppdrag har et mål (kundens takt) og noen rammer. Tallene er kontrollert med simuleringen.
+  // Oppdrag: korte runder på 10 hus. Hvert oppdrag har ett mål og noen rammer. Tallene er kontrollert med simuleringen.
+  const mset = (takt, warmup, extra = {}) => ({ shiftMin: Math.round(takt * 10 / 60 * 1000) / 1000, demand: 10, warmup, form: 'linje', dist: 'av', ...extra });
   const MISSIONS = [
-    { id: 'm1', name: 'Første ordre', text: 'Kunden bestiller ett hus hvert 20. sekund. Lever alt kunden bestiller.', takt: 20, set: { shiftMin: 8, demand: 24, form: 'linje', dist: 'av' } },
-    { id: 'm2', name: 'Storkunden', text: 'En ny kunde vil ha ett hus hvert 16. sekund. Dere kan bruke inntil seks stasjoner.', takt: 16, set: { shiftMin: 8, demand: 30, form: 'linje', dist: 'av' } },
-    { id: 'm3', name: 'Kostnadskutt', text: 'Bedriften har bare råd til tre stasjoner. Kunden vil ha ett hus hvert 24. sekund.', takt: 24, maxSt: 3, set: { shiftMin: 8, demand: 20, form: 'linje', dist: 'av' } },
-    { id: 'm4', name: 'Urolig hverdag', text: 'Maskiner stopper og deler har feil. Lever ett hus hvert 20. sekund likevel.', takt: 20, minDist: 'hoy', set: { shiftMin: 8, demand: 24, form: 'linje', dist: 'hoy' } },
-    { id: 'm5', name: 'Gruppebygging', text: 'Bygg i grupper på fire elever. To grupper skal sammen levere ett hus hvert 20. sekund.', takt: 20, form: 'gruppe', groupsMax: 2, maxSt: 4, set: { shiftMin: 8, demand: 24, form: 'gruppe', groups: 2, dist: 'av' } },
+    { id: 'o1', name: 'Finn sløsingen', text: 'Kjør linja og se etter arbeid som ikke gjør huset bedre for kunden.', goalText: 'Fjern minst tre sløsingsoppgaver og kjør en runde.', takt: 20, deliver: false, goal: e => (e.cfg.removed || []).length >= 3, set: mset(20, 30) },
+    { id: 'o2', name: 'All sløsing borte', text: 'Det finnes mer sløsing enn det som er lett å se.', goalText: 'Fjern all sløsing og kjør en runde.', takt: 20, deliver: false, goal: e => e.an && e.an.waste === 0, set: mset(20, 30) },
+    { id: 'o3', name: 'Balanser linja', text: 'Ingen stasjon skal bruke lengre tid per hus enn takten.', goalText: 'Få syklustiden ned til 20 s eller lavere med fire stasjoner.', takt: 20, maxSt: 4, deliver: false, goal: e => !isG(e.cfg) && e.an && e.an.max <= 20 + 1e-9, set: mset(20, 30) },
+    { id: 'o4', name: 'Første ordre', text: 'Kunden bestiller ett hus hvert 20. sekund.', goalText: 'Lever alle 10 husene.', takt: 20, set: mset(20, 30) },
+    { id: 'o5', name: 'Storkunden', text: 'En ny kunde vil ha ett hus hvert 16. sekund.', goalText: 'Lever alle 10 husene med takt 16 s.', takt: 16, set: mset(16, 30) },
+    { id: 'o6', name: 'Kostnadskutt', text: 'Bedriften har bare råd til tre stasjoner.', goalText: 'Lever alle 10 husene med høyst tre stasjoner og takt 24 s.', takt: 24, maxSt: 3, set: mset(24, 30) },
+    { id: 'o7', name: 'Urolig hverdag', text: 'Maskiner stopper og deler har feil.', goalText: 'Lever alle 10 husene med mange forstyrrelser.', takt: 20, minDist: 'hoy', set: mset(20, 60, { dist: 'hoy' }) },
+    { id: 'o8', name: 'Gruppebygging', text: 'Fire elever bygger det samme huset, og to grupper deler på kunden.', goalText: 'Lever alle 10 husene med to grupper på høyst fire elever.', takt: 20, form: 'gruppe', groupsMax: 2, maxSt: 4, set: mset(20, 30, { form: 'gruppe', groups: 2 }) },
+    { id: 'o9', name: 'Mesterprøven', text: 'Strammere takt, færre stasjoner og noen forstyrrelser på én gang.', goalText: 'Lever alle 10 husene med takt 18 s, høyst fem stasjoner og noen forstyrrelser.', takt: 18, maxSt: 5, minDist: 'lav', set: mset(18, 30, { dist: 'lav' }) },
   ];
   const DIST_RANK = { av: 0, lav: 1, hoy: 2 };
   const WASTE_TYPES = ['Transport', 'Lager', 'Bevegelse', 'Venting', 'Overproduksjon', 'Overprosessering', 'Feil og omarbeid'];
@@ -679,7 +690,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function makeDist(c, rnd) {
     if (!c || c.dist === 'av' || !c.dist) return [];
     const perShift = (c.dist === 'hoy' ? 2 : 1) * (c.tpm ? 0.4 : 1);
-    const Tend = c.shiftMin * 60, mean = 480 / perShift;
+    const Tend = roundLen(c), mean = 480 / perShift;
     const keys = isG(c) ? Array.from({ length: c.groups }, (_, g) => c.team.map((_, m) => g + '-' + m)).flat() : c.stations.map((_, i) => String(i));
     const ev = [];
     for (const k of keys) {
@@ -699,7 +710,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const m = MISSIONS.find(x => x.id === e.mission);
     if (!m || !e.cfg || !e.res) return false;
     const c = e.cfg, takt = c.shiftMin * 60 / c.demand;
-    if (takt > m.takt + 0.05 || e.res.delivered < c.demand) return false;
+    if (takt > m.takt + 0.05) return false;
+    if (m.deliver !== false && e.res.delivered < c.demand) return false;
+    if (m.goal && !m.goal(e)) return false;
     if ((m.form || 'linje') !== (c.form || 'linje')) return false;
     if (m.maxSt && arr(c).length > m.maxSt) return false;
     if (m.groupsMax && (c.groups || 1) > m.groupsMax) return false;
@@ -876,12 +889,13 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
   // Konfigurasjon som sendes til elevene (og lagres i loggen)
-  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []), hint: c.hint || 'full', dist: c.dist || 'av', tpm: !!c.tpm, poka: !!c.poka, kanban: c.kanban || 1, mission: c.mission || null }; }
+  function slimCfg(c) { return { shiftMin: c.shiftMin, demand: c.demand, batch: c.batch, pull: c.pull, variation: c.variation, stations: clone(c.stations), removed: clone(c.removed || []), warmup: c.warmup || 0, form: c.form || 'linje', groups: c.groups || 1, team: clone(c.team || []), hint: c.hint || 'full', dist: c.dist || 'av', tpm: !!c.tpm, poka: !!c.poka, kanban: c.kanban || 1, mission: c.mission || null }; }
   function cleanCfg(c) {
     if (!c || !Array.isArray(c.stations) || !c.stations.length) return null;
     const lists = a => Array.isArray(a) ? a.slice(0, 6).map(x => Array.isArray(x) ? sortIds(x.filter(id => typeof id === 'string' && T[id])) : []) : [];
     const out = {
-      shiftMin: clamp(Math.round(num(c.shiftMin)) || 8, 1, 60), demand: clamp(Math.round(num(c.demand)) || 24, 1, 200),
+      shiftMin: clamp(Math.round(num(c.shiftMin) * 1000) / 1000 || 8, 0.25, 60), demand: clamp(Math.round(num(c.demand)) || 24, 1, 200),
+      warmup: clamp(Math.round(num(c.warmup)), 0, 300),
       batch: clamp(Math.round(num(c.batch)) || 1, 1, 6), pull: c.pull === true, variation: clamp(num(c.variation), 0, 0.3),
       stations: lists(c.stations), removed: Array.isArray(c.removed) ? c.removed.filter(id => T[id]) : [],
       form: c.form === 'gruppe' ? 'gruppe' : 'linje', groups: clamp(Math.round(num(c.groups)) || 1, 1, MAX_GROUPS), team: lists(c.team),
@@ -946,12 +960,12 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
 
   // ---------- Simulering ----------
   function makeSim(c) {
-    const T_end = c.shiftMin * 60, takt = T_end / c.demand;
+    const T_end = roundLen(c), takt = taktOf(c);
     return {
       cfg: clone(c), takt, T: T_end, steps: Math.round(T_end / DT), k: 0, acc: 0, rng: mulberry32(20261027),
       events: makeDist(c, mulberry32(777)), defP: defectP(c), rngD: mulberry32(4242), defects: 0,
       st: c.stations.map(ids => ({ tasks: ids.map(id => T[id]), list: [], inQ: [], cur: null, ti: 0, rem: 0, dur: 0, tray: [], work: 0, starve: 0, block: 0, down: 0, maxQ: 0, status: 'starved' })),
-      fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: takt, nid: 1, started: 0, wipInt: 0,
+      fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: (c.warmup || 0) + takt, nid: 1, started: 0, wipInt: 0,
       finished: [], firstOut: null, lastDel: null, done: false,
     };
   }
@@ -1016,7 +1030,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       s[s.status === 'work' ? 'work' : s.status === 'blocked' ? 'block' : 'starve'] += DT;
     }
     const t = sim.k * DT;
-    while (sim.placed < sim.cfg.demand && t >= sim.nextOrder - 1e-9) { sim.orders.push(sim.nextOrder); sim.placed++; sim.nextOrder += sim.takt; }
+    while (sim.placed < sim.cfg.demand && t >= sim.nextOrder - DT / 2) { sim.orders.push(sim.nextOrder); sim.placed++; sim.nextOrder += sim.takt; }
     while (sim.orders.length && sim.fg.length) {
       const o = sim.orders.shift(); sim.fg.shift();
       sim.delivered++; sim.lastDel = t;
@@ -1038,13 +1052,13 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
 
   // ---------- Simulering av gruppebygging ----------
   function makeGroupSim(c) {
-    const T_end = c.shiftMin * 60, takt = T_end / c.demand, all = c.team.flat();
+    const T_end = roundLen(c), takt = taktOf(c), all = c.team.flat();
     return {
       group: true, cfg: clone(c), takt, T: T_end, steps: Math.round(T_end / DT), k: 0, acc: 0, rng: mulberry32(20261027),
       events: makeDist(c, mulberry32(777)), defP: defectP(c), rngD: mulberry32(4242), defects: 0,
       all, allSet: new Set(all),
       gs: Array.from({ length: c.groups }, () => ({ start: 0, done: new Set(), cyc: [], mem: c.team.map(() => ({ cur: null, rem: 0, dur: 0, work: 0, wait: 0, down: 0, status: 'wait' })) })),
-      fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: takt, started: all.length ? c.groups : 0, wipInt: 0,
+      fg: [], orders: [], placed: 0, delivered: 0, late: 0, nextOrder: (c.warmup || 0) + takt, started: all.length ? c.groups : 0, wipInt: 0,
       finished: [], firstOut: null, lastDel: null, done: false,
     };
   }
@@ -1075,7 +1089,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
         if (mm.cur) mm.work += DT; else mm.wait += DT;
       });
     }
-    while (sim.placed < c.demand && t >= sim.nextOrder - 1e-9) { sim.orders.push(sim.nextOrder); sim.placed++; sim.nextOrder += sim.takt; }
+    while (sim.placed < c.demand && t >= sim.nextOrder - DT / 2) { sim.orders.push(sim.nextOrder); sim.placed++; sim.nextOrder += sim.takt; }
     while (sim.orders.length && sim.fg.length) {
       const o = sim.orders.shift(); sim.fg.shift();
       sim.delivered++; sim.lastDel = t;
@@ -1130,14 +1144,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (isG(cfg)) {
       const G = cfg.groups;
       $('kpis').innerHTML = `
-        <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.custTakt, 1)} s</b><small>${G > 1 ? `${G} grupper: ${fmt(a.takt, 1)} s hver` : `${cfg.shiftMin} min ÷ ${cfg.demand} hus`}</small></div>
+        <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.custTakt, 1)} s</b><small>${G > 1 ? `${G} grupper: ${fmt(a.takt, 1)} s hver` : `${cfg.demand} hus · runde ${clock(roundLen(cfg))}`}</small></div>
         <div class="kpi" data-state="${over ? 'bad' : 'ok'}"><span class="eyebrow">Tid per hus</span><b class="num">${fmt(a.span)} s</b><small>Gruppetakt ${fmt(a.takt, 1)} s</small></div>
         <div class="kpi"><span class="eyebrow">Arbeidsbalanse</span><b class="num">${pct(a.balance)}</b><small>${cfg.team.length} elever per gruppe</small></div>
         ${wasteTile(a)}`;
       return;
     }
     $('kpis').innerHTML = `
-      <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.takt, 1)} s</b><small>${cfg.shiftMin} min ÷ ${cfg.demand} hus</small></div>
+      <div class="kpi takt"><span class="eyebrow">Takt-tid</span><b class="num">${fmt(a.takt, 1)} s</b><small>${cfg.demand} hus · runde ${clock(roundLen(cfg))}</small></div>
       <div class="kpi" data-state="${over ? 'bad' : 'ok'}"><span class="eyebrow">Syklustid</span><b class="num">${fmt(a.max)} s</b><small>${a.max ? 'Flaskehals: stasjon ' + (a.bn + 1) : 'Ingen oppgaver'}</small></div>
       <div class="kpi"><span class="eyebrow">Balansegrad</span><b class="num">${pct(a.balance)}</b><small>${cfg.stations.length} stasjoner</small></div>
       ${wasteTile(a)}`;
@@ -1216,7 +1230,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       return v;
     });
     return {
-      c, t, T: c.shiftMin * 60, stations, fg: sim ? sim.fg.length : 0, delivered: sim ? sim.delivered : 0, placed: sim ? sim.placed : 0,
+      c, t, T: roundLen(c), stations, fg: sim ? sim.fg.length : 0, delivered: sim ? sim.delivered : 0, placed: sim ? sim.placed : 0,
       backlog: sim ? sim.orders.length : 0, wip: sim ? sim.started - sim.finished.length : 0,
       nextIn: sim && sim.placed < c.demand ? Math.max(0, sim.nextOrder - t) : null,
       delAgo: sim && sim.lastDel != null ? t - sim.lastDel : null, takt: c.shiftMin * 60 / c.demand,
@@ -1246,7 +1260,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       return { done, working, members, count: g ? g.cyc.length : 0, frac: all.length ? done.size / all.length : 0, elapsed: g ? t - g.start : 0 };
     });
     return {
-      group: true, c, t, T: c.shiftMin * 60, groups, takt: c.shiftMin * 60 / c.demand,
+      group: true, c, t, T: roundLen(c), groups, takt: taktOf(c),
       fg: sim ? sim.fg.length : 0, delivered: sim ? sim.delivered : 0, placed: sim ? sim.placed : 0, backlog: sim ? sim.orders.length : 0,
       wip: sim ? sim.started : 0, nextIn: sim && sim.placed < c.demand ? Math.max(0, sim.nextOrder - t) : null,
       delAgo: sim && sim.lastDel != null ? t - sim.lastDel : null,
@@ -1451,11 +1465,12 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       <div class="set">
         <span class="eyebrow">Kundebehov</span>
         <div class="fields">
-          <label for="in-shift">Skift (min)<input id="in-shift" type="number" min="1" max="60" step="1" value="${cfg.shiftMin}"${lk}></label>
           <label for="in-demand">Bestilte hus<input id="in-demand" type="number" min="1" max="200" step="1" value="${cfg.demand}"${lk}></label>
+          <label for="in-takt">Takt (s)<input id="in-takt" type="number" min="4" max="120" step="1" value="${fmt(taktOf(cfg), 1).replace(',', '.')}"${lk}></label>
+          <label for="in-warm">Oppstart (s)<input id="in-warm" type="number" min="0" max="300" step="10" value="${cfg.warmup || 0}"${lk}></label>
         </div>
-        <div class="formula">Takt = ${cfg.shiftMin * 60} s ÷ ${cfg.demand} hus = <b>${fmt(G ? a.custTakt : a.takt, 1)} s per hus</b></div>
-        ${mode === 'tavle' ? '<span class="help">Live-runder går i sanntid. Et skift på 5 minutter med 15 hus gir takt 20 s.</span>' : ''}
+        <div class="formula">Kunden bestiller ${cfg.demand} hus, ett hvert <b>${fmt(taktOf(cfg), 1)}. sekund</b>. Runden varer ${cfg.warmup ? cfg.warmup + ' s oppstart + ' : ''}${cfg.demand} × ${fmt(taktOf(cfg), 1)} s = ${clock(roundLen(cfg))}.</div>
+        <span class="help">I oppstarten bygger linja uten at kunden bestiller, slik at den rekker å fylles.</span>
       </div>
       <div class="set">
         <span class="eyebrow">${G ? 'Elever per gruppe' : 'Stasjoner'}</span>
@@ -1520,7 +1535,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (missionMet(e)) {
       const next = MISSIONS[MISSIONS.indexOf(m) + 1];
       out.unshift(['good', `Oppdraget «${m.name}» er løst.${next ? ` Neste oppdrag er «${next.name}».` : ' Alle oppdragene er løst.'}`, 'mål']);
-    } else out.unshift(['info', `Oppdraget «${m.name}» er ikke løst ennå: ${m.text}`, 'mål']);
+    } else out.unshift(['info', `Oppdraget «${m.name}» er ikke løst ennå. Mål: ${m.goalText}`, 'mål']);
   }
   function observationsTeam(e) {
     const a = e.an, r = e.res, c = e.cfg, out = [];
@@ -1588,7 +1603,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const m = activeMission();
       $('obs-sub').textContent = 'Ingen runder er kjørt ennå. Dette er utgangspunktet.';
       list = [['info', isG(cfg) ? `Hver gruppe må levere ett hus hvert ${fmt(a.takt, 1)}. sekund, men med denne fordelingen tar et hus ${fmt(a.span)} s. Hvor mange hus tror dere kunden får?` : `Kunden bestiller ett hus hvert ${fmt(a.takt, 1)}. sekund, men den tregeste stasjonen bruker ${fmt(a.max)} s. Hvor mange hus tror dere kunden får?`, 'fakta'],
-              ['info', m ? `Oppdrag: ${m.text}` : 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.', 'mål']];
+              ['info', m ? `Oppdrag «${m.name}»: ${m.text} Mål: ${m.goalText}` : 'Start runde 1 og se hvor husene hoper seg opp og hvilke stasjoner som venter.', 'mål']];
     } else {
       $('obs-sub').textContent = `Det linja forteller etter runde ${last.round}${last.live ? ' (live)' : ''}.${lvl !== 'full' ? ' Hjelpenivå: ' + lvl + '.' : ''}`;
       list = observations(last);
@@ -1615,7 +1630,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (p.batch !== c.batch) out.push(`Parti ${p.batch} → ${c.batch}`);
     if (p.pull !== c.pull) out.push(c.pull ? 'Trekk (kanban)' : 'Skyv');
     if (p.variation !== c.variation) out.push(`Variasjon ±${fmt(p.variation * 100)} → ±${fmt(c.variation * 100)} %`);
-    if (p.shiftMin !== c.shiftMin || p.demand !== c.demand) out.push(`Ny takt ${fmt(c.shiftMin * 60 / c.demand, 1)} s`);
+    if (Math.abs(taktOf(p) - taktOf(c)) > 0.05) out.push(`Takt ${fmt(taktOf(c), 1)} s`);
+    if (p.demand !== c.demand) out.push(`${c.demand} hus`);
+    if ((p.warmup || 0) !== (c.warmup || 0)) out.push(`Oppstart ${c.warmup || 0} s`);
     return out.length ? out : ['Ingen endring'];
   }
   function renderLog() {
@@ -1671,7 +1688,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       const on = cur === x.id;
       return `<button type="button" class="mis" data-mission="${x.id}" aria-pressed="${on}" data-done="${!!done}">
         <span class="ms${on && !done ? ' active' : ''}">${done ? 'Løst i runde ' + done : on ? 'Aktivt' : 'Oppdrag ' + (i + 1)}</span>
-        <b>${esc(x.name)}</b><span class="mt">${esc(x.text)}</span>
+        <b>${esc(x.name)}</b><span class="mt">${esc(x.text)}</span><span class="mg">Mål: ${esc(x.goalText)}</span>
         ${on && warn.length ? `<span class="mis-warn">${warn.map(esc).join(' ')}</span>` : ''}</button>`;
     }).join('') + `<button type="button" class="mis" data-mission="" aria-pressed="${!cur}"><span class="ms">Fritt</span><b>Fritt spill</b><span class="mt">Ingen mål. Still inn takt og rammer selv.</span></button>`;
   }
@@ -1971,7 +1988,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       else { LD.sim[j] = { tk: 0, sn: 0, tr: 0, s: 'starved', ti: 0, sp: 0, acc: [0, 0, 0], dn: 0, df: 0 }; LD.w[j] = { busy: false, rem: 0, dur: 0, cyc: [], start: 0, def: false }; }
     });
     LD.events = makeDist(c, Math.random); LD.dp = defectP(c);
-    LD.del = 0; LD.plc = 0; LD.orders = []; LD.nextOrder = c.shiftMin * 60 / c.demand; LD.lastDelWall = null; LD.late = 0;
+    LD.del = 0; LD.plc = 0; LD.orders = []; LD.nextOrder = (c.warmup || 0) + taktOf(c); LD.lastDelWall = null; LD.late = 0;
     LD.obs = { starts: [], ends: [], wipInt: 0, maxQ: c.stations.map(() => 0), gEnds: Array.from({ length: c.groups || 1 }, () => []) };
     LD.stamp = Date.now(); LD.lastTick = Date.now();
     sel = null;
@@ -2021,7 +2038,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   }
   // Tavla simulerer elever som mangler i en gruppe, og fører regnskap over ferdige hus.
   function leaderGroupRun(t, dt, nowMs) {
-    const c = LD.cfg, Tend = c.shiftMin * 60, takt = Tend / c.demand;
+    const c = LD.cfg, Tend = roundLen(c), takt = taktOf(c);
     const peers = LD.r ? LD.r.peers() : [];
     const LP = leaderPres();
     const all = c.team.flat();
@@ -2045,14 +2062,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       while (LD.gcount[g] < X) { LD.gcount[g]++; LD.obs.gEnds[g].push(t); LD.obs.ends.push(t); }
     }
     const made = LD.gcount.reduce((a, b) => a + b, 0);
-    while (LD.plc < c.demand && t >= LD.nextOrder - 1e-9) { LD.orders.push(LD.nextOrder); LD.plc++; LD.nextOrder += takt; }
+    while (LD.plc < c.demand && t >= LD.nextOrder - 0.05) { LD.orders.push(LD.nextOrder); LD.plc++; LD.nextOrder += takt; }
     let fg = made - LD.del;
     while (LD.orders.length && fg > 0) { const o = LD.orders.shift(); fg--; LD.del++; LD.lastDelWall = nowMs; if (t - o > 1) LD.late++; }
     LD.obs.wipInt += (all.length ? c.groups : 0) * dt;
     if (t >= Tend) finishLiveGroup(peers, LP);
   }
   function finishLiveGroup(peers, LP) {
-    const c = LD.cfg, Tend = c.shiftMin * 60, ob = LD.obs, M = c.team.length, G = c.groups;
+    const c = LD.cfg, Tend = roundLen(c), ob = LD.obs, M = c.team.length, G = c.groups;
     LD.ph = 'done';
     const leads = [];
     ob.gEnds.forEach(list => list.forEach((e, k) => leads.push(e - (k ? list[k - 1] : 0))));
@@ -2083,7 +2100,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     publishLeader(true); renderRoster();
   }
   function liveGroupVM() {
-    const c = lineCfg(), Tend = c.shiftMin * 60;
+    const c = lineCfg(), Tend = roundLen(c);
     const peers = LD.r ? LD.r.peers() : [];
     const LP = leaderPres();
     const running = LD.ph === 'run' || LD.ph === 'done' || LD.ph === 'count';
@@ -2133,14 +2150,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (LD.ph === 'count' && nowMs >= LD.at) LD.ph = 'run';
     if (LD.ph === 'run' && isG(LD.cfg)) leaderGroupRun((nowMs - LD.at) / 1000, dt, nowMs);
     else if (LD.ph === 'run') {
-      const c = LD.cfg, n = c.stations.length, Tend = c.shiftMin * 60, takt = Tend / c.demand;
+      const c = LD.cfg, n = c.stations.length, Tend = roundLen(c), takt = taktOf(c);
       const t = (nowMs - LD.at) / 1000;
       const peers = LD.r ? LD.r.peers() : [];
       const LP = leaderPres();
       for (let j = n - 1; j >= 0; j--) if (LD.sim[j]) simWorkerTick(j, dt, LP, peers);
       const cn = j => countersFor(j, LP, peers);
       const fgCount = num(cn(n - 1).sn) - LD.del;
-      while (LD.plc < c.demand && t >= LD.nextOrder - 1e-9) { LD.orders.push(LD.nextOrder); LD.plc++; LD.nextOrder += takt; }
+      while (LD.plc < c.demand && t >= LD.nextOrder - 0.05) { LD.orders.push(LD.nextOrder); LD.plc++; LD.nextOrder += takt; }
       let fg = fgCount;
       while (LD.orders.length && fg > 0) { const o = LD.orders.shift(); fg--; LD.del++; LD.lastDelWall = nowMs; if (t - o > 1) LD.late++; }
       const ob = LD.obs, tk0 = num(cn(0).tk), snN = num(cn(n - 1).sn);
@@ -2155,7 +2172,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (LD && LD.r && nowMs % 1000 < 110) updateConnMsg();
   }
   function finishLive(peers, LP) {
-    const c = LD.cfg, n = c.stations.length, Tend = c.shiftMin * 60, ob = LD.obs;
+    const c = LD.cfg, n = c.stations.length, Tend = roundLen(c), ob = LD.obs;
     LD.ph = 'done';
     const cs = c.stations.map((_, j) => countersFor(j, LP, peers));
     const acc = cs.map(x => Array.isArray(x.acc) ? x.acc.map(num) : [0, 0, 0]);
@@ -2183,7 +2200,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     publishLeader(true); renderRoster();
   }
   function liveVM() {
-    const c = lineCfg(), n = c.stations.length, Tend = c.shiftMin * 60, takt = Tend / c.demand;
+    const c = lineCfg(), n = c.stations.length, Tend = roundLen(c), takt = taktOf(c);
     const peers = LD.r ? LD.r.peers() : [];
     const LP = leaderPres();
     const running = LD.ph === 'run' || LD.ph === 'done' || LD.ph === 'count';
@@ -2461,7 +2478,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     const LP = lp.presence;
     const c = cleanCfg(LP.cfg);
     if (!c) return { phase: 'gone' };
-    const Tend = c.shiftMin * 60;
+    const Tend = roundLen(c);
     const t = ST.offset != null && Number.isFinite(LP.at) ? (Date.now() - ST.offset - LP.at) / 1000 : -1;
     let phase = LP.ph === 'run' || LP.ph === 'count' ? (t < 0 ? 'count' : t >= Tend ? 'done' : 'run') : LP.ph === 'done' ? 'done' : 'lobby';
     const me = ST.r.peers().find(p => p.isMe && p.sameTab);
@@ -2485,7 +2502,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if (x.phase === 'done') {
       ST.job = null; ST.drag = null;
       const av = ST.cyc.length ? ST.cyc.reduce((a, b) => a + b, 0) / ST.cyc.length : null;
-      renderWork(x, 'Skiftet er over', `${ST.group ? "Gruppa bygde" : "Du bygde"} ${ST.cyc.length} hus${av != null ? ` med ${fmt(av, 1)} s i snitt` : ''}. Takt-tiden var ${fmt(x.Tend / x.c.demand, 1)} s. Se resultatet på tavla.`);
+      renderWork(x, 'Skiftet er over', `${ST.group ? "Gruppa bygde" : "Du bygde"} ${ST.cyc.length} hus${av != null ? ` med ${fmt(av, 1)} s i snitt` : ''}. Takt-tiden var ${fmt(taktOf(x.c), 1)} s. Se resultatet på tavla.`);
       publishSt(false); return;
     }
     if (ST.group) { stTickGroup(x, dt); return; }
@@ -2945,8 +2962,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     if ((e.target.id === 'in-tpm' || e.target.id === 'in-poka') && !locked()) { cfg[e.target.id === 'in-tpm' ? 'tpm' : 'poka'] = e.target.checked; edited(); return; }
     if (e.target.id === 'in-nick') { ST.nick = cleanNick(e.target.value); store('taktlinja-nick', ST.nick); publishSt(true); return; }
     if (locked()) return;
-    if (e.target.id === 'in-shift') cfg.shiftMin = clamp(Math.round(+e.target.value) || 8, 1, 60);
-    else if (e.target.id === 'in-demand') cfg.demand = clamp(Math.round(+e.target.value) || 24, 1, 200);
+    if (e.target.id === 'in-takt') { const t = clamp(+e.target.value || 20, 4, 120); cfg.shiftMin = Math.round(t * cfg.demand / 60 * 1000) / 1000; }
+    else if (e.target.id === 'in-demand') { const t = taktOf(cfg); cfg.demand = clamp(Math.round(+e.target.value) || 10, 1, 200); cfg.shiftMin = Math.round(t * cfg.demand / 60 * 1000) / 1000; }
+    else if (e.target.id === 'in-warm') cfg.warmup = clamp(Math.round(+e.target.value) || 0, 0, 300);
     else return;
     edited();
   });
@@ -2993,7 +3011,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       def.forEach((ids, i) => ids.forEach(id => { if (!have.has(id) && !out.removed.includes(id)) { const to = Math.min(i, out[k].length - 1); out[k][to].push(id); sortIds(out[k][to]); } }));
     }
     if (!('hint' in c)) out.hint = DEFAULT.hint;
-    if (!('mission' in c)) out.mission = DEFAULT.mission;
+    // Eldre oppsett (lange runder, gamle oppdrag) flyttes over til første korte oppdrag.
+    if (!('mission' in c) || (typeof c.mission === 'string' && /^m[0-9]$/.test(c.mission))) { out.mission = 'o1'; Object.assign(out, clone(MISSIONS[0].set)); }
     return out;
   }
   function start(data) {
