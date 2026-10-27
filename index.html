@@ -133,6 +133,9 @@ input[type="text"], input[type="number"] { padding: 7px 10px; border: 1px solid 
 .roster .r .sim { color: var(--muted); }
 .roster .r .dup { color: var(--bad); font-size: 12px; }
 .conn-msg { font-size: 13px; color: var(--muted); }
+.login { display: grid; gap: 6px; margin-top: 10px; font-size: 13px; }
+.login input { width: 160px; }
+#lobby-who button { margin-left: 6px; }
 
 /* Live-tavle */
 .board { display: flex; flex-wrap: wrap; gap: 8px 28px; align-items: baseline; padding: 12px 16px; background: var(--ink); color: var(--bg); border-radius: 6px 6px 0 0; }
@@ -384,6 +387,12 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
           <span class="eyebrow">Lagkode</span>
           <div class="code num" id="lobby-code">····</div>
           <span class="conn-msg" id="lobby-conn">Kobler til …</span>
+          <div class="login" id="lobby-login" hidden>
+            <label for="in-laerer">Lærerkode</label>
+            <div class="code-row"><input id="in-laerer" type="password" autocomplete="current-password" maxlength="64"><button class="btn" type="button" id="btn-login">Logg inn</button></div>
+            <span class="help" id="login-msg">Læreren logger inn for å åpne tavla og lagre runder og oppsett.</span>
+          </div>
+          <div class="help" id="lobby-who" hidden></div>
         </div>
         <div class="roster" id="roster"></div>
       </div>
@@ -599,7 +608,146 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
 
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function fetchStore(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
-  function save() { store(KEY, { cfg, history }); }
+  function save() { store(KEY, { cfg, history }); cloudSaveCfg(); }
+
+  // ---------- Azure: lærerinnlogging og lagring i Cosmos DB (via /api) ----------
+  // På claude.ai finnes window.claude.use; ellers kjører appen på Azure Static Web Apps.
+  const AZ = !(window.claude && window.claude.use);
+  let AUTH = null;
+  (() => { const a = fetchStore('taktlinja-laerer'); if (a && a.token && a.exp > Date.now()) AUTH = a; })();
+  let cloudTimer = null;
+  async function api(method, path, body) {
+    const headers = { 'content-type': 'application/json' };
+    if (AUTH) headers['x-laerer-token'] = AUTH.token;
+    const r = await fetch('/api/' + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    if (r.status === 401 && AUTH) logout();
+    if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+    return r.status === 204 ? null : r.json();
+  }
+  function cloudSaveCfg() {
+    if (!AZ || !AUTH) return;
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(() => { api('PUT', 'oppsett', { cfg }).catch(() => {}); }, 1500);
+  }
+  async function login(kode) {
+    const msg = $('login-msg');
+    msg.textContent = 'Logger inn …';
+    try {
+      const r = await api('POST', 'laerer/login', { kode });
+      AUTH = { token: r.token, navn: r.navn, exp: r.exp };
+      store('taktlinja-laerer', AUTH);
+      $('in-laerer').value = '';
+      msg.textContent = '';
+      await loadCloud();
+      if (mode === 'tavle') { closeTavle(); openTavle(); }
+    } catch (e) {
+      msg.textContent = e.status === 401 ? 'Feil lærerkode.' : e.status === 429 ? 'For mange forsøk. Vent litt og prøv igjen.' : 'Kunne ikke logge inn. Sjekk nettforbindelsen.';
+    }
+    renderLogin();
+  }
+  function logout() {
+    AUTH = null;
+    store('taktlinja-laerer', null);
+    if (mode === 'tavle') { closeTavle(); openTavle(); }
+    renderLogin();
+  }
+  async function loadCloud() {
+    if (!AUTH) return;
+    try {
+      const d = await api('GET', 'data');
+      if (d.oppsett) { cfg = normalizeCfg(d.oppsett); }
+      else api('PUT', 'oppsett', { cfg }).catch(() => {});
+      if (Array.isArray(d.runder)) history = d.runder.filter(x => x && x.cfg && x.res && x.an);
+      store(KEY, { cfg, history });
+      sel = null;
+      buildLine(); renderAll(); renderObs(); renderLog();
+    } catch (e) {}
+  }
+  function renderLogin() {
+    const box = $('lobby-login'), who = $('lobby-who');
+    box.hidden = !AZ || !!AUTH;
+    who.hidden = !AZ || !AUTH;
+    if (AZ && AUTH) who.innerHTML = `Innlogget som ${esc(AUTH.navn || 'lærer')}. Runder og oppsett lagres i skyen.<button class="btn small" type="button" id="btn-logout">Logg ut</button>`;
+  }
+
+  // ---------- Azure: «rom» over HTTP ----------
+  // Etterligner det lille utvalget av room-API-et appen bruker (presence, peers, onPeers, connected).
+  // Hver enhet sender sin status og leser de andres omtrent hvert sekund; Cosmos DB er mellomlageret.
+  function makePollRoom() {
+    const me = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => (b % 36).toString(36)).join('');
+    return {
+      lobby: true,
+      presence: async () => {},
+      peers: () => [],
+      onPeers: () => () => {},
+      join: async (name, opts = {}) => pollRoom(name.replace(/^takt-/, ''), me, opts),
+    };
+  }
+  function pollRoom(kode, me, opts) {
+    let pres = {}, sentJson = '', lastSent = 0, lastReq = 0, inflight = false, stopped = false, fails = 0, conn = false, kickTimer = null;
+    let peersArr = Object.freeze([]);
+    const cache = new Map(), peerL = new Set(), connL = new Set();
+    const setConn = v => { if (v !== conn) { conn = v; connL.forEach(fn => fn(v)); } };
+    async function tick() {
+      if (stopped || inflight) return;
+      inflight = true; lastReq = Date.now();
+      const json = JSON.stringify(pres);
+      const send = json !== sentJson || Date.now() - lastSent > 5000;
+      try {
+        const headers = { 'content-type': 'application/json' };
+        if (opts.token) headers['x-laerer-token'] = opts.token;
+        const r = await fetch('/api/rom/' + kode, { method: 'POST', headers, body: JSON.stringify({ peer: me, presence: send ? pres : null }) });
+        if (r.status === 409 && opts.onConflict) { stopped = true; opts.onConflict(); return; }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const data = await r.json();
+        if (send) { sentJson = json; lastSent = Date.now(); }
+        fails = 0; setConn(true);
+        const seen = new Set(), list = [];
+        for (const p of Array.isArray(data.peers) ? data.peers : []) {
+          if (!p || typeof p.peer !== 'string' || seen.has(p.peer)) continue;
+          seen.add(p.peer);
+          const isMe = p.peer === me;
+          const presence = isMe ? clone(pres) : (p.presence && typeof p.presence === 'object' ? p.presence : {});
+          const pj = isMe ? json : JSON.stringify(presence);
+          let e = cache.get(p.peer);
+          if (!e || e.json !== pj) {
+            e = { json: pj, peer: Object.freeze({ peer: p.peer, by: null, isMe, sameTab: isMe, kind: 'viewer', guest: false, presence: Object.freeze(presence), updatedAt: Date.now() }) };
+            cache.set(p.peer, e);
+          }
+          list.push(e.peer);
+        }
+        if (!seen.has(me)) list.push(Object.freeze({ peer: me, by: null, isMe: true, sameTab: true, kind: 'viewer', guest: false, presence: Object.freeze(clone(pres)), updatedAt: Date.now() }));
+        for (const k of [...cache.keys()]) if (!seen.has(k)) cache.delete(k);
+        peersArr = Object.freeze(list);
+        peerL.forEach(fn => fn({ peers: peersArr, joined: [], left: [], updated: [] }));
+      } catch (err) {
+        if (++fails >= 3) setConn(false);
+      } finally { inflight = false; }
+    }
+    function kick() {
+      if (stopped || kickTimer) return;
+      const wait = Math.max(0, 700 - (Date.now() - lastReq));
+      kickTimer = setTimeout(() => { kickTimer = null; tick(); }, wait);
+    }
+    const timer = setInterval(() => { if (Date.now() - lastReq >= 950) tick(); }, 250);
+    tick();
+    return {
+      name: 'takt-' + kode,
+      presence: async patch => {
+        for (const k in patch) { if (patch[k] === null) delete pres[k]; else pres[k] = patch[k]; }
+        if (JSON.stringify(pres).length > 4000) throw Object.assign(new Error('for stor'), { code: 'invalid_argument' });
+        kick();
+      },
+      peers: () => peersArr,
+      onPeers: fn => { peerL.add(fn); setTimeout(() => fn({ peers: peersArr, joined: [], left: [], updated: [] }), 0); return () => peerL.delete(fn); },
+      connected: () => conn,
+      onConnection: fn => { connL.add(fn); setTimeout(() => fn(conn), 0); return () => connL.delete(fn); },
+      leave: async () => {
+        stopped = true; clearInterval(timer); clearTimeout(kickTimer);
+        fetch('/api/rom/' + kode, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ peer: me, leave: true }), keepalive: true }).catch(() => {});
+      },
+    };
+  }
 
   function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
@@ -1290,6 +1438,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     entry.changes = diffCfg(prev && prev.cfg, entry.cfg);
     history.push(entry);
     save(); renderAll(); renderObs(); renderLog();
+    if (AZ && AUTH) api('POST', 'runder', { runde: entry }).catch(() => {});
   }
   function finishRound() {
     playing = false;
@@ -1388,9 +1537,14 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     }
     $('lobby-code').textContent = LD.code;
     renderRoster();
+    renderLogin();
     if (!room) { updateConnMsg(); return; }
+    if (AZ && !AUTH) { updateConnMsg(); renderControls(); return; }
     try {
-      LD.r = await room.join(roomName(LD.code));
+      const me = LD;
+      LD.r = AZ
+        ? await room.join(roomName(LD.code), { token: AUTH.token, onConflict: () => { if (LD !== me) return; store('taktlinja-code', randCode()); closeTavle(); openTavle(); } })
+        : await room.join(roomName(LD.code));
       room.presence({ role: 'leder', code: LD.code }).catch(() => {});
       LD.r.onPeers(() => { renderRoster(); });
       LD.r.onConnection(() => updateConnMsg());
@@ -1411,7 +1565,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function updateConnMsg() {
     const el = $('lobby-conn');
     if (roomState === 'pending') el.textContent = 'Kobler til …';
-    else if (!room) el.textContent = 'Live-runder er ikke tilgjengelige her. Siden må åpnes på claude.ai av innloggede personer som har fått tilgang.';
+    else if (!room) el.textContent = AZ ? 'Får ikke kontakt med serveren. Live-runder er ikke tilgjengelige akkurat nå.' : 'Live-runder er ikke tilgjengelige her. Siden må åpnes på claude.ai av innloggede personer som har fått tilgang.';
+    else if (AZ && !AUTH) el.textContent = 'Logg inn med lærerkoden for å åpne tavla.';
     else if (LD && LD.err) el.textContent = 'Kunne ikke åpne laget. Last siden på nytt.';
     else if (LD && LD.r && !LD.r.connected()) el.textContent = 'Kobler til …';
     else el.textContent = 'Tilkoblet. Vis koden for elevene.';
@@ -1811,7 +1966,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   function renderBoards() {
     const el = $('boards');
     if (roomState === 'pending') { el.innerHTML = '<p class="help">Ser etter tavler …</p>'; return; }
-    if (!room) { el.innerHTML = '<p class="help">Live-runder er ikke tilgjengelige her. Siden må åpnes på claude.ai, og du må være logget inn og ha fått tilgang. Du kan fortsatt øve.</p>'; return; }
+    if (!room) { el.innerHTML = AZ ? '<p class="help">Får ikke kontakt med serveren. Du kan fortsatt øve.</p>' : '<p class="help">Live-runder er ikke tilgjengelige her. Siden må åpnes på claude.ai, og du må være logget inn og ha fått tilgang. Du kan fortsatt øve.</p>'; return; }
+    if (room.lobby) { el.innerHTML = '<p class="help">Skriv inn lagkoden som står på tavla.</p>'; return; }
     const seen = new Set();
     const boards = room.peers().filter(p => p.presence && p.presence.role === 'leder' && /^\d{4}$/.test(String(p.presence.code)) && !seen.has(p.presence.code) && seen.add(p.presence.code));
     el.innerHTML = boards.length ? boards.map(p => `<button type="button" class="board-btn" data-board="${esc(p.presence.code)}"><span>Tavle</span><span class="code-s">${esc(p.presence.code)}</span></button>`).join('')
@@ -2389,7 +2545,9 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     } else if (b.id === 'btn-pause') { playing = !playing; renderControls(); }
     else if (b.id === 'btn-skip') { while (!sim.done) stepAny(sim); updateLine(); finishRound(); }
     else if (b.id === 'btn-cancel') { if (mode === 'tavle') abortLive(); else { sim = null; playing = false; buildLine(); renderAll(); } }
-    else if (b.id === 'btn-clear') armConfirm(b, 'Klikk igjen for å slette', () => { history = []; save(); renderLog(); renderObs(); renderAll(); updateLine(); });
+    else if (b.id === 'btn-clear') armConfirm(b, 'Klikk igjen for å slette', () => { history = []; save(); renderLog(); renderObs(); renderAll(); updateLine(); if (AZ && AUTH) api('DELETE', 'runder').catch(() => {}); });
+    else if (b.id === 'btn-login') login($('in-laerer').value);
+    else if (b.id === 'btn-logout') logout();
     else if (b.id === 'btn-reset') armConfirm(b, 'Klikk igjen for å tilbakestille', () => { cfg = clone(DEFAULT); sel = null; edited(); });
     else if (b.id === 'btn-code') joinTeam($('in-code').value.trim());
     else if (b.dataset.board) joinTeam(b.dataset.board);
@@ -2441,6 +2599,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     edited();
   });
   $('in-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinTeam($('in-code').value.trim()); });
+  $('in-laerer').addEventListener('keydown', e => { if (e.key === 'Enter') login($('in-laerer').value); });
   const yz = $('yz');
   yz.addEventListener('dragstart', e => {
     const b = e.target.closest('.blk'); if (!b || locked()) return;
@@ -2453,7 +2612,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
 
   function initRoom() {
     const use = window.claude && window.claude.use;
-    const p = use ? window.claude.use('room') : Promise.resolve(null);
+    const p = use ? window.claude.use('room') : fetch('/api/helse').then(r => r.ok ? makePollRoom() : null).catch(() => null);
     p.then(r => {
       room = r; roomState = 'ready';
       if (room) {
@@ -2464,9 +2623,20 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
     }).catch(() => { room = null; roomState = 'ready'; updateConnMsg(); renderBoards(); });
   }
 
+  function normalizeCfg(c) {
+    const out = Object.assign(clone(DEFAULT), c);
+    const base = cleanCfg(out) || cleanCfg(DEFAULT);
+    Object.assign(out, base);
+    out.home = c.home || {}; out.homeT = c.homeT || {};
+    if (out.form === 'gruppe' && out.team.length < 2) out.form = 'linje';
+    const OLD_TEAM = '[["fetch","base","front"],["side","search","win"],["door","waitTool","roof"],["chim","qc","recheck"]]';
+    if (out.team.length < 2 || JSON.stringify(out.team) === OLD_TEAM) out.team = clone(DEFAULT.team).map(ids => ids.filter(id => !out.removed.includes(id)));
+    return out;
+  }
   function start(data) {
     const stored = (data && data.cfg) ? data : fetchStore(KEY);
-    cfg = stored && stored.cfg ? stored.cfg : clone(DEFAULT);
+    cfg = normalizeCfg(stored && stored.cfg ? stored.cfg : DEFAULT);
+    if (AZ && AUTH) setTimeout(loadCloud, 0);
     cfg.home = cfg.home || {};
     cfg.removed = cfg.removed || [];
     cfg.homeT = cfg.homeT || {};

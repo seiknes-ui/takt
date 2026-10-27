@@ -1,0 +1,11 @@
+{
+  "name": "taktlinja",
+  "private": true,
+  "description": "Lean-spill for takt og linjebalansering",
+  "scripts": {
+    "build": "node scripts/bygg.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
