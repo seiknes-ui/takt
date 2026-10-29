@@ -6,6 +6,8 @@
     "COSMOS_CONNECTION_STRING": "AccountEndpoint=https://<konto>.documents.azure.com:443/;AccountKey=<nøkkel>;",
     "COSMOS_DATABASE": "takt",
     "LAERER_KODER": "bytt-meg=Lærer",
-    "TOKEN_SECRET": "lang-tilfeldig-streng"
+    "TOKEN_SECRET": "lang-tilfeldig-streng",
+    "ANTHROPIC_API_KEY": "sk-ant-...",
+    "KUNDESERVICE_KODER": "klassekode-1;klassekode-2"
   }
 }

@@ -1,0 +1,1154 @@
+<title>Kundeservice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Layout: samme verkstedstil som Taktlinja – kundevelger, chat med retningslinjer ved siden av, og vurdering etter samtalen. */
+:root {
+  --bg: #E8EBE7;
+  --surface: #F7F8F5;
+  --ink: #1B201E;
+  --muted: #5A6560;
+  --line: #C6CDC8;
+  --accent: #F2B300;
+  --on-accent: #1B201E;
+  --va: #2E6B8A;
+  --on-va: #FFFFFF;
+  --ok: #2B9A58;
+  --on-ok: #FFFFFF;
+  --warn: #D89A00;
+  --bad: #D0392A;
+  --a1: #2F6FD0;
+  --a2: #D6402F;
+  --a3: #3C9A4A;
+  --a4: #8A4FB8;
+  --a5: #C08A4E;
+  --a6: #2E8A86;
+  --a7: #5A6560;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+    --accent: #F5BF1F; --on-accent: #131715; --va: #5AA6CC; --on-va: #0B1A22;
+    --ok: #3FBF72; --on-ok: #0B1A11; --warn: #F0B429; --bad: #F05A47;
+    --a1: #4A86E0; --a2: #E0533F; --a3: #4FB15E; --a4: #A777D1; --a5: #B5834B; --a6: #46AAA5; --a7: #78827D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+  --accent: #F5BF1F; --on-accent: #131715; --va: #5AA6CC; --on-va: #0B1A22;
+  --ok: #3FBF72; --on-ok: #0B1A11; --warn: #F0B429; --bad: #F05A47;
+  --a1: #4A86E0; --a2: #E0533F; --a3: #4FB15E; --a4: #A777D1; --a5: #B5834B; --a6: #46AAA5; --a7: #78827D;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 36px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: .01em; margin: 0; text-wrap: balance; line-height: 1; }
+h1 { font-size: clamp(56px, 9vw, 96px); text-transform: uppercase; }
+h2 { font-size: 32px; text-transform: uppercase; }
+h3 { font-size: 22px; text-transform: uppercase; }
+p { margin: 0; }
+a { color: inherit; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.help { font-size: 12px; color: var(--muted); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+input[type="text"], textarea { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--ink); border-radius: 4px; padding: 6px 10px; min-width: 0; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+
+/* Topp */
+.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 40px; align-items: end; }
+.top .lede { max-width: 58ch; margin-top: 12px; color: var(--muted); font-size: 16px; }
+.hazard { height: 10px; background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--ink) 14px 28px); border-radius: 2px; margin-bottom: 18px; max-width: 220px; }
+.back { display: inline-block; margin-top: 14px; font-size: 14px; font-weight: 600; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(110px, auto)); border: 2px solid var(--ink); background: var(--surface); }
+.kpi { padding: 10px 16px 12px; border-left: 1px solid var(--line); min-width: 0; }
+.kpi:first-child { border-left: 0; }
+.kpi .eyebrow { font-size: 11px; }
+.kpi b { display: block; font-family: var(--display); font-size: 40px; line-height: 1.05; font-weight: 800; }
+.kpi small { color: var(--muted); font-size: 12px; }
+.kpi[data-state="bad"] b { color: var(--bad); }
+.kpi[data-state="ok"] b { color: var(--ok); }
+.kpi[data-state="warn"] b { color: var(--warn); }
+
+/* Seksjoner og kontroller */
+section { display: grid; gap: 16px; min-width: 0; }
+.sec-head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+.sec-head p { color: var(--muted); max-width: 62ch; margin-top: 6px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; min-width: 0; }
+.view { display: grid; gap: 40px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 2px solid var(--ink); background: transparent; padding: 7px 14px; border-radius: 4px; font-weight: 700; font-size: 14px; }
+.btn:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn.primary:hover:not(:disabled) { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.small { padding: 4px 10px; font-size: 13px; border-width: 1px; }
+.check { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; }
+.tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+.tag[data-n="1"] { background: var(--ok); color: var(--on-ok); border-color: var(--ok); }
+.tag[data-n="2"] { background: var(--warn); color: var(--on-accent); border-color: var(--warn); }
+.tag[data-n="3"] { background: var(--bad); color: var(--on-ok); border-color: var(--bad); }
+
+/* Kundekort */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.card { border: 2px solid var(--ink); background: var(--surface); border-radius: 6px; padding: 12px 14px; text-align: left; display: grid; gap: 8px; align-content: start; }
+.card:hover { box-shadow: inset 0 0 0 2px var(--accent); }
+.card-head { display: flex; gap: 10px; align-items: center; }
+.card b { font-family: var(--display); font-size: 24px; text-transform: uppercase; line-height: 1; }
+.card .ct { font-size: 13px; font-weight: 600; }
+.card .cs { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.card .cb { font-size: 12px; font-family: var(--mono); color: var(--muted); }
+.card .cb.done { color: var(--ok); }
+.card.rand { border-style: dashed; background: transparent; }
+.av { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none; font-family: var(--display); font-weight: 800; font-size: 18px; color: #fff; background: var(--a7); }
+.av[data-c="1"] { background: var(--a1); } .av[data-c="2"] { background: var(--a2); } .av[data-c="3"] { background: var(--a3); }
+.av[data-c="4"] { background: var(--a4); } .av[data-c="5"] { background: var(--a5); } .av[data-c="6"] { background: var(--a6); }
+.av.q { background: var(--ink); color: var(--bg); }
+
+/* Chat */
+.desk { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 16px; align-items: start; }
+.chat { background: var(--surface); border: 2px solid var(--ink); border-radius: 8px; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-width: 0; overflow: hidden; }
+.chat-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 12px 14px; background: var(--ink); color: var(--bg); }
+.chat-head .who { display: grid; gap: 0; min-width: 0; }
+.chat-head .who b { font-family: var(--display); font-size: 24px; text-transform: uppercase; line-height: 1; }
+.chat-head .who span { font-size: 12px; opacity: .75; }
+.chat-head .btn { border-color: var(--bg); color: var(--bg); margin-left: auto; }
+.chat-head .btn:hover:not(:disabled) { background: var(--bg); color: var(--ink); }
+.mood { display: grid; gap: 4px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+.mood-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.mood-row b { font-family: var(--mono); font-weight: 500; }
+.mood-bar { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.mood-bar i { display: block; height: 100%; width: 50%; background: var(--ok); transition: width .5s, background-color .5s; }
+.mood-bar i[data-l="2"] { background: var(--warn); }
+.mood-bar i[data-l="3"] { background: var(--bad); }
+.delta { font-family: var(--mono); font-size: 12px; margin-left: 6px; }
+.delta.up { color: var(--ok); } .delta.down { color: var(--bad); }
+.log { display: flex; flex-direction: column; gap: 8px; padding: 14px; height: min(56vh, 520px); overflow-y: auto; background: var(--bg); }
+.msg { max-width: 82%; padding: 8px 12px; border-radius: 12px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.k { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 3px; }
+.msg.meg { align-self: flex-end; background: var(--va); color: var(--on-va); border-bottom-right-radius: 3px; }
+.msg.sys { align-self: center; background: transparent; color: var(--muted); font-size: 12px; font-family: var(--mono); text-align: center; }
+.typing { align-self: flex-start; display: inline-flex; gap: 4px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; border-bottom-left-radius: 3px; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: dot 1s infinite ease-in-out; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 0%, 60%, 100% { opacity: .3; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .typing i { animation: none; } .mood-bar i { transition: none; } }
+.opts { display: grid; gap: 6px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.opts .eyebrow { font-size: 11px; }
+.opt { border: 1px solid var(--ink); background: var(--surface); border-radius: 6px; padding: 9px 12px; text-align: left; line-height: 1.35; font-size: 14px; }
+.opt:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.opt .ok-n { font-family: var(--mono); font-size: 12px; margin-right: 8px; color: var(--muted); }
+.opt:hover:not(:disabled) .ok-n { color: var(--bg); }
+.wait { font-size: 13px; color: var(--muted); padding: 4px 0; }
+.skriv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 8px; align-items: end; }
+.skriv .eyebrow, .skriv .help { grid-column: 1 / -1; }
+.skriv textarea { width: 100%; min-height: 64px; max-height: 220px; resize: vertical; line-height: 1.4; }
+.ai-feil { font-size: 13px; color: var(--bad); font-weight: 600; }
+
+/* Svarform */
+.modus { display: grid; gap: 10px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.seg { display: flex; flex-wrap: wrap; width: fit-content; max-width: 100%; border: 2px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.seg label { position: relative; padding: 6px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { background: var(--ink); color: var(--bg); }
+.seg label:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: -3px; }
+.kode { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; }
+
+/* Retningslinjer */
+.rules { display: grid; gap: 10px; }
+.rules summary { cursor: pointer; font-family: var(--display); font-weight: 800; font-size: 22px; text-transform: uppercase; }
+.rules dl { margin: 10px 0 0; display: grid; gap: 10px; }
+.rules dt { font-weight: 700; font-size: 13px; }
+.rules dd { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.rules .case { background: var(--bg); border-radius: 4px; padding: 8px 10px; font-size: 13px; }
+.rules .case b { display: block; font-size: 11px; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+/* Vurdering */
+.verdict { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.verdict::before { content: ""; border-radius: 4px; background: var(--muted); }
+.verdict[data-k="good"]::before { background: var(--ok); }
+.verdict[data-k="info"]::before { background: var(--warn); }
+.verdict[data-k="warn"]::before { background: var(--bad); }
+.verdict h2 { font-size: 36px; }
+.verdict p { color: var(--muted); margin-top: 6px; max-width: 70ch; }
+.review { display: grid; gap: 8px; }
+.rv { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 12px; padding: 10px 14px; background: var(--surface); border-radius: 4px; border: 1px solid var(--line); }
+.rv::before { content: ""; border-radius: 4px; background: var(--muted); }
+.rv[data-p="2"]::before { background: var(--ok); }
+.rv[data-p="1"]::before { background: var(--warn); }
+.rv[data-p="0"]::before { background: var(--bad); }
+.rv > div { display: grid; gap: 4px; min-width: 0; }
+.rv .q { font-size: 13px; color: var(--muted); }
+.rv .a { font-weight: 600; }
+.rv .y { font-size: 14px; }
+.rv .br { font-size: 13px; color: var(--bad); font-weight: 600; }
+.rv .best { font-size: 13px; background: var(--bg); border-radius: 4px; padding: 6px 10px; border-left: 3px solid var(--ok); }
+.tip { font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 4px; padding: 12px 14px; }
+
+/* Logg */
+.tbl-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.empty { color: var(--muted); padding: 18px; font-size: 14px; }
+
+@media (max-width: 900px) {
+  .top, .desk { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi:nth-child(3) { border-left: 0; }
+  .kpi:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 480px) {
+  .kpi b { font-size: 32px; }
+  .msg { max-width: 92%; }
+  .log { height: 50vh; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="hazard" aria-hidden="true"></div>
+      <p class="eyebrow">Lean-verksted · kundeservice</p>
+      <h1>Kundeservice</h1>
+      <p class="lede">Du sitter i chatten hos Taktlinja Hus AS, som selger byggesett. Kundene er av alle slag: noen er hyggelige, noen er urimelige, og noen misforstår det meste. Følg retningslinjene, og få saken løst uten å miste kunden.</p>
+      <a class="back" href="./" id="lnk-takt">← Til Taktlinja</a>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </header>
+
+  <div class="view" id="v-velg">
+    <section aria-labelledby="h-velg">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-velg">Velg kunde</h2>
+          <p>Hver kunde har sin egen sak og sitt eget temperament. Velg <b>Tilfeldig kunde</b> for å ta neste fra køen uten å vite hva slags kunde det er.</p>
+        </div>
+        <label class="check"><input type="checkbox" id="in-mood" checked> Vis kundens humør underveis</label>
+      </div>
+      <div class="modus" id="modus" hidden>
+        <div class="seg" role="radiogroup" aria-label="Svarform">
+          <label><input type="radio" name="modus" value="knapper"> Velg blant svar</label>
+          <label><input type="radio" name="modus" value="ai"> Skriv selv (AI-kunde)</label>
+        </div>
+        <form class="kode" id="f-kode" hidden>
+          <label for="in-kode">Klassekode</label>
+          <input type="text" id="in-kode" autocomplete="off" spellcheck="false" maxlength="60">
+          <button class="btn small" type="submit">Koble til</button>
+        </form>
+        <p class="help" id="ai-status"></p>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <section aria-labelledby="h-logg">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-logg">Mine samtaler</h2>
+          <p>Lagres bare på denne enheten.</p>
+        </div>
+        <button class="btn small" type="button" id="btn-tom">Tøm loggen</button>
+      </div>
+      <div class="tbl-scroll" id="logg"></div>
+    </section>
+  </div>
+
+  <div class="view" id="v-chat" hidden>
+    <div class="desk">
+      <div class="chat">
+        <div>
+          <div class="chat-head">
+            <div class="av" id="c-av" aria-hidden="true"></div>
+            <div class="who"><b id="c-navn"></b><span id="c-type"></span></div>
+            <button class="btn small" type="button" id="btn-avslutt">Avslutt samtalen</button>
+          </div>
+          <div class="mood" id="c-mood">
+            <div class="mood-row"><span>Kundens humør<span class="delta" id="c-delta"></span></span><b id="c-mood-t"></b></div>
+            <div class="mood-bar"><i id="c-mood-bar"></i></div>
+          </div>
+        </div>
+        <div class="log" id="c-log" role="log" aria-live="polite" aria-label="Samtalen"></div>
+        <div class="opts" id="c-opts"></div>
+      </div>
+      <aside class="panel">
+        <details class="rules" id="rules" open>
+          <summary>Retningslinjer</summary>
+          <div class="case" id="c-case"></div>
+          <dl id="regler"></dl>
+        </details>
+      </aside>
+    </div>
+  </div>
+
+  <div class="view" id="v-eval" hidden>
+    <section aria-labelledby="e-utfall">
+      <p class="eyebrow" id="e-kunde"></p>
+      <div class="verdict" id="e-verdict"><div><h2 id="e-utfall"></h2><p id="e-forkl"></p></div></div>
+      <div class="kpis" id="e-kpis"></div>
+      <p class="tip" id="e-tips"></p>
+      <div class="controls">
+        <button class="btn primary" type="button" id="btn-neste">Neste kunde</button>
+        <button class="btn" type="button" id="btn-igjen">Prøv samme kunde igjen</button>
+        <button class="btn" type="button" id="btn-oversikt">Til oversikten</button>
+      </div>
+    </section>
+    <section aria-labelledby="h-gjennom">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-gjennom">Gjennomgang</h2>
+          <p>Hvert svar du ga, hva det gjorde med kunden, og det beste svaret der du kunne gjort det bedre.</p>
+        </div>
+      </div>
+      <div class="review" id="e-review"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const fmt = x => x == null || isNaN(x) ? '–' : Math.round(x).toLocaleString('nb-NO');
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function fetchStore(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  const LOGG_KEY = 'kundeservice-logg';
+  const STILLE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Firmaets retningslinjer (vises ved siden av chatten) ----------
+  const REGLER = [
+    ['Levering', 'Leveringstid er 3–5 virkedager. Adressen kan endres helt til pakken er sendt. Ekspress (1–2 virkedager) kan brukes ved feil fra oss.'],
+    ['Manglende eller ødelagte deler', 'Sendes gratis og er framme innen 3 virkedager. Kunden får refundert utlegg til reservedeler inntil 200 kr mot kvittering.'],
+    ['Kompensasjon', 'Ved feil fra oss: gratis frakt på neste bestilling, eller inntil 20 % av prisen. Mer enn det må godkjennes av leder.'],
+    ['Angrerett', '14 dager fra kunden har mottatt pakken, så lenge byggesettet er ubrukt.'],
+    ['Feil i betaling', 'Dobbelttrekk refunderes med en gang. Pengene er på kundens konto innen 2–5 virkedager.'],
+    ['Personvern', 'Gi bare opplysninger om en bestilling til kunden selv. Bekreft identiteten med ordrenummer og e-post.'],
+    ['Produkter', 'Lekestue 2 490 kr. Terrasse «Solgang» 890 kr, passer alle lekestuer fra 2023 og nyere. Hytte «Fjellro», modellbyggesett i målestokk 1:20, 1 499 kr.'],
+  ];
+
+  // ---------- Kundene ----------
+  // Hver kunde er et lite dialogtre. En node har kundens meldinger (k) og enten svarvalg (valg) eller et utfall (slutt).
+  // Et valg har tekst (t), endring i humør (h), profesjonalitet 0–2 (p), neste node (til), forklaring (hvorfor)
+  // og eventuelt brudd på retningslinjene (brudd).
+  const UTFALL = {
+    lost: { t: 'Saken er løst', k: 'good' },
+    delvis: { t: 'Delvis løst', k: 'info' },
+    ulost: { t: 'Ikke løst', k: 'warn' },
+    videre: { t: 'Sendt videre til leder', k: 'info' },
+    brudd: { t: 'Løst, men i strid med retningslinjene', k: 'warn' },
+    lagpa: { t: 'Kunden forlot chatten', k: 'warn' },
+    avbrutt: { t: 'Du avsluttet samtalen', k: 'warn' },
+  };
+  const NIVA = ['', 'Lett', 'Middels', 'Vanskelig'];
+
+  const hanneAdresse = [
+    { t: 'Da har jeg endret adressen til Storgata 14B, 3510 Hønefoss. Du får en ny bekreftelse på e-post om litt. Er det noe mer jeg kan hjelpe deg med?', h: 10, p: 2, til: 'mer', hvorfor: 'Du gjentar adressen så kunden kan sjekke den, og forteller hva som skjer videre.' },
+    { t: 'Ok, endret.', h: 0, p: 1, til: 'mer', hvorfor: 'Saken er løst, men kunden vet ikke helt hva som er endret eller hva som skjer nå.' },
+    { t: 'B-en spiller sikkert ingen rolle. Postbudet finner nok fram.', h: -20, p: 0, til: 'tull', hvorfor: 'Du avfeier det kunden ber om. En liten feil i adressen kan føre til at pakken kommer i retur.' },
+  ];
+
+  const KUNDER = [
+    {
+      id: 'hanne', navn: 'Hanne Lie', farge: 1, type: 'Snill og grei', niva: 1, start: 75, ideal: 3,
+      sak: 'Har skrevet feil leveringsadresse.', ordre: 'Ordre 40112 · Lekestue · ikke sendt',
+      tips: 'Enkle kunder er en sjanse til å gjøre jobben skikkelig. Vær vennlig, gjenta detaljene så kunden kan sjekke dem, og fortell hva som skjer videre.',
+      gir_opp: 'Jeg tror jeg heller sender en e-post. Ha det.',
+      noder: {
+        start: {
+          k: ['Hei! 😊', 'Jeg bestilte en lekestue i går (ordre 40112), men så nå at jeg skrev feil adresse. Går det an å endre den?'],
+          valg: [
+            { t: 'Hei Hanne, og takk for at du tar kontakt! Det fikser vi. Pakken er ikke sendt ennå, så adressen kan endres. Hvilken adresse skal den til?', h: 10, p: 2, til: 'adresse', hvorfor: 'Du hilser, bekrefter at det går an, og spør etter det du trenger.' },
+            { t: 'Ordrenummer og e-post?', h: -10, p: 1, til: 'kort', hvorfor: 'Riktig å be om, men kort og kjølig. Litt vennlighet koster ingenting.' },
+            { t: 'Adressen kan dessverre ikke endres etter at bestillingen er gjort.', h: -30, p: 0, til: 'nei', brudd: 'Feil informasjon: adressen kan endres helt til pakken er sendt.', hvorfor: 'Du gir kunden feil svar.' },
+          ],
+        },
+        kort: { k: ['Å ja, selvfølgelig. 40112 og hanne.lie@epost.no.', 'Den skal til Storgata 14B, 3510 Hønefoss. Jeg glemte B-en 🙈'], valg: hanneAdresse },
+        adresse: { k: ['Så bra! Den skal til Storgata 14B, 3510 Hønefoss. Jeg glemte B-en 🙈'], valg: hanneAdresse },
+        tull: {
+          k: ['Hm, jeg vil helst at det blir riktig. Kan du ikke bare legge til B-en?'],
+          valg: [
+            { t: 'Selvsagt, beklager! Nå står det Storgata 14B, 3510 Hønefoss. Du får en ny bekreftelse på e-post.', h: 15, p: 2, til: 'mer', hvorfor: 'Bra at du snur raskt og gjør det kunden ba om.' },
+            { t: 'Greit da.', h: -5, p: 1, til: 'mer', hvorfor: 'Du gjør det, men kunden merker at du synes det er bortkastet.' },
+          ],
+        },
+        nei: {
+          k: ['Å nei… Betyr det at jeg må avbestille alt og bestille på nytt?'],
+          valg: [
+            { t: 'Unnskyld, jeg tok feil! Adressen kan endres så lenge pakken ikke er sendt, og det er den ikke. Hvilken adresse skal den til?', h: 20, p: 2, til: 'adresse', hvorfor: 'Bra at du retter opp feilen raskt og ærlig.' },
+            { t: 'Ja, det må du nok.', h: -30, p: 0, til: 'slutt_ulost', brudd: 'Feil informasjon igjen. Kunden får unødvendig ekstraarbeid.', hvorfor: 'Du holder fast på et feil svar.' },
+          ],
+        },
+        mer: {
+          k: ['Nei, det var alt. Tusen takk for hjelpen! 🌞'],
+          valg: [
+            { t: 'Bare hyggelig! Lykke til med byggingen, og ha en fin dag!', h: 5, p: 2, til: 'slutt_ok', hvorfor: 'En varm avslutning gjør at kunden husker samtalen som god.' },
+            { t: 'Ha det.', h: -5, p: 1, til: 'slutt_ok', hvorfor: 'Greit, men litt brått etter en hyggelig samtale.' },
+          ],
+        },
+        slutt_ok: { k: ['Ha en fin dag du også!'], slutt: 'lost' },
+        slutt_ulost: { k: ['Ok… da får jeg vel gjøre det. Ha det.'], slutt: 'ulost' },
+      },
+    },
+    {
+      id: 'rolf', navn: 'Rolf Hagen', farge: 2, type: 'Urimelig', niva: 3, start: 35, ideal: 3,
+      sak: 'Mangler en pose med skruer og krever alt mulig.', ordre: 'Ordre 40877 · Lekestue 2 490 kr · levert i går',
+      tips: 'Urimelige kunder blir sjelden helt fornøyde. Målet er å være rolig, ta følelsen på alvor og tilby det retningslinjene faktisk gir. Si tydelig nei til det du ikke kan love. Gir du etter, blir kravene bare større.',
+      gir_opp: 'Jeg gidder ikke dette mer. Dere skal få høre det i anmeldelsene!',
+      noder: {
+        start: {
+          k: ['Dette er HELT UAKSEPTABELT.', 'Jeg bestilte en lekestue, ordre 40877. Det manglet en pose med skruer, og nå sitter ungene og griner.', 'Jeg vil ha pengene tilbake, og jeg beholder huset. Og neste bestilling skal være gratis.'],
+          valg: [
+            { t: 'Det er skikkelig kjedelig når noe mangler, og jeg skjønner at ungene er skuffet. La meg fikse dette. Vi sender den manglende skrueposen gratis, og den er hos deg innen tre virkedager.', h: 15, p: 2, til: 'krav', hvorfor: 'Du anerkjenner følelsen, tar ansvar og tilbyr det retningslinjene gir.' },
+            { t: 'Selvfølgelig! Du får full refusjon, beholder huset, og neste bestilling er gratis.', h: 30, p: 0, til: 'gitt_etter', brudd: 'Du lovet langt mer enn du har lov til. Kompensasjon over 20 % må godkjennes av leder.', hvorfor: 'Kunden blir fornøyd akkurat nå, men det koster firmaet mye.' },
+            { t: 'Ro deg ned. Det er bare en pose med skruer.', h: -30, p: 0, til: 'eskalert', hvorfor: 'Å be en sint kunde roe seg ned og bagatellisere problemet gjør det nesten alltid verre.' },
+          ],
+        },
+        krav: {
+          k: ['Tre dager?! Vi skulle bygge den i helga.', 'Jeg vil fortsatt ha pengene tilbake.'],
+          valg: [
+            { t: 'Jeg forstår at helga blir ødelagt, og det beklager jeg. Full refusjon når du beholder huset kan jeg dessverre ikke gi. Men jeg kan sende skruene med ekspress i dag og gi deg 20 % av prisen tilbake for bryet.', h: 15, p: 2, til: 'tilbud', hvorfor: 'Du sier tydelig nei til det urimelige, men gir et konkret og rettferdig alternativ innenfor retningslinjene.' },
+            { t: 'Skruene er vanlige M4×30. Hvis du kjøper dem på en byggevarehandel i dag, refunderer vi kvitteringen, så kan dere bygge i helga likevel.', h: 20, p: 2, til: 'tilbud', hvorfor: 'En kreativ løsning som faktisk redder helga, og som er innenfor retningslinjene (utlegg inntil 200 kr).' },
+            { t: 'Regler er regler. Du får skruene om tre dager, og det er det.', h: -15, p: 1, til: 'eskalert', hvorfor: 'Riktig innhold, men du lytter ikke. Kunden føler seg avvist.' },
+            { t: 'Det kan ikke jeg bestemme. Du får skrive igjen senere.', h: -25, p: 0, til: 'eskalert', hvorfor: 'Kunden blir sendt videre uten svar og uten noen plan.' },
+          ],
+        },
+        gitt_etter: {
+          k: ['Ja, sånn skal det være!', 'Og så vil jeg ha en ny lekestue i tillegg, siden dere ødela helga.'],
+          valg: [
+            { t: 'Unnskyld, jeg lovet for mye. Full refusjon og gratis bestilling kan jeg ikke gi uten godkjenning fra leder. Det jeg kan gi, er skruene med ekspress og 20 % av prisen tilbake.', h: -20, p: 2, til: 'tilbud', hvorfor: 'Det er ubehagelig å trekke tilbake et løfte, men ærlighet er bedre enn å bryte retningslinjene enda mer.' },
+            { t: 'Ok, du får en ny lekestue også.', h: 10, p: 0, til: 'slutt_brudd', brudd: 'Når du gir etter, blir kravene større. Nå har kunden fått to hus og pengene tilbake.', hvorfor: 'Du lar kunden bestemme hva firmaet skal gi bort.' },
+          ],
+        },
+        eskalert: {
+          k: ['Hører du hvordan du snakker til kundene dine?!', 'Jeg vil snakke med sjefen din. NÅ.'],
+          valg: [
+            { t: 'Du har rett, det var dårlig sagt, og det beklager jeg. Jeg vil gjerne løse dette for deg. Kan vi begynne med å få skruene til deg så fort som mulig?', h: 20, p: 2, til: 'krav', hvorfor: 'Når du ber om unnskyldning uten å forsvare deg, kan samtalen komme tilbake på sporet.' },
+            { t: 'Jeg setter deg over til en leder.', h: 0, p: 1, til: 'slutt_leder', hvorfor: 'Å sende saken videre kan være riktig, men her kunne du løst den selv.' },
+            { t: 'Sjefen sier akkurat det samme som meg.', h: -30, p: 0, til: 'slutt_ulost', hvorfor: 'Du trapper opp konflikten i stedet for å dempe den.' },
+          ],
+        },
+        tilbud: {
+          k: ['Hmpf.', 'Og når får jeg pengene, da?'],
+          valg: [
+            { t: 'Pengene er på kortet ditt innen 2–5 virkedager. Du får en bekreftelse og sporingsnummer for skruene på e-post i løpet av en time.', h: 20, p: 2, til: 'slutt_ok', hvorfor: 'Tydelig og konkret: hva, når og hvordan. Det bygger tillit.' },
+            { t: 'Jeg skal se hva jeg får til.', h: -10, p: 1, til: 'slutt_delvis', hvorfor: 'Vagt. Kunden vet ikke hva som kan forventes.' },
+          ],
+        },
+        slutt_ok: { k: ['Greit. Det var på tide at noen tok tak i dette. Ha det.'], slutt: 'lost' },
+        slutt_brudd: { k: ['Flott! Det var da enkelt. Ha det!'], slutt: 'brudd' },
+        slutt_leder: { k: ['Endelig. Jeg venter.'], slutt: 'videre' },
+        slutt_delvis: { k: ['Du ser… Ja, ja. Ha det.'], slutt: 'delvis' },
+        slutt_ulost: { k: ['Utrolig. Dere har mistet en kunde.'], slutt: 'ulost' },
+      },
+    },
+    {
+      id: 'bjorg', navn: 'Bjørg Moen', farge: 4, type: 'Misforstår det meste', niva: 2, start: 60, ideal: 3,
+      sak: 'Tror hun har kjøpt en ekte hytte.', ordre: 'Ordre 41203 · Hytte «Fjellro» 1:20 · sendt',
+      tips: 'Når en kunde misforstår, er det din jobb å forklare, ikke kundens jobb å forstå fagspråket ditt. Bruk enkle ord og sammenligninger fra hverdagen, og ikke gjør narr av misforståelsen.',
+      gir_opp: 'Nei, nå blir jeg bare forvirret. Jeg ber barnebarnet mitt om hjelp i stedet.',
+      noder: {
+        start: {
+          k: ['Hallo? Er dette hyttefirmaet?', 'Jeg har kjøpt en hytte på nettsiden deres. Når kommer lastebilen med den? Jeg må vite om jeg må flytte bilen.'],
+          valg: [
+            { t: 'Hei, og velkommen til Taktlinja Hus! Jeg hjelper deg gjerne. Har du ordrenummeret? Det står i e-posten du fikk da du bestilte.', h: 10, p: 2, til: 'ordre', hvorfor: 'Vennlig, og du forklarer hvor kunden finner det du trenger.' },
+            { t: 'Oppgi ordre-ID fra ordrebekreftelsen, så sjekker jeg status og tracking i systemet.', h: -15, p: 1, til: 'forvirret', hvorfor: 'Ord som «ordre-ID» og «tracking» er fagspråk. Bruk enkle ord.' },
+            { t: 'Vi selger ikke hytter.', h: -20, p: 0, til: 'forvirret2', hvorfor: 'Du hopper over å finne ut hva kunden faktisk har kjøpt.' },
+          ],
+        },
+        forvirret: {
+          k: ['Ordre-hva for noe? Jeg har ingen tracking. Jeg har en Volvo.'],
+          valg: [
+            { t: 'Unnskyld, det var dårlig forklart! I e-posten fra oss står det et nummer som begynner med 4. Kan du skrive det her?', h: 15, p: 2, til: 'ordre', hvorfor: 'Du tar ansvar for misforståelsen og forklarer helt konkret.' },
+            { t: 'ORDRE-ID. Det står i e-posten.', h: -20, p: 0, til: 'forvirret2', hvorfor: 'Å si det samme høyere og kortere hjelper ikke.' },
+          ],
+        },
+        forvirret2: {
+          k: ['Nå skjønner jeg ingenting. Jeg har jo betalt 1499 kroner for hytta!'],
+          valg: [
+            { t: 'Det skal vi finne ut av sammen. Har du e-posten fra oss? Der står det et nummer som begynner med 4.', h: 15, p: 2, til: 'ordre', hvorfor: 'Rolig og konkret. Kunden får hjelp til å finne det du trenger.' },
+            { t: 'For 1499 kroner får du ikke en hytte, det må du vel skjønne.', h: -30, p: 0, til: 'krenket', hvorfor: 'Du får kunden til å føle seg dum.' },
+          ],
+        },
+        ordre: {
+          k: ['Ja, her: 41203. «Hytte Fjellro, byggesett 1:20.»', 'Hva betyr 1:20? Er det adressen?'],
+          valg: [
+            { t: '1:20 betyr at den er tjue ganger mindre enn en ekte hytte. Fjellro er et byggesett til en modellhytte, omtrent like stor som en skoeske. Den kommer som en pakke i postkassen, så du trenger ikke flytte bilen.', h: 10, p: 2, til: 'skjonner', hvorfor: 'Du forklarer med noe kunden kjenner (en skoeske), og svarer på det kunden faktisk lurte på.' },
+            { t: 'Det er målestokken. Du har kjøpt en modell.', h: -10, p: 1, til: 'skuffet', hvorfor: 'Riktig, men kort. Kunden skjønner det kanskje ikke, og du sier ingenting om hva som skjer videre.' },
+            { t: 'Haha, trodde du at du hadde kjøpt en ekte hytte for 1499 kroner?', h: -35, p: 0, til: 'krenket', hvorfor: 'Gjør aldri narr av en kunde som har misforstått.' },
+          ],
+        },
+        skuffet: {
+          k: ['En modell? Men bildet var jo av en ekte hytte på fjellet!'],
+          valg: [
+            { t: 'Bildet viser hvordan modellen ser ut ferdig bygget, og jeg skjønner godt at det kunne misforstås. Du kan beholde den, eller sende den tilbake. Du har 14 dagers angrerett fra du får pakken.', h: 15, p: 2, til: 'valg', hvorfor: 'Du forstår misforståelsen og gir kunden et valg.' },
+            { t: 'Det står i beskrivelsen.', h: -15, p: 1, til: 'valg', hvorfor: 'Kanskje riktig, men å legge skylden på kunden hjelper ikke.' },
+          ],
+        },
+        skjonner: {
+          k: ['Å! Så den er ikke ekte? Haha, nå ble jeg litt flau.', 'Men barnebarnet mitt liker sånt. Kanskje jeg beholder den likevel. Kan jeg sende den tilbake hvis den ikke faller i smak?'],
+          valg: [
+            { t: 'Ikke noe å være flau over, det er lett å misforstå! Ja, du har 14 dagers angrerett fra du får pakken, så lenge byggesettet ikke er brukt.', h: 15, p: 2, til: 'slutt_ok', hvorfor: 'Du tar bort flauheten og gir riktig informasjon.' },
+            { t: 'Ja, du har 30 dagers åpent kjøp.', h: 5, p: 0, til: 'slutt_ok', brudd: 'Feil informasjon: angreretten er 14 dager.', hvorfor: 'Kunden kan få et ubehagelig avslag senere.' },
+            { t: 'Bare send den tilbake med en gang, det er enklest.', h: -10, p: 1, til: 'slutt_delvis', hvorfor: 'Du bestemmer for kunden i stedet for å svare på spørsmålet.' },
+          ],
+        },
+        valg: {
+          k: ['Hmm. Jeg tror jeg beholder den, barnebarnet mitt liker sånt. Når kommer den?'],
+          valg: [
+            { t: 'Den er sendt og kommer i postkassen om 3–5 virkedager. Du får beskjed på SMS. Lykke til med byggingen sammen med barnebarnet!', h: 15, p: 2, til: 'slutt_ok', hvorfor: 'Klart svar og en hyggelig avslutning.' },
+            { t: '3–5 virkedager.', h: 0, p: 1, til: 'slutt_ok', hvorfor: 'Riktig, men kunden får ikke vite at den kommer i postkassen.' },
+          ],
+        },
+        slutt_ok: { k: ['Så fint. Tusen takk for at du var så tålmodig med meg!'], slutt: 'lost' },
+        slutt_delvis: { k: ['Ja vel… Jeg får tenke på det. Ha det.'], slutt: 'delvis' },
+        krenket: { k: ['Jeg trenger ikke å bli snakket til på den måten. Ha det bra.'], slutt: 'ulost' },
+      },
+    },
+    {
+      id: 'sara', navn: 'Sara Nilsen', farge: 6, type: 'Sint, men med god grunn', niva: 2, start: 25, ideal: 3,
+      sak: 'Er trukket to ganger for samme bestilling.', ordre: 'Ordre 40990 · Lekestue 2 490 kr · trukket to ganger',
+      tips: 'En sint kunde med god grunn trenger tre ting: at du forstår hvor alvorlig det er, at du innrømmer feilen, og at du sier nøyaktig hva som skjer og når. Lov aldri noe du ikke kan holde.',
+      gir_opp: 'Jeg ringer banken i stedet og bestrider trekket.',
+      noder: {
+        start: {
+          k: ['Dere har trukket meg TO ganger for samme bestilling!!', '2490 kr to ganger. Det er 4980 kr. Det er nesten alle matpengene mine for resten av måneden.'],
+          valg: [
+            { t: 'Det er ikke greit, og jeg forstår godt at du er sint og bekymret. Det skal vi rydde opp i nå. Kan du gi meg ordrenummeret og e-posten du bestilte med, så finner jeg betalingen?', h: 20, p: 2, til: 'id', hvorfor: 'Du tar både følelsen og alvoret på alvor, og går rett på løsningen.' },
+            { t: 'Det skjer ofte. Det er sikkert bare en reservasjon som forsvinner av seg selv.', h: -15, p: 0, til: 'mistro', hvorfor: 'Du gjetter uten å sjekke. Kunden trenger et svar, ikke en antakelse.' },
+            { t: 'Hvilket ordrenummer gjelder det?', h: -5, p: 1, til: 'id', hvorfor: 'Riktig spørsmål, men du overser at kunden er bekymret.' },
+          ],
+        },
+        mistro: {
+          k: ['«Sikkert»? Pengene er borte fra kontoen min NÅ. Kan du i det minste sjekke?'],
+          valg: [
+            { t: 'Du har rett, jeg skal sjekke ordentlig. Hva er ordrenummeret og e-posten du bestilte med?', h: 10, p: 2, til: 'id', hvorfor: 'Du innrømmer at du var for rask, og gjør jobben.' },
+            { t: 'Vent et par dager og se om det løser seg.', h: -25, p: 0, til: 'slutt_ulost', hvorfor: 'Kunden blir stående alene med problemet.' },
+          ],
+        },
+        id: {
+          k: ['40990, sara.n@epost.no.'],
+          valg: [
+            { t: 'Takk! Jeg ser at du er trukket to ganger, og det er vår feil. Jeg har satt i gang refusjon av 2490 kr nå. Pengene er på kontoen din innen 2–5 virkedager, og du får en bekreftelse på e-post.', h: 25, p: 2, til: 'tid', hvorfor: 'Du innrømmer feilen, forteller hva du har gjort, og sier når pengene kommer.' },
+            { t: 'Jeg ser to trekk. Jeg sender saken videre til økonomiavdelingen.', h: -10, p: 1, til: 'tid', hvorfor: 'Kunden vet ikke hva som skjer eller når. Du kunne startet refusjonen selv.' },
+            { t: 'Refusjonen kommer i morgen.', h: 15, p: 0, til: 'feil_tid', brudd: 'Feil løfte: refusjonen tar 2–5 virkedager. Brutte løfter gir nye klager.', hvorfor: 'Du sier det kunden vil høre, ikke det som stemmer.' },
+          ],
+        },
+        tid: {
+          k: ['2–5 dager? Jeg trenger pengene nå. Jeg skal handle i morgen.'],
+          valg: [
+            { t: 'Jeg skjønner at det er vanskelig. Raskere går det dessverre ikke, fordi banken skal overføre pengene. Som unnskyldning for bryet får du gratis frakt på neste bestilling, og du får refusjonen bekreftet skriftlig hvis du må vise den til banken.', h: 15, p: 2, til: 'slutt_ok', hvorfor: 'Du er ærlig om det du ikke kan endre, og gir det du kan innenfor retningslinjene.' },
+            { t: 'Jeg kan prøve å be dem skynde seg.', h: -5, p: 1, til: 'slutt_delvis', hvorfor: 'Kanskje vennlig ment, men et vagt løfte uten noen plan.' },
+            { t: 'Det er ikke mitt problem hvordan du handler.', h: -40, p: 0, til: 'slutt_ulost', hvorfor: 'Frekt og uten empati.' },
+          ],
+        },
+        feil_tid: {
+          k: ['I morgen? Flott, da kan jeg handle i morgen ettermiddag.'],
+          valg: [
+            { t: 'Unnskyld, der sa jeg feil. Det tar 2–5 virkedager, fordi banken skal overføre pengene. Du får gratis frakt på neste bestilling for bryet.', h: -10, p: 2, til: 'slutt_ok', hvorfor: 'Å rette feilen med en gang er mye bedre enn at kunden blir skuffet i morgen.' },
+            { t: 'Ja, det skal gå fint.', h: 5, p: 0, til: 'slutt_brudd', brudd: 'Kunden legger planer ut fra et løfte som ikke stemmer.', hvorfor: 'Neste klage er allerede på vei.' },
+          ],
+        },
+        slutt_ok: { k: ['Ok. Takk for at du tok det på alvor. Det betyr mye.'], slutt: 'lost' },
+        slutt_delvis: { k: ['Ok… Jeg får håpe det går fort. Ha det.'], slutt: 'delvis' },
+        slutt_ulost: { k: ['Jeg tar det med banken. Ha det.'], slutt: 'ulost' },
+        slutt_brudd: { k: ['Supert, takk!', '(To dager senere: «Pengene har IKKE kommet!!»)'], slutt: 'brudd' },
+      },
+    },
+    {
+      id: 'kaare', navn: 'Kåre Bakken', farge: 3, type: 'Pratsom', niva: 1, start: 80, ideal: 3,
+      sak: 'Vil kjøpe terrasse, men prater om alt annet.', ordre: 'Kunde siden 2025 · Lekestue',
+      tips: 'Pratsomme kunder er ofte hyggelige, men mens dere prater, står andre i kø. Vær vennlig, og styr samtalen pent tilbake til saken.',
+      gir_opp: 'Ja, ja, jeg ser du har det travelt. Ha det.',
+      noder: {
+        start: {
+          k: ['Heisann! Kåre her. Nå skal du høre.', 'Jeg bygde lekestua deres i fjor sammen med barnebarna, og den står fortsatt! Vi hadde forferdelig vær i vinter, men den holdt. Den har tålt mer enn garasjetaket mitt, skal jeg si deg.', 'Og barnebarnet mitt Ola har begynt på fotball. Keeper!'],
+          valg: [
+            { t: 'Hei Kåre, så hyggelig å høre at lekestua har holdt! Hva kan jeg hjelpe deg med i dag?', h: 5, p: 2, til: 'sak', hvorfor: 'Vennlig, men du styrer samtalen mot hvorfor kunden tar kontakt.' },
+            { t: 'Keeper! Det er en tøff plass. Hvilket lag spiller Ola på?', h: 10, p: 1, til: 'prat', hvorfor: 'Hyggelig, men samtalen sporer av, og andre kunder venter.' },
+            { t: 'Hva gjelder henvendelsen?', h: -15, p: 1, til: 'sak', hvorfor: 'Effektivt, men kaldt. Du overser at kunden deler noe hyggelig.' },
+          ],
+        },
+        prat: {
+          k: ['Lyn, i Gjøvik! Og forrige helg holdt Ola nullen! Treneren sa at… ja, nei, uansett.', 'Så var det garasjetaket mitt, da. Det lekker. Selger dere tak?'],
+          valg: [
+            { t: 'Det må ha vært stas! Garasjetak selger vi dessverre ikke. Men var det noe med lekestua du lurte på?', h: 5, p: 2, til: 'sak', hvorfor: 'Du styrer pent tilbake til saken.' },
+            { t: 'Hva slags tak har du på garasjen?', h: 5, p: 0, til: 'prat2', hvorfor: 'Nå bruker du tid på noe firmaet ikke engang selger.' },
+          ],
+        },
+        prat2: {
+          k: ['Takpapp! Fra 1987. Svigerfar la det, og han var en sånn type som…', 'Oi, nå glemte jeg nesten hvorfor jeg tok kontakt!'],
+          valg: [
+            { t: 'Det skjer den beste! Var det noe med lekestua?', h: 5, p: 1, til: 'sak', hvorfor: 'Tilbake på sporet, men det tok tid. Køen ble lengre mens dere pratet.' },
+          ],
+        },
+        sak: {
+          k: ['Jo, det var det. Jeg vil kjøpe den terrassen som passer til lekestua.', 'Men passer den til den modellen jeg kjøpte i fjor?'],
+          valg: [
+            { t: 'Ja, terrassen «Solgang» passer alle lekestuer fra 2023 og nyere. Den koster 890 kr, og du får den om 3–5 virkedager. Skal jeg legge inn bestillingen for deg?', h: 15, p: 2, til: 'bestill', hvorfor: 'Du svarer presist med fakta fra retningslinjene, og gjør det enkelt for kunden å handle.' },
+            { t: 'Det må du nesten sjekke selv på nettsiden.', h: -20, p: 0, til: 'slutt_delvis', hvorfor: 'Kunden spurte deg. Å sende kunden videre uten svar gir en dårlig opplevelse.' },
+            { t: 'Sikkert.', h: -5, p: 0, til: 'bestill', hvorfor: 'Du gjetter. Hvis den ikke passer, blir det retur og en misfornøyd kunde.' },
+          ],
+        },
+        bestill: {
+          k: ['Ja takk! Samme adresse som sist.', 'Og så må du ha en riktig fin dag, du!'],
+          valg: [
+            { t: 'Det er gjort! Bekreftelsen kommer på e-post. Lykke til med terrassen, og hils til keeperen!', h: 10, p: 2, til: 'slutt_ok', hvorfor: 'Varm og personlig avslutning, uten å starte en ny samtale.' },
+            { t: 'Takk, i like måte! Forresten, hvordan gikk det med garasjetaket?', h: 5, p: 0, til: 'slutt_lang', hvorfor: 'Hyggelig, men nå starter samtalen på nytt.' },
+          ],
+        },
+        slutt_ok: { k: ['Det skal jeg gjøre! Ha det godt!'], slutt: 'lost' },
+        slutt_lang: { k: ['Ja, nei, nå skal du høre…', '(Kåre skriver i tjue minutter til.)'], slutt: 'lost' },
+        slutt_delvis: { k: ['Ja vel. Jeg skal prøve å finne det. Ha det.'], slutt: 'delvis' },
+      },
+    },
+    {
+      id: 'mina', navn: 'Mina Khan', farge: 5, type: 'Har det travelt', niva: 2, start: 50, ideal: 2,
+      sak: 'Sitter på flyplassen og vil vite om pakken kommer før fredag.', ordre: 'Ordre 41555 · Terrasse «Solgang» · sendt i dag, kommer torsdag',
+      tips: 'Tilpass deg kunden. Når noen har det travelt, er et kort og presist svar den beste servicen. Høflighet handler ikke om antall ord.',
+      gir_opp: 'må gå. tar det en annen gang',
+      noder: {
+        start: {
+          k: ['hei. må gå om 2 min, sitter på flyplassen', 'ordre 41555, rekker den fram før fredag??'],
+          valg: [
+            { t: 'Hei! Ja, den er sendt i dag og kommer torsdag. Du får SMS med sporing.', h: 25, p: 2, til: 'takk', hvorfor: 'Kort og presist, akkurat det kunden trenger.' },
+            { t: 'Hei, og tusen takk for at du kontakter kundeservice hos Taktlinja Hus! Vi setter stor pris på deg som kunde. Jeg skal med glede se på bestillingen din. La meg først forklare hvordan leveringen vår fungerer …', h: -25, p: 1, til: 'hast', hvorfor: 'Høflig, men altfor langt for en kunde som har dårlig tid.' },
+            { t: 'Kan du bekrefte e-postadressen din først?', h: -10, p: 1, til: 'epost', hvorfor: 'Det er riktig å bekrefte identiteten før du deler personopplysninger, men her spør kunden bare om når pakken kommer.' },
+          ],
+        },
+        hast: {
+          k: ['kort versjon pls!!!'],
+          valg: [
+            { t: 'Kommer torsdag. Du får SMS med sporing.', h: 15, p: 2, til: 'takk', hvorfor: 'Du hørte hva kunden trengte og tilpasset deg.' },
+            { t: 'Selvfølgelig, beklager! Som jeg skulle si: leveringene våre går med Posten, og vanligvis …', h: -30, p: 0, til: 'slutt_ulost', hvorfor: 'Du hørte ikke etter.' },
+          ],
+        },
+        epost: {
+          k: ['mina.k@epost.no. fort plz'],
+          valg: [
+            { t: 'Takk! Den kommer torsdag, og du får SMS.', h: 15, p: 2, til: 'takk', hvorfor: 'Kort og presist.' },
+          ],
+        },
+        takk: {
+          k: ['perfekt takk!! 🙏'],
+          valg: [
+            { t: 'Bare hyggelig, god tur!', h: 5, p: 2, til: 'slutt_ok', hvorfor: 'Kort og vennlig.' },
+            { t: 'Er det noe annet jeg kan hjelpe med i dag? Vi har forresten tilbud på lekestuer denne uka!', h: -10, p: 0, til: 'slutt_mas', hvorfor: 'Kunden sa tydelig at det hastet. Ikke prøv å selge noe nå.' },
+          ],
+        },
+        slutt_ok: { k: ['👋'], slutt: 'lost' },
+        slutt_mas: { k: ['nei. må gå'], slutt: 'lost' },
+        slutt_ulost: { k: ['glem det'], slutt: 'ulost' },
+      },
+    },
+    {
+      id: 'tom', navn: 'Tom Berg', farge: 7, type: 'Vil ha opplysninger om andre', niva: 3, start: 60, ideal: 3,
+      sak: 'Spør om adressen og bestillingen til samboeren.', ordre: 'Ordre 40333 tilhører Line Berg, ikke den som skriver',
+      tips: 'Her betyr «løst» at du beskyttet kundens personopplysninger, selv om den som skrev ikke ble fornøyd. Vær vennlig, men stå fast. Et ordrenummer alene beviser ikke hvem noen er.',
+      gir_opp: 'Fint, da gir jeg opp. Ha det.',
+      noder: {
+        start: {
+          k: ['Hei, jeg skriver for samboeren min, Line Berg. Hun har bestilt noe fra dere.', 'Kan du si meg hvilken adresse pakken går til? Og hva hun har bestilt? Det er en overraskelse, skjønner du.'],
+          valg: [
+            { t: 'Så hyggelig at du planlegger en overraskelse! Av hensyn til personvernet kan jeg dessverre bare gi opplysninger om en bestilling til den som har bestilt. Line kan kontakte oss selv, eller logge inn på «Min side».', h: -5, p: 2, til: 'press', hvorfor: 'Vennlig og tydelig. Du forklarer hvorfor og gir et alternativ.' },
+            { t: 'Klart! Den går til Granveien 3, og det er en lekestue.', h: 10, p: 0, til: 'slutt_brudd', brudd: 'Alvorlig brudd på personvernet: du ga en annen persons adresse og bestilling til noen du ikke har bekreftet hvem er.', hvorfor: 'Du kan ikke vite om det er sant at personen er samboeren.' },
+            { t: 'Det har jeg ikke lov til. Ha det.', h: -20, p: 1, til: 'press', hvorfor: 'Riktig å si nei, men brått og uten forklaring.' },
+          ],
+        },
+        press: {
+          k: ['Kom igjen, det er jo bare en adresse.', 'Jeg har ordrenummeret også: 40333. Det viser vel at jeg er til å stole på?'],
+          valg: [
+            { t: 'Jeg skjønner at det er frustrerende. Et ordrenummer er ikke nok til at jeg kan bekrefte hvem du er, så svaret er dessverre fortsatt nei. Kan jeg hjelpe deg med noe annet, for eksempel å bestille en gave selv?', h: 5, p: 2, til: 'siste', hvorfor: 'Du står fast på regelen uten å bli uhøflig, og tilbyr noe du faktisk kan gjøre.' },
+            { t: 'Ok, når du har ordrenummeret, er det greit. Den går til Granveien 3.', h: 10, p: 0, til: 'slutt_brudd', brudd: 'Et ordrenummer alene bekrefter ikke identitet, og opplysningene skal bare gis til kunden selv.', hvorfor: 'Du lot deg presse.' },
+            { t: 'Jeg kan bare si at den går til et sted i Oslo.', h: 0, p: 0, til: 'siste', brudd: 'Også en del av adressen er en personopplysning.', hvorfor: 'Et kompromiss som likevel bryter personvernet.' },
+          ],
+        },
+        siste: {
+          k: ['Hmpf. Greit, jeg spør henne heller. Glem det.'],
+          valg: [
+            { t: 'Det er en god idé. Lykke til med overraskelsen, og ha en fin dag!', h: 10, p: 2, til: 'slutt_ok', hvorfor: 'Du avslutter vennlig selv om du måtte si nei.' },
+            { t: 'Ja, gjør det.', h: -5, p: 1, til: 'slutt_ok', hvorfor: 'Riktig, men litt kort.' },
+          ],
+        },
+        slutt_ok: { k: ['Ja, ja. Ha det.'], slutt: 'lost' },
+        slutt_brudd: { k: ['Supert, takk skal du ha! 😉'], slutt: 'brudd' },
+      },
+    },
+  ];
+  const KUNDE = Object.fromEntries(KUNDER.map(k => [k.id, k]));
+
+  // ---------- Tilstand ----------
+  let S = null;      // pågående samtale
+  let timers = [];
+  let logg = fetchStore(LOGG_KEY) || [];
+  let visHumor = fetchStore('kundeservice-humor') !== false;
+
+  // ---------- AI-kunder (bare på Azure, via /api/kunde) ----------
+  // I AI-modus skriver eleven fritt. Serveren lar Claude spille kunden og vurdere samtalen etterpå.
+  const AZ = !(window.claude && window.claude.use);
+  let modus = AZ && fetchStore('kundeservice-modus') === 'ai' ? 'ai' : 'knapper';
+  const AI = { kode: fetchStore('kundeservice-kode') || '', ok: false, maks: 12, melding: '' };
+  // En lærer som er logget inn på Taktlinja (samme nettsted), trenger ikke klassekode.
+  const laererToken = () => { const a = fetchStore('taktlinja-laerer'); return a && a.token && a.exp > Date.now() ? a.token : null; };
+
+  async function api(data) {
+    const headers = { 'content-type': 'application/json' };
+    const token = laererToken();
+    if (token) headers['x-laerer-token'] = token;
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 45000);
+    let res;
+    try {
+      res = await fetch('/api/kunde', { method: 'POST', headers, body: JSON.stringify({ kode: AI.kode, ...data }), signal: ctl.signal });
+    } catch (e) {
+      throw Object.assign(new Error('Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.'), { status: 0 });
+    } finally { clearTimeout(t); }
+    let body = {};
+    try { body = await res.json(); } catch (e) {}
+    if (!res.ok) throw Object.assign(new Error(body.feil || 'Noe gikk galt (' + res.status + ')'), { status: res.status });
+    return body;
+  }
+
+  const humorNiva = h => h >= 75 ? ['Fornøyd', 1] : h >= 50 ? ['Grei', 1] : h >= 25 ? ['Irritert', 2] : ['Sint', 3];
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const later = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
+  const stopTimers = () => { timers.forEach(clearTimeout); timers = []; };
+  const skriveTid = t => STILLE ? 250 : clamp(450 + t.length * 18, 600, 2400);
+
+  function vis(v) {
+    for (const id of ['v-velg', 'v-chat', 'v-eval']) $(id).hidden = id !== v;
+    window.scrollTo({ top: 0 });
+  }
+
+  // ---------- Oversikt ----------
+  function besteFor(id) {
+    const l = logg.filter(r => r.id === id);
+    if (!l.length) return null;
+    return l.reduce((a, b) => (b.prof + b.humor) > (a.prof + a.humor) ? b : a);
+  }
+  function renderKpis() {
+    const n = logg.length;
+    const snitt = f => n ? logg.reduce((s, r) => s + f(r), 0) / n : null;
+    const lost = snitt(r => r.utfall === 'lost' && !r.brudd ? 1 : 0);
+    const tilfreds = snitt(r => r.humor);
+    const prof = snitt(r => r.prof);
+    const state = x => x == null ? '' : x >= 70 ? 'ok' : x >= 45 ? 'warn' : 'bad';
+    $('kpis').innerHTML = [
+      ['Samtaler', fmt(n), 'tatt på denne enheten', ''],
+      ['Løst', lost == null ? '–' : fmt(lost * 100) + ' %', 'uten brudd', state(lost == null ? null : lost * 100)],
+      ['Tilfredshet', tilfreds == null ? '–' : fmt(tilfreds), 'snitt, av 100', state(tilfreds)],
+      ['Profesjonalitet', prof == null ? '–' : fmt(prof) + ' %', 'snitt', state(prof)],
+    ].map(([e, b, s, st]) => `<div class="kpi" data-state="${st}"><span class="eyebrow">${e}</span><b>${b}</b><small>${s}</small></div>`).join('');
+  }
+  function renderCards() {
+    const kort = KUNDER.map(k => {
+      const b = besteFor(k.id);
+      const best = b ? `<span class="cb done">Best: ${esc(UTFALL[b.utfall].t.toLowerCase())} · ${fmt(b.prof)} %</span>` : '<span class="cb">Ikke prøvd</span>';
+      return `<button type="button" class="card" data-k="${k.id}">
+        <div class="card-head"><span class="av" data-c="${k.farge}" aria-hidden="true">${esc(k.navn[0])}</span><b>${esc(k.navn)}</b></div>
+        <span class="ct">${esc(k.type)} <span class="tag" data-n="${k.niva}">${NIVA[k.niva]}</span></span>
+        <span class="cs">${esc(k.sak)}</span>${best}</button>`;
+    });
+    kort.unshift(`<button type="button" class="card rand" data-k="?">
+      <div class="card-head"><span class="av q" aria-hidden="true">?</span><b>Tilfeldig kunde</b></div>
+      <span class="ct">Neste i køen</span>
+      <span class="cs">Du får vite hva slags kunde det var først etter samtalen. Kunder du ikke har prøvd, kommer først.</span></button>`);
+    $('cards').innerHTML = kort.join('');
+  }
+  function renderLogg() {
+    if (!logg.length) { $('logg').innerHTML = '<p class="empty">Ingen samtaler ennå.</p>'; $('btn-tom').hidden = true; return; }
+    $('btn-tom').hidden = false;
+    const rader = logg.slice().reverse().map(r => {
+      const k = KUNDE[r.id];
+      const tid = new Date(r.ts).toLocaleString('nb-NO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      return `<tr><td class="n">${esc(tid)}</td><td>${esc(k ? k.navn : r.id)}${r.ai ? ' <span class="help">· fritekst</span>' : ''}</td><td>${esc(UTFALL[r.utfall] ? UTFALL[r.utfall].t : r.utfall)}</td>
+        <td class="n">${fmt(r.humor)}</td><td class="n">${fmt(r.prof)} %</td><td class="n">${fmt(r.svar)}</td><td class="n">${fmt(r.brudd)}</td></tr>`;
+    }).join('');
+    $('logg').innerHTML = `<table><thead><tr><th>Tid</th><th>Kunde</th><th>Utfall</th><th>Tilfredshet</th><th>Profesjonalitet</th><th>Svar</th><th>Brudd</th></tr></thead><tbody>${rader}</tbody></table>`;
+  }
+  function renderModus() {
+    for (const r of document.querySelectorAll('input[name="modus"]')) r.checked = r.value === modus;
+    const ai = modus === 'ai';
+    $('f-kode').hidden = !ai || AI.ok;
+    $('ai-status').textContent = !ai
+      ? 'Du velger blant ferdige svar. Velg «Skriv selv» for å skrive fritt til en AI-kunde.'
+      : AI.ok
+        ? 'Klar. Du skriver svarene selv, og kunden svarer på det du skriver. Samtalen sendes til Claude (AI), som spiller kunden og vurderer deg etterpå. Ikke skriv ekte personopplysninger.'
+        : AI.melding || 'Skriv inn klassekoden du har fått av læreren.';
+  }
+  async function koble() {
+    AI.melding = 'Kobler til …';
+    renderModus();
+    try {
+      const r = await api({ modus: 'sjekk' });
+      AI.ok = true;
+      AI.maks = r.maksSvar || AI.maks;
+      AI.melding = '';
+      store('kundeservice-kode', AI.kode);
+    } catch (e) {
+      AI.ok = false;
+      AI.melding = e.status === 401 ? 'Klassekoden stemmer ikke. Sjekk med læreren.' : e.message;
+    }
+    renderModus();
+  }
+  function renderOversikt() { renderKpis(); renderCards(); renderLogg(); }
+
+  function tilfeldig() {
+    const uprøvd = KUNDER.filter(k => !logg.some(r => r.id === k.id) && (!S || S.kunde.id !== k.id));
+    const pool = uprøvd.length ? uprøvd : KUNDER.filter(k => !S || S.kunde.id !== k.id);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // ---------- Samtale ----------
+  function startSamtale(kunde, skjult) {
+    if (modus === 'ai' && !AI.ok) {
+      // AI-modus uten gyldig kode: tilbake til oversikten for å skrive inn koden.
+      AI.melding = 'Skriv inn klassekoden før du starter en samtale.';
+      renderOversikt(); renderModus(); vis('v-velg');
+      $('in-kode').focus();
+      return;
+    }
+    stopTimers();
+    S = { kunde, skjult, humor: kunde.start, valg: [], ferdig: false, ai: modus === 'ai', utskrift: [], svar: [] };
+    $('c-av').textContent = kunde.navn[0];
+    $('c-av').dataset.c = kunde.farge;
+    $('c-navn').textContent = kunde.navn;
+    $('c-type').textContent = (skjult ? 'Ny kunde i chatten' : kunde.type) + (S.ai ? ' · AI-kunde' : '');
+    $('c-case').innerHTML = `<b>Kundeinformasjon</b>${esc(kunde.ordre)}`;
+    $('c-log').innerHTML = '';
+    $('c-delta').textContent = '';
+    $('c-mood').hidden = !visHumor;
+    $('btn-avslutt').disabled = false;
+    renderHumor(0);
+    sys('Kunden har startet en chat');
+    vis('v-chat');
+    if (S.ai) {
+      // Åpningen er den samme som i den skriptede versjonen. Deretter svarer AI-kunden.
+      const linjer = kunde.noder.start.k;
+      linjer.forEach(t => S.utskrift.push({ fra: 'kunde', t }));
+      kundeSier(linjer, visSkriv);
+    } else gaaTil('start');
+  }
+  function renderHumor(d) {
+    const [t, l] = humorNiva(S.humor);
+    $('c-mood-t').textContent = `${t} · ${Math.round(S.humor)}`;
+    const bar = $('c-mood-bar');
+    bar.style.width = clamp(S.humor, 2, 100) + '%';
+    bar.dataset.l = l;
+    const el = $('c-delta');
+    el.textContent = d ? (d > 0 ? '+' : '−') + Math.abs(d) : '';
+    el.className = 'delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : '');
+  }
+  function melding(kl, tekst) {
+    const m = document.createElement('div');
+    m.className = 'msg ' + kl;
+    m.textContent = tekst;
+    $('c-log').appendChild(m);
+    $('c-log').scrollTop = $('c-log').scrollHeight;
+  }
+  const sys = t => melding('sys', t);
+  function skriver(på) {
+    let el = $('c-log').querySelector('.typing');
+    if (på && !el) {
+      el = document.createElement('div');
+      el.className = 'typing';
+      el.setAttribute('aria-label', 'Kunden skriver');
+      el.innerHTML = '<i></i><i></i><i></i>';
+      $('c-log').appendChild(el);
+      $('c-log').scrollTop = $('c-log').scrollHeight;
+    } else if (!på && el) el.remove();
+  }
+  // Kundens meldinger kommer én og én, med «skriver …» imellom. Deretter kalles ferdig().
+  // Med rask vises første melding med en gang (AI-kunden har allerede «skrevet» mens vi ventet på svar).
+  function kundeSier(linjer, ferdig, rask) {
+    $('c-opts').innerHTML = '<p class="wait">Kunden skriver …</p>';
+    let i = 0;
+    const neste = () => {
+      if (i >= linjer.length) { ferdig(); return; }
+      skriver(true);
+      const t = linjer[i++];
+      later(() => { skriver(false); melding('k', t); later(neste, STILLE ? 0 : 250); }, rask && i === 1 ? 0 : skriveTid(t));
+    };
+    later(neste, STILLE || rask ? 0 : 300);
+  }
+
+  // ---------- Fritekst med AI-kunde ----------
+  function visSkriv() {
+    const igjen = AI.maks - S.svar.length;
+    $('c-opts').innerHTML = `<form class="skriv" id="f-skriv">
+      <label class="eyebrow" for="c-in">Skriv svaret ditt</label>
+      <textarea id="c-in" rows="2" maxlength="500" placeholder="Skriv til kunden …"></textarea>
+      <button class="btn primary" type="submit">Send</button>
+      <p class="help">Enter sender, Shift+Enter gir ny linje · ${igjen} svar igjen i denne samtalen</p>
+    </form>`;
+    $('c-in').focus({ preventScroll: true });
+  }
+  function sisteKunde() {
+    for (let i = S.utskrift.length - 1; i >= 0; i--) if (S.utskrift[i].fra === 'kunde') return S.utskrift[i].t;
+    return '';
+  }
+  function sendSvar(t) {
+    t = t.trim();
+    if (!t || !S || !S.ai || S.ferdig || S.venter) return;
+    S.svar.push({ t, sitat: sisteKunde(), h: 0 });
+    S.utskrift.push({ fra: 'meg', t });
+    melding('meg', t);
+    hentSvar();
+  }
+  async function hentSvar() {
+    const s = S;
+    s.venter = true;
+    $('c-opts').innerHTML = '<p class="wait">Kunden skriver …</p>';
+    skriver(true);
+    let r;
+    try {
+      r = await api({ modus: 'svar', kunde: s.kunde.id, humor: s.humor, utskrift: s.utskrift });
+    } catch (e) {
+      if (S !== s || s.ferdig) return;
+      s.venter = false;
+      skriver(false);
+      if (e.status === 401) { AI.ok = false; visFeil('Klassekoden virker ikke lenger. Avslutt samtalen og skriv den inn på nytt.'); }
+      else visFeil(e.message, hentSvar);
+      return;
+    }
+    if (S !== s || s.ferdig) return;
+    s.venter = false;
+    skriver(false);
+    s.svar[s.svar.length - 1].h = r.humor;
+    s.humor = clamp(s.humor + r.humor, 0, 100);
+    renderHumor(r.humor);
+    if (s.humor <= 0 && !r.ferdig) {
+      s.utskrift.push({ fra: 'kunde', t: s.kunde.gir_opp });
+      kundeSier([s.kunde.gir_opp], () => avslutt('lagpa'), true);
+      return;
+    }
+    r.meldinger.forEach(t => s.utskrift.push({ fra: 'kunde', t }));
+    kundeSier(r.meldinger, () => {
+      if (r.ferdig) avslutt(s.humor <= 0 ? 'lagpa' : r.utfall);
+      else visSkriv();
+    }, true);
+  }
+  function visFeil(tekst, igjen) {
+    S.igjen = igjen || null;
+    $('c-opts').innerHTML = `<p class="ai-feil" role="alert">${esc(tekst)}</p>` +
+      (igjen ? '<div class="controls"><button type="button" class="btn small" id="btn-igjen-ai">Prøv igjen</button></div>' : '');
+  }
+  function hentVurdering(s) {
+    if (!s.svar.length) return Promise.resolve({ v: null });
+    return api({ modus: 'vurder', kunde: s.kunde.id, humor: s.humor, slutt: s.utfall, utskrift: s.utskrift })
+      .then(v => ({ v }), e => ({ e }));
+  }
+  async function seVurdering() {
+    if (!S.ai) { visVurdering(); return; }
+    const s = S;
+    $('c-opts').innerHTML = '<p class="wait">Lederen leser gjennom samtalen …</p>';
+    const r = await s.vurdering;
+    if (S !== s) return;
+    if (r.e) {
+      visFeil('Vurderingen feilet: ' + r.e.message, () => { s.vurdering = hentVurdering(s); seVurdering(); });
+      $('c-opts').querySelector('.controls').insertAdjacentHTML('beforeend', '<button type="button" class="btn small" id="btn-uten">Til oversikten</button>');
+      return;
+    }
+    s.v = r.v;
+    if (s.v && s.utfall !== 'lagpa' && s.utfall !== 'avbrutt') s.utfall = s.v.utfall;
+    if (!s.lagret) { lagre(); s.lagret = true; }
+    visVurdering();
+  }
+  function gaaTil(id) {
+    const node = S.kunde.noder[id];
+    S.node = id;
+    kundeSier(node.k, () => {
+      if (node.slutt) avslutt(node.slutt);
+      else visValg(node);
+    });
+  }
+  function visValg(node) {
+    const valg = shuffle(node.valg.map((v, i) => ({ v, i })));
+    $('c-opts').innerHTML = '<span class="eyebrow">Velg svaret ditt</span>' +
+      valg.map((x, n) => `<button type="button" class="opt" data-i="${x.i}"><span class="ok-n">${n + 1}</span>${esc(x.v.t)}</button>`).join('');
+    const forste = $('c-opts').querySelector('.opt');
+    if (forste) forste.focus({ preventScroll: true });
+  }
+  function velg(i) {
+    if (!S || S.ferdig) return;
+    const node = S.kunde.noder[S.node];
+    const v = node.valg[i];
+    if (!v) return;
+    $('c-opts').innerHTML = '';
+    melding('meg', v.t);
+    S.valg.push({ node: S.node, i });
+    S.humor = clamp(S.humor + v.h, 0, 100);
+    renderHumor(v.h);
+    if (S.humor <= 0) {
+      kundeSier([S.kunde.gir_opp], () => avslutt('lagpa'));
+      return;
+    }
+    gaaTil(v.til);
+  }
+  function avslutt(utfall) {
+    stopTimers();
+    skriver(false);
+    S.ferdig = true;
+    S.utfall = utfall;
+    $('btn-avslutt').disabled = true;
+    sys(utfall === 'lagpa' ? 'Kunden har forlatt chatten' : 'Samtalen er avsluttet');
+    $('c-opts').innerHTML = '<button type="button" class="btn primary" id="btn-se">Se vurderingen</button>';
+    $('btn-se').focus({ preventScroll: true });
+    // AI-samtaler lagres når vurderingen er klar, fordi utfall og profesjonalitet kommer derfra.
+    if (S.ai) S.vurdering = hentVurdering(S);
+    else lagre();
+  }
+  function resultat() {
+    if (S.ai) {
+      const l = S.v ? S.v.svar : [];
+      const prof = l.length ? l.reduce((s, v) => s + v.p, 0) / (2 * l.length) * 100 : 0;
+      return { prof, brudd: l.filter(v => v.brudd).length, svar: S.svar.length };
+    }
+    const valgt = S.valg.map(x => S.kunde.noder[x.node].valg[x.i]);
+    const prof = valgt.length ? valgt.reduce((s, v) => s + v.p, 0) / (2 * valgt.length) * 100 : 0;
+    const brudd = valgt.filter(v => v.brudd).length;
+    return { prof, brudd, svar: valgt.length };
+  }
+  function lagre() {
+    const r = resultat();
+    logg.push({ id: S.kunde.id, utfall: S.utfall, humor: Math.round(S.humor), prof: Math.round(r.prof), svar: r.svar, brudd: r.brudd, ts: Date.now(), ...(S.ai ? { ai: 1 } : {}) });
+    if (logg.length > 200) logg = logg.slice(-200);
+    store(LOGG_KEY, logg);
+  }
+
+  // ---------- Vurdering ----------
+  function forklaring(utfall, r, k) {
+    const deler = [];
+    if (utfall === 'lost' && !r.brudd) deler.push('Kunden fikk hjelp, og du holdt deg innenfor retningslinjene.');
+    if (utfall === 'lost' && r.brudd) deler.push('Kunden fikk svar, men ' + (r.brudd === 1 ? 'ett av svarene dine' : r.brudd + ' av svarene dine') + ' var i strid med retningslinjene.');
+    if (utfall === 'brudd') deler.push('Kunden er fornøyd, men firmaet betaler for det, eller noen andres personvern er brutt.');
+    if (utfall === 'delvis') deler.push('Kunden gikk uten et klart svar eller en tydelig plan.');
+    if (utfall === 'ulost') deler.push('Kunden gikk uten at saken ble løst.');
+    if (utfall === 'videre') deler.push('Saken ble sendt videre. Noen ganger er det riktig, men her kunne du løst den selv.');
+    if (utfall === 'lagpa') deler.push('Kundens humør nådde bunnen, og kunden ga opp.');
+    if (utfall === 'avbrutt') deler.push('Du avsluttet før saken var ferdig.');
+    if (r.svar > k.ideal) deler.push(`Samtalen tok ${r.svar} svar. Den kan klares med ${k.ideal}.`);
+    return deler.join(' ');
+  }
+  function visVurdering() {
+    const k = S.kunde, r = resultat(), u = UTFALL[S.utfall];
+    const kind = S.utfall === 'lost' && r.brudd ? 'info' : u.k;
+    $('e-kunde').textContent = `${k.navn} · ${k.type} · ${NIVA[k.niva]}`;
+    $('e-verdict').dataset.k = kind;
+    $('e-utfall').textContent = S.utfall === 'lost' && r.brudd ? 'Løst, men med feil' : u.t;
+    $('e-forkl').textContent = S.v && S.v.oppsummering ? S.v.oppsummering : forklaring(S.utfall, r, k);
+    const [ht] = humorNiva(S.humor);
+    const st = x => x >= 70 ? 'ok' : x >= 45 ? 'warn' : 'bad';
+    $('e-kpis').innerHTML = [
+      ['Tilfredshet', fmt(S.humor), ht + ' · startet på ' + k.start, st(S.humor)],
+      ['Profesjonalitet', fmt(r.prof) + ' %', 'tone, presisjon og riktig info', st(r.prof)],
+      ['Antall svar', fmt(r.svar), 'godt: ' + k.ideal, r.svar <= k.ideal ? 'ok' : r.svar <= k.ideal + 1 ? 'warn' : 'bad'],
+      ['Brudd', fmt(r.brudd), 'på retningslinjene', r.brudd ? 'bad' : 'ok'],
+    ].map(([e, b, s, sx]) => `<div class="kpi" data-state="${sx}"><span class="eyebrow">${e}</span><b>${b}</b><small>${esc(s)}</small></div>`).join('');
+    $('e-tips').textContent = S.v && S.v.tips ? S.v.tips : k.tips;
+    // Samme gjennomgang for begge svarformer: kundens replikk, svaret, forklaring, brudd og et bedre svar.
+    const rader = S.ai
+      ? S.svar.map((x, n) => {
+        const v = (S.v && S.v.svar[n]) || {};
+        return { sitat: x.sitat, t: x.t, p: v.p == null ? 1 : v.p, h: x.h, hvorfor: v.hvorfor, brudd: v.brudd, bedre: v.bedre };
+      })
+      : S.valg.map(x => {
+        const node = k.noder[x.node], v = node.valg[x.i];
+        const best = node.valg.reduce((a, b) => b.p > a.p || (b.p === a.p && b.h > a.h) ? b : a);
+        return { sitat: node.k[node.k.length - 1], t: v.t, p: v.p, h: v.h, hvorfor: v.hvorfor, brudd: v.brudd, bedre: best !== v && best.p > v.p ? best.t : '' };
+      });
+    $('e-review').innerHTML = rader.length ? rader.map((v, n) => `<div class="rv" data-p="${v.p}"><div>
+        <span class="q">${n + 1}. Kunden: «${esc(v.sitat)}»</span>
+        <span class="a">Du: «${esc(v.t)}»</span>
+        <span class="y">${esc(v.hvorfor || '')} <span class="help">(humør ${v.h > 0 ? '+' : v.h < 0 ? '−' : '±'}${Math.abs(v.h)})</span></span>
+        ${v.brudd ? `<span class="br">Brudd: ${esc(v.brudd)}</span>` : ''}
+        ${v.bedre ? `<span class="best"><b>Bedre svar:</b> «${esc(v.bedre)}»</span>` : ''}
+      </div></div>`).join('') : '<p class="empty">Du ga ingen svar i denne samtalen.</p>';
+    vis('v-eval');
+  }
+
+  // ---------- Hendelser ----------
+  $('cards').addEventListener('click', e => {
+    const b = e.target.closest('[data-k]');
+    if (!b) return;
+    if (b.dataset.k === '?') startSamtale(tilfeldig(), true);
+    else startSamtale(KUNDE[b.dataset.k], false);
+  });
+  $('c-opts').addEventListener('click', e => {
+    if (e.target.closest('#btn-se')) { seVurdering(); return; }
+    if (e.target.closest('#btn-igjen-ai')) { if (S && S.igjen) S.igjen(); return; }
+    if (e.target.closest('#btn-uten')) { renderOversikt(); vis('v-velg'); return; }
+    const b = e.target.closest('.opt');
+    if (b) velg(+b.dataset.i);
+  });
+  $('c-opts').addEventListener('submit', e => {
+    e.preventDefault();
+    if (e.target.id === 'f-skriv') sendSvar($('c-in').value);
+  });
+  $('c-opts').addEventListener('keydown', e => {
+    if (e.target.id === 'c-in' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      sendSvar(e.target.value);
+    }
+  });
+  $('modus').addEventListener('change', e => {
+    if (e.target.name !== 'modus') return;
+    modus = e.target.value;
+    store('kundeservice-modus', modus);
+    if (modus === 'ai' && !AI.ok && (AI.kode || laererToken())) koble();
+    else renderModus();
+  });
+  $('f-kode').addEventListener('submit', e => {
+    e.preventDefault();
+    AI.kode = $('in-kode').value.trim();
+    if (AI.kode) koble();
+  });
+  document.addEventListener('keydown', e => {
+    if ($('v-chat').hidden || e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const n = +e.key;
+    if (n >= 1 && n <= 9) {
+      const b = $('c-opts').querySelectorAll('.opt')[n - 1];
+      if (b) { e.preventDefault(); b.click(); }
+    }
+  });
+  $('btn-avslutt').addEventListener('click', () => { if (S && !S.ferdig) avslutt('avbrutt'); });
+  $('btn-neste').addEventListener('click', () => startSamtale(tilfeldig(), true));
+  $('btn-igjen').addEventListener('click', () => startSamtale(S.kunde, false));
+  $('btn-oversikt').addEventListener('click', () => { renderOversikt(); vis('v-velg'); });
+  $('btn-tom').addEventListener('click', () => {
+    if (!confirm('Vil du slette alle samtalene i loggen på denne enheten?')) return;
+    logg = [];
+    store(LOGG_KEY, logg);
+    renderOversikt();
+  });
+  $('in-mood').checked = visHumor;
+  $('in-mood').addEventListener('change', e => { visHumor = e.target.checked; store('kundeservice-humor', visHumor); });
+
+  // Lenken tilbake til Taktlinja og AI-kundene virker bare når sidene ligger på Azure.
+  $('lnk-takt').hidden = !AZ;
+  $('modus').hidden = !AZ;
+
+  $('regler').innerHTML = REGLER.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('');
+  $('in-kode').value = AI.kode;
+  renderOversikt();
+  renderModus();
+  (async () => {
+    if (modus === 'ai' && (AI.kode || laererToken())) await koble();
+    // #rolf, #hanne osv. åpner en kunde direkte.
+    const fra = KUNDE[(location.hash || '').slice(1)];
+    if (fra) startSamtale(fra, false);
+  })();
+})();
+</script>

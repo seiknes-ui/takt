@@ -81,6 +81,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 /* Topp */
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 40px; align-items: end; }
 .top .lede { max-width: 58ch; margin-top: 12px; color: var(--muted); font-size: 16px; }
+.lnk-ks { display: inline-block; margin-top: 14px; text-decoration: none; }
 .hazard { height: 10px; background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--ink) 14px 28px); border-radius: 2px; margin-bottom: 18px; max-width: 220px; }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(110px, auto)); border: 2px solid var(--ink); background: var(--surface); }
 .kpi { padding: 10px 16px 12px; border-left: 1px solid var(--line); min-width: 0; }
@@ -430,6 +431,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
           <button type="button" class="btn small" id="btn-qr-big">Vis stort</button>
         </div>
       </div>
+      <a class="btn small lnk-ks" href="kundeservice.html" id="lnk-ks" hidden>Kundeservice-simulator →</a>
     </div>
     <div class="kpis" id="kpis"></div>
   </header>
@@ -791,6 +793,8 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   // ---------- Azure: lærerinnlogging og lagring i Cosmos DB (via /api) ----------
   // På claude.ai finnes window.claude.use; ellers kjører appen på Azure Static Web Apps.
   const AZ = !(window.claude && window.claude.use);
+  // Kundeservice-simulatoren er en egen side, så lenken virker bare på Azure.
+  $('lnk-ks').hidden = !AZ;
   let AUTH = null;
   (() => { const a = fetchStore('taktlinja-laerer'); if (a && a.token && a.exp > Date.now()) AUTH = a; })();
   let cloudTimer = null;

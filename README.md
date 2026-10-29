@@ -10,12 +10,34 @@ Et lean-spill for undervisning i takt, linjebalansering og sløsing. Små hus by
 
 Arbeidsformer: **Linje** (stasjon for stasjon, parti 1–6, skyv eller kanban) og **Gruppe** (2–6 elever bygger det samme huset, flere grupper deler kundens takt).
 
+## Kundeservice
+
+`kundeservice.html` er en egen side der eleven svarer kunder i chatten til Taktlinja Hus AS. Sju skriptede kunder har hver sin sak og sitt temperament: snill og grei, urimelig, misforstår det meste, sint med god grunn, pratsom, har det travelt, og en som vil ha opplysninger om andre. Eleven velger blant svaralternativer, med firmaets retningslinjer ved siden av. Hvert svar endrer kundens humør og gir poeng for profesjonalitet. Noen svar bryter retningslinjene.
+
+Etter samtalen får eleven en vurdering (utfall, tilfredshet, profesjonalitet, antall svar og brudd) og en gjennomgang av hvert svar, med bedre alternativ der det fantes. Resultatene lagres bare på enheten. `kundeservice.html#rolf` (eller `#hanne`, `#bjorg`, `#sara`, `#kaare`, `#mina`, `#tom`) åpner en kunde direkte.
+
+### AI-kunder (fritekst)
+
+På Azure kan eleven velge **Skriv selv (AI-kunde)**. Da skriver eleven svarene fritt, og Claude (modellen Claude Haiku 5.5) spiller kunden ut fra en rollebeskrivelse. Etter samtalen vurderer Claude hvert svar og gir et bedre forslag der det trengs. Samme visning brukes for vurderingen som i knappemodus.
+
+- Eleven trenger en **klassekode** fra læreren. En lærer som er logget inn på Taktlinja, trenger ingen kode.
+- Kallene går via `POST /api/kunde`. API-nøkkelen blir på serveren, og eleven kan bare velge blant de sju kundene, ikke sende egne instruksjoner.
+- En samtale kan ha høyst 12 svar fra eleven, og hver melding høyst 500 tegn.
+- Rollene ligger i `api/src/lib/kunder.js`. Åpningsreplikkene, ordreinformasjonen og retningslinjene i `kundeservice.html` må stemme med dem.
+- Svarer ikke API-et, får eleven en feilmelding med «Prøv igjen». Knappemodusen virker alltid, også uten nett til AI-tjenesten.
+- På claude.ai vises ikke AI-valget.
+
+Kostnad: en samtale med vurdering bruker rundt 30 000 tokens inn og 3 000 ut, altså noen øre per samtale. Sett likevel en utgiftsgrense i Claude Console.
+
+Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt med noder (`k` = kundens meldinger, `valg` = svar med humørendring `h`, profesjonalitet `p` 0–2, neste node `til`, forklaring `hvorfor` og eventuelt `brudd`).
+
 ## Struktur
 
 | Sti | Innhold |
 |---|---|
 | `index.html` | Hele appen. Skrevet som sideinnhold, slik at den også kan publiseres som Artifact på claude.ai. |
-| `scripts/bygg.mjs` | Lager `dist/index.html` med fullt dokumentskall for Azure (`npm run build`). |
+| `kundeservice.html` | Kundeservice-simulatoren. Samme format som `index.html`. |
+| `scripts/bygg.mjs` | Lager `dist/index.html` og `dist/kundeservice.html` med fullt dokumentskall for Azure (`npm run build`). |
 | `api/` | Azure Functions (Node 20): lærerinnlogging, lagring i Cosmos DB og live-rom. |
 | `staticwebapp.config.json` | Konfigurasjon for Azure Static Web Apps. |
 
@@ -41,8 +63,11 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
    | `COSMOS_DATABASE` | `takt` (valgfri, dette er standard) |
    | `LAERER_KODER` | For eksempel `blåhus-7342=Ola Nordmann;rødtak-1185=Kari` (minst 4 tegn per kode, flere skilles med `;`) |
    | `TOKEN_SECRET` | En lang, tilfeldig streng (minst 16 tegn), for eksempel fra `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
+   | `ANTHROPIC_API_KEY` | API-nøkkel fra [Claude Console](https://console.anthropic.com) (valgfri, trengs for AI-kundene) |
+   | `KUNDESERVICE_KODER` | Klassekoder til AI-kundene, for eksempel `rød-kunde-42;blå-kunde-17` (minst 4 tegn per kode, flere skilles med `;`) |
 
-3. Push til `main`. GitHub Actions bygger `dist/` og publiserer både nettsiden og `api/`.
+3. **Claude Console** (bare for AI-kundene): lag en konto på console.anthropic.com, kjøp kreditt, sett en månedlig utgiftsgrense under **Limits**, og lag en API-nøkkel under **API keys**.
+4. Push til `main`. GitHub Actions bygger `dist/` og publiserer både nettsiden og `api/`.
 
 ## Lokal utvikling
 
