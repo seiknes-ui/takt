@@ -3,10 +3,11 @@ const { app } = require('@azure/functions');
 const { Anthropic } = require('@anthropic-ai/sdk');
 const { laererFra } = require('../lib/auth');
 const { REGLER, KUNDER } = require('../lib/kunder');
+const { finnKlasse } = require('../lib/klasser');
 const { json, feil, lesJson, vakt } = require('../lib/http');
 
 // AI-kunder i kundeservice-simulatoren. Claude spiller kunden og vurderer eleven etterpå.
-// Nøkkelen (ANTHROPIC_API_KEY) blir på serveren. Tilgang krever en klassekode (KUNDESERVICE_KODER) eller lærerinnlogging.
+// Nøkkelen (ANTHROPIC_API_KEY) blir på serveren. Tilgang krever en klassekode (fra læreren i appen eller KUNDESERVICE_KODER) eller lærerinnlogging.
 const MODELL = 'claude-haiku-5-5';
 const MAKS_SVAR = 12;          // svar fra eleven per samtale
 const MAKS_TEGN = 600;         // per melding i utskriften
@@ -24,13 +25,15 @@ function klassekoder() {
   return (process.env.KUNDESERVICE_KODER || '').split(/[;\n]/).map(norm).filter(k => k.length >= 4);
 }
 
-function harTilgang(req, kode) {
+async function harTilgang(req, kode) {
   try { if (laererFra(req)) return true; } catch { /* TOKEN_SECRET mangler: bare klassekoder gjelder */ }
   if (typeof kode !== 'string' || !kode) return false;
   const h = sha('ks:' + norm(kode));
   let ok = false;
   for (const k of klassekoder()) if (crypto.timingSafeEqual(h, sha('ks:' + k))) ok = true;
-  return ok;
+  if (ok) return true;
+  // Klassekoder som læreren har laget i appen. Uten database gjelder bare kodene over.
+  try { return !!(await finnKlasse(kode)); } catch { return false; }
 }
 
 // Enkel sperre mot løpske skript. Den gjelder per instans, så den reelle grensen er utgiftsgrensen i Claude Console.
@@ -228,7 +231,7 @@ app.http('kunde', {
   handler: vakt(async (req, ctx) => {
     if (!process.env.ANTHROPIC_API_KEY || (!klassekoder().length && !process.env.TOKEN_SECRET)) return feil(503, 'AI-kundene er ikke satt opp på serveren');
     const body = await lesJson(req, 48 * 1024);
-    if (!harTilgang(req, body.kode)) return feil(401, 'Feil klassekode');
+    if (!(await harTilgang(req, body.kode))) return feil(401, 'Feil klassekode');
     if (body.modus === 'sjekk') return json(200, { ok: true, maksSvar: MAKS_SVAR });
     if (forMange(req)) return feil(429, 'For mange meldinger akkurat nå. Vent litt og prøv igjen.');
     const k = KUNDER[body.kunde];

@@ -20,7 +20,7 @@ Etter samtalen får eleven en vurdering (utfall, tilfredshet, profesjonalitet, a
 
 På Azure kan eleven velge **Skriv selv (AI-kunde)**. Da skriver eleven svarene fritt, og Claude (modellen Claude Haiku 5.5) spiller kunden ut fra en rollebeskrivelse. Etter samtalen vurderer Claude hvert svar og gir et bedre forslag der det trengs. Samme visning brukes for vurderingen som i knappemodus.
 
-- Eleven trenger en **klassekode** fra læreren. En lærer som er logget inn på Taktlinja, trenger ingen kode.
+- Eleven trenger en **klassekode** fra læreren (se Rapporter til læreren under). En lærer som er logget inn på Taktlinja, trenger ingen kode.
 - Kallene går via `POST /api/kunde`. API-nøkkelen blir på serveren, og eleven kan bare velge blant de sju kundene, ikke sende egne instruksjoner.
 - En samtale kan ha høyst 12 svar fra eleven, og hver melding høyst 500 tegn.
 - Rollene ligger i `api/src/lib/kunder.js`. Åpningsreplikkene, ordreinformasjonen og retningslinjene i `kundeservice.html` må stemme med dem.
@@ -28,6 +28,16 @@ På Azure kan eleven velge **Skriv selv (AI-kunde)**. Da skriver eleven svarene 
 - På claude.ai vises ikke AI-valget.
 
 Kostnad: en samtale med vurdering bruker rundt 30 000 tokens inn og 3 000 ut, altså noen øre per samtale. Sett likevel en utgiftsgrense i Claude Console.
+
+### Rapporter til læreren
+
+På Azure kan læreren følge elevenes samtaler på `kundeservice.html#laerer` (lenken «Kundeservice-rapporter» på forsiden). Innloggingen er den samme som på Taktlinja.
+
+- Læreren lager en **klassekode** per klasse, for eksempel `fjord-4821`. Koden gir også tilgang til AI-kundene.
+- Eleven skriver inn klassekoden og navnet sitt. Etter hver samtale sendes resultatet og gjennomgangen av hvert svar til læreren, både med svaralternativer og med AI-kunder. Vurderingssiden viser om rapporten er sendt.
+- Læreren ser en tabell per elev (antall samtaler, kunder prøvd, løst, tilfredshet, profesjonalitet og brudd) og kan åpne hver samtale. Tabellen kan lastes ned som CSV.
+- Rapportene ligger i containeren `rapporter` i Cosmos DB og slettes automatisk etter et halvt år. Læreren kan slette én rapport, alle for en klasse eller alt. Å slette en klassekode stopper nye rapporter, men beholder de som er levert.
+- Rapportene inneholder elevens navn og svarene i chatten. Be elevene bruke fornavn og ikke skrive ekte personopplysninger i samtalene.
 
 Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt med noder (`k` = kundens meldinger, `valg` = svar med humørendring `h`, profesjonalitet `p` 0–2, neste node `til`, forklaring `hvorfor` og eventuelt `brudd`).
 
@@ -64,7 +74,7 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
    | `LAERER_KODER` | For eksempel `blåhus-7342=Ola Nordmann;rødtak-1185=Kari` (minst 4 tegn per kode, flere skilles med `;`) |
    | `TOKEN_SECRET` | En lang, tilfeldig streng (minst 16 tegn), for eksempel fra `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
    | `ANTHROPIC_API_KEY` | API-nøkkel fra [Claude Console](https://console.anthropic.com) (valgfri, trengs for AI-kundene) |
-   | `KUNDESERVICE_KODER` | Klassekoder til AI-kundene, for eksempel `rød-kunde-42;blå-kunde-17` (minst 4 tegn per kode, flere skilles med `;`) |
+   | `KUNDESERVICE_KODER` | Valgfri. Faste klassekoder til AI-kundene i tillegg til dem læreren lager i appen (disse gir ikke rapporter), for eksempel `rød-kunde-42;blå-kunde-17` (minst 4 tegn per kode, flere skilles med `;`) |
 
 3. **Claude Console** (bare for AI-kundene): lag en konto på console.anthropic.com, kjøp kreditt, sett en månedlig utgiftsgrense under **Limits**, og lag en API-nøkkel under **API keys**.
 4. Push til `main`. GitHub Actions bygger `dist/` og publiserer både nettsiden og `api/`.

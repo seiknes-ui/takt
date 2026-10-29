@@ -10,7 +10,7 @@ async function init() {
   // Delt gjennomstrømning på databasen holder hele appen innenfor gratisnivået (1000 RU/s).
   const { database } = await client.databases.createIfNotExists({ id: process.env.COSMOS_DATABASE || 'takt', throughput: 1000 });
   const opprett = (id, key, extra = {}) => database.containers.createIfNotExists({ id, partitionKey: { paths: [key] }, ...extra }).then(r => r.container);
-  const [oppsett, runder, rom] = await Promise.all([
+  const [oppsett, runder, rom, klasser, rapporter] = await Promise.all([
     opprett('oppsett', '/laererId'),
     opprett('runder', '/laererId'),
     // Live-status er kortlivet: dokumentene slettes automatisk etter ett minutt uten oppdatering.
@@ -18,8 +18,12 @@ async function init() {
       defaultTtl: 60,
       indexingPolicy: { indexingMode: 'consistent', includedPaths: [{ path: '/*' }], excludedPaths: [{ path: '/presence/*' }, { path: '/"_etag"/?' }] },
     }),
+    // Klassekoder til kundeservice-simulatoren. Dokument-id er koden, så oppslag er ett punktkall.
+    opprett('klasser', '/kode'),
+    // Elevrapporter fra kundeservice-simulatoren. Slettes automatisk etter et halvt år.
+    opprett('rapporter', '/laererId', { defaultTtl: 183 * 24 * 3600 }),
   ]);
-  return { oppsett, runder, rom };
+  return { oppsett, runder, rom, klasser, rapporter };
 }
 
 function containers() {

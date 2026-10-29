@@ -196,6 +196,26 @@ section { display: grid; gap: 16px; min-width: 0; }
 .rv .best { font-size: 13px; background: var(--bg); border-radius: 4px; padding: 6px 10px; border-left: 3px solid var(--ok); }
 .tip { font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 4px; padding: 12px 14px; }
 
+/* Rapporter til læreren */
+.back + .back { margin-left: 18px; }
+input[type="password"], select { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--ink); border-radius: 4px; padding: 6px 10px; min-width: 0; }
+select { padding: 4px 8px; font-size: 13px; }
+.sendt { font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sendt[data-s="ok"] { color: var(--ok); font-weight: 600; }
+.sendt[data-s="feil"] { color: var(--bad); font-weight: 600; }
+.sendt[data-s="mangler"] { color: var(--muted); }
+.kodeord { font-family: var(--mono); font-size: 18px; font-weight: 500; letter-spacing: .04em; }
+.reps { display: grid; gap: 8px; }
+.rep { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.rep summary { cursor: pointer; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; font-size: 14px; }
+.rep summary b { font-weight: 700; }
+.rep summary .n { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.rep summary .u[data-k="good"] { color: var(--ok); font-weight: 600; }
+.rep summary .u[data-k="warn"] { color: var(--bad); font-weight: 600; }
+.rep summary .u[data-k="info"] { color: var(--warn); font-weight: 600; }
+.rep-body { display: grid; gap: 10px; padding: 0 14px 14px; }
+.rep-body .controls { justify-content: flex-end; }
+
 /* Logg */
 .tbl-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
@@ -226,6 +246,7 @@ tr:last-child td { border-bottom: 0; }
       <h1>Kundeservice</h1>
       <p class="lede">Du sitter i chatten hos Taktlinja Hus AS, som selger byggesett. Kundene er av alle slag: noen er hyggelige, noen er urimelige, og noen misforstår det meste. Følg retningslinjene, og få saken løst uten å miste kunden.</p>
       <a class="back" href="./" id="lnk-takt">← Til Taktlinja</a>
+      <a class="back" href="#laerer" id="lnk-laerer">Lærer: se rapportene</a>
     </div>
     <div class="kpis" id="kpis"></div>
   </header>
@@ -244,9 +265,11 @@ tr:last-child td { border-bottom: 0; }
           <label><input type="radio" name="modus" value="knapper"> Velg blant svar</label>
           <label><input type="radio" name="modus" value="ai"> Skriv selv (AI-kunde)</label>
         </div>
-        <form class="kode" id="f-kode" hidden>
+        <form class="kode" id="f-kode">
           <label for="in-kode">Klassekode</label>
           <input type="text" id="in-kode" autocomplete="off" spellcheck="false" maxlength="60">
+          <label for="in-navn">Navnet ditt</label>
+          <input type="text" id="in-navn" autocomplete="off" spellcheck="false" maxlength="40">
           <button class="btn small" type="submit">Koble til</button>
         </form>
         <p class="help" id="ai-status"></p>
@@ -258,7 +281,7 @@ tr:last-child td { border-bottom: 0; }
       <div class="sec-head">
         <div>
           <h2 id="h-logg">Mine samtaler</h2>
-          <p>Lagres bare på denne enheten.</p>
+          <p id="logg-help">Lagres bare på denne enheten.</p>
         </div>
         <button class="btn small" type="button" id="btn-tom">Tøm loggen</button>
       </div>
@@ -299,6 +322,7 @@ tr:last-child td { border-bottom: 0; }
       <div class="verdict" id="e-verdict"><div><h2 id="e-utfall"></h2><p id="e-forkl"></p></div></div>
       <div class="kpis" id="e-kpis"></div>
       <p class="tip" id="e-tips"></p>
+      <p class="sendt" id="e-sendt" hidden></p>
       <div class="controls">
         <button class="btn primary" type="button" id="btn-neste">Neste kunde</button>
         <button class="btn" type="button" id="btn-igjen">Prøv samme kunde igjen</button>
@@ -314,6 +338,70 @@ tr:last-child td { border-bottom: 0; }
       </div>
       <div class="review" id="e-review"></div>
     </section>
+  </div>
+
+  <div class="view" id="v-laerer" hidden>
+    <section aria-labelledby="h-laerer">
+      <div class="sec-head">
+        <div>
+          <h2 id="h-laerer">Rapporter til læreren</h2>
+          <p>Lag en klassekode og gi den til elevene. Når en elev har koblet til med koden og navnet sitt, kommer resultatet og gjennomgangen av hver samtale hit. Rapportene slettes automatisk etter et halvt år.</p>
+        </div>
+        <div class="controls">
+          <span class="help" id="l-hvem"></span>
+          <button class="btn small" type="button" id="btn-l-ut" hidden>Logg ut</button>
+          <a class="btn small" href="#">Til simulatoren</a>
+        </div>
+      </div>
+      <form class="kode" id="f-l-login" hidden>
+        <label for="in-l-kode">Lærerkode</label>
+        <input type="password" id="in-l-kode" autocomplete="current-password" maxlength="64">
+        <button class="btn small primary" type="submit">Logg inn</button>
+        <span class="help" id="l-msg" role="status"></span>
+      </form>
+    </section>
+    <div class="view" id="l-innhold" hidden>
+      <section aria-labelledby="h-l-klasser">
+        <div class="sec-head">
+          <div>
+            <h3 id="h-l-klasser">Klassekoder</h3>
+            <p>Koden gir også tilgang til AI-kundene, så elevene trenger bare denne ene koden.</p>
+          </div>
+        </div>
+        <div class="tbl-scroll" id="l-klasser"></div>
+        <form class="kode" id="f-l-ny">
+          <label for="in-l-ny">Ny klasse</label>
+          <input type="text" id="in-l-ny" maxlength="40" placeholder="For eksempel 2STA" autocomplete="off">
+          <button class="btn small" type="submit">Lag klassekode</button>
+          <span class="help" id="l-ny-msg" role="status"></span>
+        </form>
+      </section>
+      <section aria-labelledby="h-l-elever">
+        <div class="sec-head">
+          <div>
+            <h3 id="h-l-elever">Elevene</h3>
+            <p id="l-sum"></p>
+          </div>
+          <div class="controls">
+            <label class="check" for="l-filter">Klasse</label>
+            <select id="l-filter"></select>
+            <button class="btn small" type="button" id="btn-l-oppdater">Oppdater</button>
+            <button class="btn small" type="button" id="btn-l-csv">Last ned CSV</button>
+          </div>
+        </div>
+        <div class="tbl-scroll" id="l-elever"></div>
+      </section>
+      <section aria-labelledby="h-l-samtaler">
+        <div class="sec-head">
+          <div>
+            <h3 id="h-l-samtaler">Samtalene</h3>
+            <p>Nyeste først. Åpne en samtale for å se hvert svar eleven ga, og vurderingen av det.</p>
+          </div>
+          <button class="btn small" type="button" id="btn-l-slett">Slett rapportene som vises</button>
+        </div>
+        <div class="reps" id="l-rapporter"></div>
+      </section>
+    </div>
   </div>
 </div>
 
@@ -699,19 +787,23 @@ tr:last-child td { border-bottom: 0; }
   // I AI-modus skriver eleven fritt. Serveren lar Claude spille kunden og vurdere samtalen etterpå.
   const AZ = !(window.claude && window.claude.use);
   let modus = AZ && fetchStore('kundeservice-modus') === 'ai' ? 'ai' : 'knapper';
-  const AI = { kode: fetchStore('kundeservice-kode') || '', ok: false, maks: 12, melding: '' };
+  // klasse: navnet på klassen når koden er laget av en lærer i appen. Da sendes rapportene til læreren.
+  const AI = { kode: fetchStore('kundeservice-kode') || '', navn: fetchStore('kundeservice-navn') || '', ok: false, klasse: null, maks: 12, melding: '', aiFeil: '' };
   // En lærer som er logget inn på Taktlinja (samme nettsted), trenger ikke klassekode.
-  const laererToken = () => { const a = fetchStore('taktlinja-laerer'); return a && a.token && a.exp > Date.now() ? a.token : null; };
+  const laererAuth = () => { const a = fetchStore('taktlinja-laerer'); return a && a.token && a.exp > Date.now() ? a : null; };
+  const laererToken = () => { const a = laererAuth(); return a ? a.token : null; };
+  const rensNavn = s => Array.from(String(s || '')).filter(c => { const n = c.codePointAt(0); return n >= 32 && n !== 127 && !(n >= 0x200B && n <= 0x200F) && !(n >= 0x202A && n <= 0x202E) && !(n >= 0x2060 && n <= 0x2064) && n !== 0xFEFF; }).join('').replace(/\s+/g, ' ').trim().slice(0, 40);
 
-  async function api(data) {
-    const headers = { 'content-type': 'application/json' };
+  async function kall(metode, url, data) {
+    const headers = {};
+    if (data !== undefined) headers['content-type'] = 'application/json';
     const token = laererToken();
     if (token) headers['x-laerer-token'] = token;
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 45000);
     let res;
     try {
-      res = await fetch('/api/kunde', { method: 'POST', headers, body: JSON.stringify({ kode: AI.kode, ...data }), signal: ctl.signal });
+      res = await fetch(url, { method: metode, headers, body: data === undefined ? undefined : JSON.stringify(data), signal: ctl.signal });
     } catch (e) {
       throw Object.assign(new Error('Fikk ikke kontakt med serveren. Sjekk nettet og prøv igjen.'), { status: 0 });
     } finally { clearTimeout(t); }
@@ -720,6 +812,7 @@ tr:last-child td { border-bottom: 0; }
     if (!res.ok) throw Object.assign(new Error(body.feil || 'Noe gikk galt (' + res.status + ')'), { status: res.status });
     return body;
   }
+  const api = data => kall('POST', '/api/kunde', { kode: AI.kode, ...data });
 
   const humorNiva = h => h >= 75 ? ['Fornøyd', 1] : h >= 50 ? ['Grei', 1] : h >= 25 ? ['Irritert', 2] : ['Sint', 3];
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -728,7 +821,8 @@ tr:last-child td { border-bottom: 0; }
   const skriveTid = t => STILLE ? 250 : clamp(450 + t.length * 18, 600, 2400);
 
   function vis(v) {
-    for (const id of ['v-velg', 'v-chat', 'v-eval']) $(id).hidden = id !== v;
+    for (const id of ['v-velg', 'v-chat', 'v-eval', 'v-laerer']) $(id).hidden = id !== v;
+    $('kpis').hidden = v === 'v-laerer';
     window.scrollTo({ top: 0 });
   }
 
@@ -781,26 +875,41 @@ tr:last-child td { border-bottom: 0; }
   function renderModus() {
     for (const r of document.querySelectorAll('input[name="modus"]')) r.checked = r.value === modus;
     const ai = modus === 'ai';
-    $('f-kode').hidden = !ai || AI.ok;
-    $('ai-status').textContent = !ai
-      ? 'Du velger blant ferdige svar. Velg «Skriv selv» for å skrive fritt til en AI-kunde.'
-      : AI.ok
-        ? 'Klar. Du skriver svarene selv, og kunden svarer på det du skriver. Samtalen sendes til Claude (AI), som spiller kunden og vurderer deg etterpå. Ikke skriv ekte personopplysninger.'
-        : AI.melding || 'Skriv inn klassekoden du har fått av læreren.';
+    const deler = [];
+    if (AI.melding) deler.push(AI.melding);
+    else {
+      if (AI.klasse) deler.push(AI.navn
+        ? `Koblet til klassen ${AI.klasse} som ${AI.navn}. Resultatet av hver samtale sendes til læreren.`
+        : `Koblet til klassen ${AI.klasse}. Skriv navnet ditt, så læreren ser hvem rapportene er fra.`);
+      if (!ai) deler.push('Du velger blant ferdige svar. Velg «Skriv selv» for å skrive fritt til en AI-kunde.');
+      else if (AI.ok) deler.push('Du skriver svarene selv, og kunden svarer på det du skriver. Samtalen sendes til Claude (AI), som spiller kunden og vurderer deg etterpå. Ikke skriv ekte personopplysninger.');
+      else deler.push(AI.aiFeil || 'Skriv inn klassekoden du har fått av læreren.');
+    }
+    $('ai-status').textContent = deler.join(' ');
+    $('logg-help').textContent = AI.klasse && AI.navn ? 'Lagres på denne enheten og sendes til læreren.' : 'Lagres bare på denne enheten.';
   }
+  // Sjekker klassekoden mot lærerens klasser (rapporter) og mot AI-kundene. En kode kan gi det ene, det andre eller begge.
   async function koble() {
     AI.melding = 'Kobler til …';
+    AI.klasse = null; AI.ok = false; AI.aiFeil = '';
     renderModus();
-    try {
-      const r = await api({ modus: 'sjekk' });
-      AI.ok = true;
-      AI.maks = r.maksSvar || AI.maks;
-      AI.melding = '';
-      store('kundeservice-kode', AI.kode);
-    } catch (e) {
-      AI.ok = false;
-      AI.melding = e.status === 401 ? 'Klassekoden stemmer ikke. Sjekk med læreren.' : e.message;
+    let nettFeil = '';
+    if (AI.kode) {
+      try { AI.klasse = (await kall('POST', '/api/klasse', { kode: AI.kode })).klasse || null; }
+      catch (e) { if (e.status !== 404) nettFeil = e.message; }
     }
+    if (AI.kode || laererToken()) {
+      try {
+        const r = await api({ modus: 'sjekk' });
+        AI.ok = true;
+        AI.maks = r.maksSvar || AI.maks;
+      } catch (e) {
+        if (e.status !== 401) AI.aiFeil = e.message;
+      }
+    }
+    // Feil fra AI-tjenesten (for eksempel at den ikke er satt opp) vises bare når eleven har valgt AI-kunder.
+    AI.melding = AI.kode && !AI.klasse && !AI.ok && !(AI.aiFeil && modus === 'ai') ? (nettFeil || 'Klassekoden stemmer ikke. Sjekk med læreren.') : '';
+    if (AI.klasse || AI.ok) store('kundeservice-kode', AI.kode);
     renderModus();
   }
   function renderOversikt() { renderKpis(); renderCards(); renderLogg(); }
@@ -1026,6 +1135,44 @@ tr:last-child td { border-bottom: 0; }
     logg.push({ id: S.kunde.id, utfall: S.utfall, humor: Math.round(S.humor), prof: Math.round(r.prof), svar: r.svar, brudd: r.brudd, ts: Date.now(), ...(S.ai ? { ai: 1 } : {}) });
     if (logg.length > 200) logg = logg.slice(-200);
     store(LOGG_KEY, logg);
+    sendRapport(S);
+  }
+
+  // ---------- Rapport til læreren ----------
+  function rapportFor(s) {
+    const r = resultat();
+    return {
+      kunde: s.kunde.id, ai: s.ai, utfall: s.utfall, humor: Math.round(s.humor), prof: Math.round(r.prof), svar: r.svar, brudd: r.brudd,
+      oppsummering: s.v && s.v.oppsummering ? s.v.oppsummering : forklaring(s.utfall, r, s.kunde),
+      tips: s.v && s.v.tips ? s.v.tips : s.kunde.tips,
+      rader: raderFor(s),
+    };
+  }
+  async function sendRapport(s) {
+    if (!AZ || !AI.klasse || !AI.navn) { s.sendt = AZ && AI.klasse ? 'mangler' : null; renderSendt(); return; }
+    const data = { kode: AI.kode, elev: AI.navn, rapport: rapportFor(s) };
+    s.sendt = 'sender';
+    renderSendt();
+    try {
+      await kall('POST', '/api/rapport', data);
+      s.sendt = 'ok';
+    } catch (e) {
+      s.sendt = 'feil';
+      s.sendFeil = e.status === 404 ? 'Klassekoden finnes ikke lenger. Sjekk med læreren.' : e.message;
+    }
+    renderSendt();
+  }
+  function renderSendt() {
+    const el = $('e-sendt');
+    if (!S || !S.sendt) { el.hidden = true; return; }
+    el.hidden = false;
+    el.dataset.s = S.sendt;
+    el.innerHTML = {
+      mangler: 'Ikke sendt til læreren. Skriv navnet ditt på oversikten, så sendes neste samtale.',
+      sender: 'Sender til læreren …',
+      ok: `Sendt til læreren (${esc(AI.klasse || '')}).`,
+      feil: `Ble ikke sendt til læreren: ${esc(S.sendFeil || '')} <button class="btn small" type="button" id="btn-send">Send på nytt</button>`,
+    }[S.sendt];
   }
 
   // ---------- Vurdering ----------
@@ -1058,26 +1205,197 @@ tr:last-child td { border-bottom: 0; }
       ['Brudd', fmt(r.brudd), 'på retningslinjene', r.brudd ? 'bad' : 'ok'],
     ].map(([e, b, s, sx]) => `<div class="kpi" data-state="${sx}"><span class="eyebrow">${e}</span><b>${b}</b><small>${esc(s)}</small></div>`).join('');
     $('e-tips').textContent = S.v && S.v.tips ? S.v.tips : k.tips;
-    // Samme gjennomgang for begge svarformer: kundens replikk, svaret, forklaring, brudd og et bedre svar.
-    const rader = S.ai
-      ? S.svar.map((x, n) => {
-        const v = (S.v && S.v.svar[n]) || {};
-        return { sitat: x.sitat, t: x.t, p: v.p == null ? 1 : v.p, h: x.h, hvorfor: v.hvorfor, brudd: v.brudd, bedre: v.bedre };
+    const rader = raderFor(S);
+    $('e-review').innerHTML = rader.length ? reviewHtml(rader, 'Du') : '<p class="empty">Du ga ingen svar i denne samtalen.</p>';
+    renderSendt();
+    vis('v-eval');
+  }
+  // Samme gjennomgang for begge svarformer: kundens replikk, svaret, forklaring, brudd og et bedre svar.
+  function raderFor(s) {
+    const k = s.kunde;
+    return s.ai
+      ? s.svar.map((x, n) => {
+        const v = (s.v && s.v.svar[n]) || {};
+        return { sitat: x.sitat, t: x.t, p: v.p == null ? 1 : v.p, h: x.h, hvorfor: v.hvorfor || '', brudd: v.brudd || '', bedre: v.bedre || '' };
       })
-      : S.valg.map(x => {
+      : s.valg.map(x => {
         const node = k.noder[x.node], v = node.valg[x.i];
         const best = node.valg.reduce((a, b) => b.p > a.p || (b.p === a.p && b.h > a.h) ? b : a);
-        return { sitat: node.k[node.k.length - 1], t: v.t, p: v.p, h: v.h, hvorfor: v.hvorfor, brudd: v.brudd, bedre: best !== v && best.p > v.p ? best.t : '' };
+        return { sitat: node.k[node.k.length - 1], t: v.t, p: v.p, h: v.h, hvorfor: v.hvorfor || '', brudd: v.brudd || '', bedre: best !== v && best.p > v.p ? best.t : '' };
       });
-    $('e-review').innerHTML = rader.length ? rader.map((v, n) => `<div class="rv" data-p="${v.p}"><div>
+  }
+  function reviewHtml(rader, hvem) {
+    return rader.map((v, n) => `<div class="rv" data-p="${v.p}"><div>
         <span class="q">${n + 1}. Kunden: «${esc(v.sitat)}»</span>
-        <span class="a">Du: «${esc(v.t)}»</span>
+        <span class="a">${esc(hvem)}: «${esc(v.t)}»</span>
         <span class="y">${esc(v.hvorfor || '')} <span class="help">(humør ${v.h > 0 ? '+' : v.h < 0 ? '−' : '±'}${Math.abs(v.h)})</span></span>
         ${v.brudd ? `<span class="br">Brudd: ${esc(v.brudd)}</span>` : ''}
         ${v.bedre ? `<span class="best"><b>Bedre svar:</b> «${esc(v.bedre)}»</span>` : ''}
-      </div></div>`).join('') : '<p class="empty">Du ga ingen svar i denne samtalen.</p>';
-    vis('v-eval');
+      </div></div>`).join('');
   }
+
+  // ---------- Lærervisning: klassekoder og rapporter ----------
+  // Bruker samme innlogging som Taktlinja (lagret som taktlinja-laerer), så en lærer som er logget inn der, er logget inn her.
+  const L = { klasser: [], rapporter: [], filter: '', lastet: false };
+  const tidTekst = ts => new Date(ts).toLocaleString('nb-NO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const utfallFor = r => r.utfall === 'lost' && r.brudd ? { t: 'Løst, men med feil', k: 'info' } : (UTFALL[r.utfall] || { t: r.utfall, k: 'info' });
+
+  function visLaerer() {
+    stopTimers();
+    vis('v-laerer');
+    renderLaerer();
+    if (laererAuth()) lastLaerer();
+  }
+  function renderLaerer() {
+    const a = laererAuth();
+    $('f-l-login').hidden = !!a;
+    $('l-innhold').hidden = !a;
+    $('btn-l-ut').hidden = !a;
+    $('l-hvem').textContent = a ? 'Innlogget som ' + (a.navn || 'lærer') : '';
+    if (!a) return;
+    const klasseNavn = Object.fromEntries(L.klasser.map(k => [k.kode, k.navn]));
+    $('l-klasser').innerHTML = L.klasser.length
+      ? `<table><thead><tr><th>Klasse</th><th>Kode til elevene</th><th>Rapporter</th><th></th></tr></thead><tbody>${L.klasser.map(k => `<tr>
+          <td>${esc(k.navn)}</td><td><span class="kodeord">${esc(k.kode)}</span></td>
+          <td class="n">${fmt(L.rapporter.filter(r => r.klasse === k.kode).length)}</td>
+          <td><button class="btn small" type="button" data-slett-klasse="${esc(k.kode)}">Slett koden</button></td></tr>`).join('')}</tbody></table>`
+      : `<p class="empty">${L.lastet ? 'Ingen klassekoder ennå. Lag en under.' : 'Henter …'}</p>`;
+    // Filteret viser klasser med koder og klasser som bare finnes i gamle rapporter.
+    const valg = [...new Map([...L.klasser.map(k => [k.kode, k.navn]), ...L.rapporter.map(r => [r.klasse, klasseNavn[r.klasse] || r.klassenavn + ' (slettet kode)'])])];
+    if (L.filter && !valg.some(([k]) => k === L.filter)) L.filter = '';
+    $('l-filter').innerHTML = `<option value="">Alle klasser</option>` + valg.map(([k, n]) => `<option value="${esc(k)}"${k === L.filter ? ' selected' : ''}>${esc(n)}</option>`).join('');
+    const vist = L.rapporter.filter(r => !L.filter || r.klasse === L.filter);
+    // Én rad per elev. Samme navn i samme klasse regnes som samme elev.
+    const elever = new Map();
+    for (const r of vist) {
+      const key = r.klasse + '|' + r.elev.toLowerCase();
+      if (!elever.has(key)) elever.set(key, { elev: r.elev, klasse: klasseNavn[r.klasse] || r.klassenavn, l: [] });
+      elever.get(key).l.push(r);
+    }
+    const snitt = (l, f) => l.reduce((s, r) => s + f(r), 0) / l.length;
+    const rader = [...elever.values()].sort((a, b) => a.klasse.localeCompare(b.klasse, 'nb') || a.elev.localeCompare(b.elev, 'nb'));
+    $('l-sum').textContent = vist.length ? `${fmt(vist.length)} samtaler fra ${fmt(rader.length)} elever.` : '';
+    $('l-elever').innerHTML = rader.length
+      ? `<table><thead><tr><th>Elev</th><th>Klasse</th><th>Samtaler</th><th>Kunder</th><th>Løst</th><th>Tilfredshet</th><th>Profesjonalitet</th><th>Brudd</th><th>Siste</th></tr></thead><tbody>${rader.map(e => `<tr>
+          <td>${esc(e.elev)}</td><td>${esc(e.klasse)}</td><td class="n">${fmt(e.l.length)}</td>
+          <td class="n">${fmt(new Set(e.l.map(r => r.kunde)).size)} av ${KUNDER.length}</td>
+          <td class="n">${fmt(snitt(e.l, r => r.utfall === 'lost' && !r.brudd ? 100 : 0))} %</td>
+          <td class="n">${fmt(snitt(e.l, r => r.humor))}</td><td class="n">${fmt(snitt(e.l, r => r.prof))} %</td>
+          <td class="n">${fmt(e.l.reduce((s, r) => s + r.brudd, 0))}</td><td class="n">${esc(tidTekst(Math.max(...e.l.map(r => r.ts))))}</td></tr>`).join('')}</tbody></table>`
+      : `<p class="empty">${L.lastet ? 'Ingen rapporter ennå. Rapportene kommer når elevene er ferdige med en samtale.' : 'Henter …'}</p>`;
+    $('btn-l-slett').hidden = !vist.length;
+    $('btn-l-csv').disabled = !vist.length;
+    $('l-rapporter').innerHTML = vist.map(r => {
+      const k = KUNDE[r.kunde], u = utfallFor(r);
+      return `<details class="rep" data-id="${esc(r.id)}"><summary>
+          <b>${esc(r.elev)}</b><span>${esc(k ? k.navn : r.kunde)}${r.ai ? ' · fritekst' : ''}</span><span class="u" data-k="${u.k}">${esc(u.t)}</span>
+          <span class="n">tilfredshet ${fmt(r.humor)} · profesjonalitet ${fmt(r.prof)} % · ${fmt(r.svar)} svar · ${fmt(r.brudd)} brudd</span>
+          <span class="n">${esc(klasseNavn[r.klasse] || r.klassenavn)} · ${esc(tidTekst(r.ts))}</span></summary></details>`;
+    }).join('');
+  }
+  // Innholdet i en samtale lages først når læreren åpner den.
+  function fyllRapport(d) {
+    if (d.dataset.fylt) return;
+    const r = L.rapporter.find(x => x.id === d.dataset.id);
+    if (!r) return;
+    d.dataset.fylt = '1';
+    d.insertAdjacentHTML('beforeend', `<div class="rep-body">
+      ${r.oppsummering ? `<p>${esc(r.oppsummering)}</p>` : ''}
+      ${r.tips ? `<p class="tip">${esc(r.tips)}</p>` : ''}
+      <div class="review">${(r.rader || []).length ? reviewHtml(r.rader, r.elev) : '<p class="empty">Eleven ga ingen svar.</p>'}</div>
+      <div class="controls"><button class="btn small" type="button" data-slett-rapport="${esc(r.id)}">Slett rapporten</button></div></div>`);
+  }
+  async function lastLaerer() {
+    try {
+      const [k, r] = await Promise.all([kall('GET', '/api/klasser'), kall('GET', '/api/rapporter')]);
+      L.klasser = k.klasser || [];
+      L.rapporter = (r.rapporter || []).filter(x => x && typeof x.elev === 'string' && typeof x.klasse === 'string');
+      L.lastet = true;
+      $('l-msg').textContent = '';
+    } catch (e) {
+      if (e.status === 401) { store('taktlinja-laerer', null); $('l-msg').textContent = 'Logg inn på nytt.'; }
+      else $('l-msg').textContent = e.message;
+      L.lastet = true;
+    }
+    renderLaerer();
+  }
+  function lastNedCsv() {
+    const vist = L.rapporter.filter(r => !L.filter || r.klasse === L.filter);
+    const klasseNavn = Object.fromEntries(L.klasser.map(k => [k.kode, k.navn]));
+    // Semikolon og BOM, så Excel med norske innstillinger åpner fila riktig. Celler som starter med = + - @ blir ikke formler.
+    const celle = v => { let s = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const linjer = [['Tid', 'Klasse', 'Elev', 'Kunde', 'Svarform', 'Utfall', 'Tilfredshet', 'Profesjonalitet (%)', 'Svar', 'Brudd', 'Oppsummering']]
+      .concat(vist.map(r => [new Date(r.ts).toLocaleString('nb-NO'), klasseNavn[r.klasse] || r.klassenavn, r.elev, KUNDE[r.kunde] ? KUNDE[r.kunde].navn : r.kunde,
+        r.ai ? 'Fritekst (AI)' : 'Svaralternativer', utfallFor(r).t, r.humor, r.prof, r.svar, r.brudd, r.oppsummering]));
+    const blob = new Blob(['﻿' + linjer.map(l => l.map(celle).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'kundeservice-rapporter.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  async function laererHandling(fn) {
+    try { await fn(); } catch (e) { alert(e.message); }
+    await lastLaerer();
+  }
+
+  $('f-l-login').addEventListener('submit', async e => {
+    e.preventDefault();
+    const kode = $('in-l-kode').value;
+    if (!kode) return;
+    $('l-msg').textContent = 'Logger inn …';
+    try {
+      const r = await kall('POST', '/api/laerer/login', { kode });
+      store('taktlinja-laerer', { token: r.token, navn: r.navn, exp: r.exp });
+      $('in-l-kode').value = '';
+      $('l-msg').textContent = '';
+      renderLaerer();
+      lastLaerer();
+    } catch (err) {
+      $('l-msg').textContent = err.status === 401 ? 'Feil lærerkode.' : err.status === 429 ? 'For mange forsøk. Vent litt og prøv igjen.' : err.message;
+    }
+  });
+  $('btn-l-ut').addEventListener('click', () => {
+    store('taktlinja-laerer', null);
+    L.klasser = []; L.rapporter = []; L.lastet = false;
+    renderLaerer();
+  });
+  $('f-l-ny').addEventListener('submit', async e => {
+    e.preventDefault();
+    const navn = rensNavn($('in-l-ny').value);
+    if (!navn) { $('l-ny-msg').textContent = 'Gi klassen et navn.'; return; }
+    try {
+      const r = await kall('POST', '/api/klasser', { navn });
+      $('in-l-ny').value = '';
+      $('l-ny-msg').textContent = `Koden til ${r.navn} er ${r.kode}.`;
+    } catch (err) { $('l-ny-msg').textContent = err.message; }
+    lastLaerer();
+  });
+  $('v-laerer').addEventListener('click', e => {
+    const k = e.target.closest('[data-slett-klasse]');
+    if (k) {
+      const kode = k.dataset.slettKlasse;
+      if (confirm(`Vil du slette klassekoden ${kode}? Elevene kan ikke levere med den lenger. Rapportene som allerede er levert, blir liggende.`))
+        laererHandling(() => kall('DELETE', '/api/klasser/' + encodeURIComponent(kode)));
+      return;
+    }
+    const r = e.target.closest('[data-slett-rapport]');
+    if (r) {
+      if (confirm('Vil du slette denne rapporten?')) laererHandling(() => kall('DELETE', '/api/rapporter?id=' + encodeURIComponent(r.dataset.slettRapport)));
+      return;
+    }
+    if (e.target.closest('#btn-l-oppdater')) { lastLaerer(); return; }
+    if (e.target.closest('#btn-l-csv')) { lastNedCsv(); return; }
+    if (e.target.closest('#btn-l-slett')) {
+      const navn = L.filter ? $('l-filter').selectedOptions[0].textContent : 'alle klassene';
+      if (confirm(`Vil du slette rapportene for ${navn}? Det kan ikke angres.`))
+        laererHandling(() => kall('DELETE', '/api/rapporter' + (L.filter ? '?klasse=' + encodeURIComponent(L.filter) : '')));
+    }
+  });
+  $('l-rapporter').addEventListener('toggle', e => { if (e.target.open) fyllRapport(e.target); }, true);
+  $('l-filter').addEventListener('change', e => { L.filter = e.target.value; renderLaerer(); });
 
   // ---------- Hendelser ----------
   $('cards').addEventListener('click', e => {
@@ -1113,8 +1431,19 @@ tr:last-child td { border-bottom: 0; }
   $('f-kode').addEventListener('submit', e => {
     e.preventDefault();
     AI.kode = $('in-kode').value.trim();
+    AI.navn = rensNavn($('in-navn').value);
+    $('in-navn').value = AI.navn;
+    store('kundeservice-navn', AI.navn);
     if (AI.kode) koble();
+    else renderModus();
   });
+  $('in-navn').addEventListener('change', e => {
+    AI.navn = rensNavn(e.target.value);
+    e.target.value = AI.navn;
+    store('kundeservice-navn', AI.navn);
+    renderModus();
+  });
+  $('e-sendt').addEventListener('click', e => { if (e.target.closest('#btn-send') && S) sendRapport(S); });
   document.addEventListener('keydown', e => {
     if ($('v-chat').hidden || e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
     const n = +e.key;
@@ -1138,14 +1467,23 @@ tr:last-child td { border-bottom: 0; }
 
   // Lenken tilbake til Taktlinja og AI-kundene virker bare når sidene ligger på Azure.
   $('lnk-takt').hidden = !AZ;
+  $('lnk-laerer').hidden = !AZ;
   $('modus').hidden = !AZ;
+
+  // #laerer viser lærervisningen. Tilbake til simulatoren med #.
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#laerer') visLaerer();
+    else if (!$('v-laerer').hidden) { renderOversikt(); renderModus(); vis('v-velg'); }
+  });
 
   $('regler').innerHTML = REGLER.map(([t, d]) => `<dt>${esc(t)}</dt><dd>${esc(d)}</dd>`).join('');
   $('in-kode').value = AI.kode;
+  $('in-navn').value = AI.navn;
   renderOversikt();
   renderModus();
   (async () => {
-    if (modus === 'ai' && (AI.kode || laererToken())) await koble();
+    if (AZ && location.hash === '#laerer') { visLaerer(); return; }
+    if (AZ && (AI.kode || (modus === 'ai' && laererToken()))) await koble();
     // #rolf, #hanne osv. åpner en kunde direkte.
     const fra = KUNDE[(location.hash || '').slice(1)];
     if (fra) startSamtale(fra, false);
