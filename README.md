@@ -8,7 +8,7 @@ Et lean-spill for undervisning i takt, linjebalansering og sløsing. Små hus by
 - **Tavle**: læreren logger inn med lærerkoden, får en lagkode på fire sifre, fordeler oppgaver og starter live-runder. Stasjoner eller elever som mangler, simuleres av tavla.
 - **Stasjon**: eleven skriver inn lagkoden og et kallenavn og bygger selv på sin egen enhet. Lenken `#stasjon` åpner denne visningen direkte.
 
-Arbeidsformer: **Linje** (stasjon for stasjon, parti 1–6, skyv eller kanban) og **Gruppe** (2–6 elever bygger det samme huset, flere grupper deler kundens takt).
+Arbeidsformer: **Linje** (stasjon for stasjon, parti 1–6, skyv eller kanban) og **Gruppe** (2–6 elever bygger det samme huset, flere grupper deler kundens takt). Hver gruppe har sitt eget antall elever og sin egen fordeling av oppgavene. Velg gruppe over linjebalansen for å endre den, eller bruk én gruppes fordeling for alle.
 
 ## Kundeservice
 
