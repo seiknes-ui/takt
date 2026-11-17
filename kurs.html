@@ -509,6 +509,41 @@ svg text { font-family: var(--body); }
     return s + '</svg>';
   }
 
+  // Motvekts- og støttebensprinsippet fra siden: hvor lasten står i forhold til hjulene.
+  function figPrinsipp() {
+    const hjul = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="var(--tyre)" stroke="var(--steel)" stroke-width="2"/>`;
+    let s = `<svg class="fig" viewBox="0 0 640 250" role="img" aria-label="Motvektsprinsippet og støttebensprinsippet">`;
+    s += `<line x1="10" y1="200" x2="630" y2="200" stroke="var(--line)" stroke-width="3"/>`;
+    s += `<rect x="30" y="110" width="150" height="60" rx="10" fill="color-mix(in srgb, var(--truck) 30%, var(--surface))" stroke="var(--truck)" stroke-width="2"/><rect x="30" y="100" width="45" height="70" rx="8" fill="color-mix(in srgb, var(--truck) 55%, var(--surface))"/>`;
+    s += `<rect x="184" y="40" width="8" height="158" fill="var(--steel)"/><rect x="194" y="190" width="80" height="6" fill="var(--steel)"/><rect x="198" y="140" width="72" height="50" fill="color-mix(in srgb, var(--load) 45%, var(--surface))" stroke="var(--load)" stroke-width="2"/>`;
+    s += hjul(60, 182, 18) + hjul(160, 180, 20);
+    s += `<polygon points="152,222 168,222 160,202" fill="var(--accent)"/><text x="150" y="242" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">Motvekt: lasten foran forhjulene</text>`;
+    s += `<rect x="380" y="110" width="90" height="70" rx="10" fill="color-mix(in srgb, var(--truck) 30%, var(--surface))" stroke="var(--truck)" stroke-width="2"/>`;
+    s += `<rect x="472" y="40" width="8" height="158" fill="var(--steel)"/><rect x="480" y="186" width="130" height="8" fill="var(--steel)" opacity=".6"/><rect x="490" y="120" width="76" height="50" fill="color-mix(in srgb, var(--load) 45%, var(--surface))" stroke="var(--load)" stroke-width="2"/><rect x="482" y="172" width="90" height="6" fill="var(--steel)"/>`;
+    s += hjul(410, 186, 14) + hjul(590, 192, 8);
+    s += `<text x="495" y="242" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">Støtteben: lasten mellom hjulene</text>`;
+    return s + '</svg>';
+  }
+  // Truckklassene i modul 2.2 som kort.
+  const KLASSER = [
+    ['T1', 'Lavtløftende plukktruck og palletruck med førerplass', 'Flytter paller, løfter bare litt'],
+    ['T2', 'Skyvemasttruck og støttebenstruck', 'Lager og reoler innendørs'],
+    ['T3', 'Svinggaffeltruck, høytløftende plukktruck og førerløftende truck', 'Svært smale ganger og høye reoler'],
+    ['T4', 'Motvektstruck', 'Den vanligste, inne og ute'],
+    ['T5', 'Sidelaster', 'Langt gods som rør, trelast og stål'],
+  ];
+  function figKlasser() {
+    return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">${KLASSER.map(([k, navn, bruk]) => `<div class="figbox" style="display:grid;gap:4px"><b style="font-family:var(--display);font-size:30px;line-height:1">${k}</b><span style="font-weight:600">${esc(navn)}</span><span class="small muted">${esc(bruk)}</span></div>`).join('')}</div>`;
+  }
+  // Hydraulikksystemet som flyt: fra tanken gjennom pumpe og ventiler til sylindrene og tilbake.
+  function figHydraulikk() {
+    const boks = (t, u) => `<div class="figbox" style="display:flex;justify-content:space-between;gap:12px;padding:8px 12px"><b>${esc(t)}</b><span class="small muted" style="text-align:right">${esc(u)}</span></div>`;
+    const pil = '<div aria-hidden="true" style="text-align:center;font-size:18px;line-height:1;color:var(--muted)">↓</div>';
+    return `<div style="display:grid;gap:4px;max-width:520px">${[
+      boks('Tank', 'oljen'), boks('Filter', 'renser oljen'), boks('Pumpe', 'gir trykk'), boks('Ventiler', 'manøver, overtrykk, slangebrudd'), boks('Sylindere', 'løft, tilt, skyv'),
+    ].join(pil)}</div><p class="small muted" style="margin-top:8px">Oljen går tilbake til tanken. Løftesylinderen er enkeltvirkende og senkes av vekten. Tiltsylinderen er dobbeltvirkende.</p>`;
+  }
+
   const SIM_URL = 'https://seiknes-ui.github.io/simmulator/truck/';
 
   // ---------- Kursinnhold ----------
@@ -650,6 +685,120 @@ svg text { font-family: var(--body); }
     ],
   };
 
+  const TKLASSE = ['T1', 'T2', 'T3', 'T4', 'T5'];
+  const TYPER = {
+    id: 'm22-2', modul: 'Modul 2.2', nr: 2, tittel: 'Trucktyper og tilleggsutstyr', timer: 2,
+    emner: ['Trucktyper T1–T5', 'Tilleggsutstyr: gaffelspredere, sideforskyver, klemaggregater, kranarm, arbeidskurv', 'Bruksområder'],
+    mal: [4, 7],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Trucktyper og tilleggsutstyr' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Hvilken truck?',
+        spm: 'Du skal hente paller fra en 10 meter høy reol i en svært smal gang der trucken ikke kan snu. Hvilken truck passer?',
+        valg: ['Motvektstruck', 'Skyvemasttruck', 'Svinggaffeltruck', 'Sidelaster'], riktig: 2,
+        forklaring: 'Svinggaffeltrucken dreier gaflene til siden og kan hente lasten uten å snu. Den brukes i svært smale ganger med høye reoler.' },
+      { id: 'film', type: 'tavle', min: 6, tittel: 'Film: Trucktyper', film: { kap: 'Modul 2.2 kapittel 2', fil: 'Mod 2.2 video/Kap 2. Trucktyper.m4v', tid: '5:38' },
+        punkter: ['Hvilke trucktyper ser du?', 'Hvor brukes de?'] },
+      { id: 'prinsipp', type: 'tavle', min: 7, tittel: 'To prinsipper', fig: 'prinsipp',
+        punkter: ['Motvektstruck: lasten står foran forhjulene og balanseres av motvekten bak.', 'Støttebenstruck: lasten står over eller mellom støttebena, så trucken trenger ingen tung motvekt.', 'Skyvemasttrucken kombinerer begge: masten skyves ut for å hente lasten og inn igjen under kjøring.'] },
+      { id: 'klasser', type: 'tavle', min: 9, tittel: 'Truckklassene', fig: 'klasser',
+        punkter: ['Kompetansebeviset viser hvilke klasser du har opplæring på.', 'Truck med fast førerplass krever sertifisert opplæring. Ledestyrte trucker uten førerplass krever dokumentert opplæring.', 'Ved skolen tar dere praktisk opplæring på T2 og T4.'] },
+      { id: 'klassequiz', type: 'quiz', min: 7, tittel: 'Hvilken klasse?',
+        spm: [
+          { s: 'Motvektstruck', v: TKLASSE, r: 3 },
+          { s: 'Skyvemasttruck', v: TKLASSE, r: 1 },
+          { s: 'Sidelaster', v: TKLASSE, r: 4 },
+          { s: 'Svinggaffeltruck', v: TKLASSE, r: 2 },
+          { s: 'Støttebenstruck', v: TKLASSE, r: 1 },
+          { s: 'Høytløftende plukktruck', v: TKLASSE, r: 2 },
+        ],
+        forklaring: 'T2 skyvemast og støtteben, T3 svinggaffel og plukktrucker som løfter høyt, T4 motvekt og T5 sidelaster.' },
+      { id: 'bruk', type: 'tavle', min: 9, tittel: 'Trucktyper i praksis',
+        punkter: ['Motvektstruck: den vanligste. Brukes inne og ute, og til lasting av bil.', 'Skyvemasttruck: lager og høye reoler innendørs. Trenger plant og fast underlag som tåler trucken.', 'Støttebenstruck: korte avstander og lavere reoler.', 'Svinggaffeltruck: svært smale ganger og høye reoler.', 'Plukktruck: føreren løftes opp for å plukke enkeltvarer fra reolen.', 'Sidelaster: langt gods som rør, trelast og stål.'] },
+      { id: 'brukquiz', type: 'quiz', min: 6, tittel: 'Velg truck',
+        spm: [
+          { s: 'Du skal laste 6 meter lange stålrør på en bil ute.', v: ['Sidelaster', 'Støttebenstruck', 'Plukktruck'], r: 0 },
+          { s: 'Du skal plukke enkeltvarer fra hyllene i 6 meters høyde.', v: ['Motvektstruck', 'Høytløftende plukktruck', 'Sidelaster'], r: 1 },
+          { s: 'Du skal laste paller inn i en trailer fra en rampe.', v: ['Svinggaffeltruck', 'Motvektstruck', 'Sidelaster'], r: 1 },
+          { s: 'Du skal sette paller i 8 meter høye reoler innendørs.', v: ['Skyvemasttruck', 'Lede palletruck', 'Sidelaster'], r: 0 },
+        ] },
+      { id: 'utstyr', type: 'tavle', min: 9, tittel: 'Tilleggsutstyr',
+        punkter: ['Sideforskyver flytter gaflene sideveis. Gaffelspreder justerer avstanden mellom gaflene.', 'Klemaggregat holder lasten uten pall, for eksempel papirruller og baller. Rotator dreier lasten.', 'Kranarm brukes til å løfte hengende last. Arbeidskurv brukes til å løfte personer.', 'Gaffelforlengere gir plass til lange laster, men lasten havner lenger ut.', 'Tilleggsutstyr gir alltid lavere løftekapasitet og skal ha eget skilt.', 'Du trenger opplæring på utstyret du skal bruke. Arbeidsgiver har ansvaret for at den blir gitt og dokumentert.'] },
+      { id: 'utstyrquiz', type: 'quiz', min: 6, tittel: 'Hva gjør utstyret?',
+        spm: [
+          { s: 'Hvilket utstyr flytter gaflene sideveis uten at trucken flyttes?', v: ['Sideforskyver', 'Gaffelspreder', 'Rotator'], r: 0 },
+          { s: 'Hvilket utstyr bruker du til papirruller uten pall?', v: ['Gaffelforlengere', 'Klemaggregat', 'Kranarm'], r: 1 },
+          { s: 'Hva skjer med løftekapasiteten når du monterer tilleggsutstyr?', v: ['Den øker', 'Den blir lavere', 'Den er uendret'], r: 1 },
+          { s: 'Hvem har ansvaret for at du får opplæring på tilleggsutstyret?', v: ['Arbeidsgiver', 'Forhandleren', 'Du selv'], r: 0 },
+        ] },
+      { id: 'omvisning', type: 'tavle', min: 15, tittel: 'Skolens trucker', paTelefon: true,
+        punkter: ['Gå ut til skolens trucker.', 'Finn klassen til hver truck.', 'Finn maskinskiltet og tilleggsutstyret på hver truck.', 'Se hvor motvekten, masten og førervernet er.'] },
+      { id: 'exit', type: 'quiz', min: 7, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hvilken klasse er en motvektstruck?', v: ['T2', 'T4', 'T5'], r: 1 },
+          { s: 'Hva er spesielt viktig for en skyvemasttruck som løfter høyt?', v: ['At føreren har hjelm', 'Plant og fast underlag som tåler trucken', 'Mye luft i hjulene'], r: 1 },
+          { s: 'Hva brukes en sidelaster hovedsakelig til?', v: ['Løft i store høyder', 'Langt gods', 'Tunge laster'], r: 1 },
+          { s: 'Hvorfor trenger ikke en støttebenstruck tung motvekt?', v: ['Lasten står over eller mellom støttebena', 'Den løfter bare lette laster', 'Den har firehjulstrekk'], r: 0 },
+          { s: 'Hva skjer med løftekapasiteten med tilleggsutstyr?', v: ['Den blir lavere', 'Den øker', 'Den er uendret'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 4, tittel: 'Oppsummering',
+        punkter: ['Motvektsprinsippet og støttebensprinsippet.', 'T1–T5: kompetansebeviset viser hvilke klasser du kan kjøre.', 'Velg truck etter last, høyde, gangbredde og underlag.', 'Tilleggsutstyr gir lavere kapasitet og krever opplæring.'] },
+    ],
+  };
+
+  const KONSTR = {
+    id: 'm22-4', modul: 'Modul 2.2', nr: 4, tittel: 'Truckens konstruksjon og virkemåte', timer: 2,
+    emner: ['Ramme og motvekt', 'Motor', 'Kraftoverføring', 'Hjul og dekk', 'Hydraulikksystemet', 'Manøverorganer', 'Instrumenter', 'Løftesystemet', 'Styresystem', 'Bremser'],
+    mal: [2],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Truckens konstruksjon og virkemåte' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Hva holder lasten oppe?',
+        spm: 'Lasten er løftet høyt. Hva holder gaffelvognen oppe?',
+        valg: ['Løftesylinderen alene', 'Løftekjedene, som løftes av løftesylinderen', 'Motoren', 'Tiltsylinderen'], riktig: 1,
+        forklaring: 'Løftesylinderen skyver masten og kjedehjulene opp, og løftekjedene bærer gaffelvognen. Ryker en løftekjede, faller gaffelvognen.' },
+      { id: 'film', type: 'tavle', min: 11, tittel: 'Film: Konstruksjon og virkemåte', film: { kap: 'Modul 2.2 kapittel 4', fil: 'Mod 2.2 video/Kap 4. Konstruksjon og virkemåte.m4v', tid: '10:14' },
+        punkter: ['Hvilke hoveddeler har trucken?', 'Hvordan virker hydraulikken?', 'Hvordan bremser og styrer trucken?'] },
+      { id: 'deler', type: 'tavle', min: 6, tittel: 'Hoveddelene', fig: 'komponenter',
+        punkter: ['Rammen bærer alt. Motvekten bak balanserer lasten.', 'På en eltruck er batteriet en del av motvekten.', 'Førervernet beskytter føreren mot fallende gjenstander.', 'Masten med gaffelvogn og gaffelarmer løfter lasten.'] },
+      { id: 'drift', type: 'tavle', min: 10, tittel: 'Motor og kraftoverføring',
+        punkter: ['Diesel: billig i drift og driftssikker, men gir avgasser og støy. Bør ha partikkelfilter innendørs.', 'Propangass: renere avgass, men fortsatt giftig CO innendørs.', 'Elektrisk: ingen avgasser og lite støy. Passer innendørs.', 'Forbrenningsmotor: vanligvis automatgir, hydraulisk-mekanisk eller helhydraulisk (hydrostatisk).', 'Eltruck: egne motorer for kjøring og løft, og elektronisk regulering som gir trinnløs kjøring.', 'Batteriet: hver celle gir 2 volt. Et fulladet blybatteri har syrevekt 1,28–1,31.'] },
+      { id: 'batteri', type: 'tall', min: 5, tittel: 'Batteriet',
+        spm: 'Hver battericelle i et truckbatteri gir 2 volt.',
+        felt: [
+          { l: 'Hvor mange volt gir et batteri med 24 celler?', svar: 48, enhet: 'V', tol: 0.001 },
+          { l: 'Hvor mange celler har et batteri på 80 volt?', svar: 40, enhet: 'celler', tol: 0.001 },
+        ],
+        forklaring: '24 celler × 2 V = 48 V. 80 V / 2 V = 40 celler.' },
+      { id: 'hydraulikk', type: 'tavle', min: 10, tittel: 'Hydraulikksystemet', fig: 'hydraulikk',
+        punkter: ['Pumpen gir oljetrykk til løft, tilt og ofte styring.', 'Manøverventilen styrer oljen dit du vil. Overtrykksventilen hindrer for høyt trykk.', 'Slangebruddsventilen hindrer at lasten faller ukontrollert hvis en slange ryker.', 'Løftesylinderen er enkeltvirkende og senkes av vekten. Tiltsylinderen er dobbeltvirkende.', 'Oljen står under høyt trykk. Let aldri etter lekkasjer med hånda.'] },
+      { id: 'loft', type: 'tavle', min: 8, tittel: 'Løftesystemet',
+        punkter: ['Masten, løftekjedene, gaffelvognen og gaffelarmene.', 'Friløft: gaffelvognen kan løftes så høyt som masten bygger før innermasten går oppover. Nyttig under lave tak og i containere.', 'Mast med to eller tre deler. Tredelt mast gir stor løftehøyde med lav byggehøyde.', 'Gaffelarmene skal være låst, like lange og uten sprekker.'] },
+      { id: 'mastquiz', type: 'quiz', min: 6, tittel: 'Hydraulikk og mast',
+        spm: [
+          { s: 'Hva gjør slangebruddsventilen?', v: ['Beskytter slangene', 'Hindrer at lasten faller ukontrollert hvis en slange ryker', 'Stenger ved for høyt trykk'], r: 1 },
+          { s: 'Hva betyr friløft?', v: ['At trucken kan løfte uten last', 'At gaffelvognen kan løftes før innermasten går opp', 'At masten kan tiltes fritt'], r: 1 },
+          { s: 'Hvordan senkes gaffelvognen?', v: ['Av vekten, fordi løftesylinderen er enkeltvirkende', 'Med hydraulikktrykk ned', 'Med en egen motor'], r: 0 },
+          { s: 'Vil gaffelvognen falle hvis en løftekjede ryker?', v: ['Ja', 'Nei, slangebruddsventilen stopper den'], r: 0 },
+        ] },
+      { id: 'styring', type: 'tavle', min: 7, tittel: 'Styring, hjul og dekk',
+        punkter: ['Motvektstrucken styrer med bakhjulene, så bakenden svinger ut i svingene. Se deg alltid bak når du svinger.', 'Pendelaksel bak holder alle hjulene i kontakt med underlaget.', 'Dekk: luftgummi, massive dekk og kompakte baner på lagertrucker.', 'Luftgummidekk skal ha lufttrykket produsenten oppgir. Feil trykk gir dårligere stabilitet.'] },
+      { id: 'bremser', type: 'tavle', min: 6, tittel: 'Bremser',
+        punkter: ['Driftsbremsen virker vanligvis på drivhjulene, med hydraulisk eller elektrisk overføring.', 'Parkeringsbremsen holder trucken når du forlater den.', 'Setebryter eller dødmannsbryter stopper trucken når føreren ikke sitter eller står riktig.', 'På ledestyrte trucker bremser du ved å slippe ledearmen.', 'Prøv bremsene før arbeidet begynner.'] },
+      { id: 'manover', type: 'tavle', min: 6, tittel: 'Manøverorganer og instrumenter',
+        punkter: ['Spakene styrer løft og senk, tilt, sideforskyver og eventuelt gaffelspreder. Symbolene på spakene viser funksjonen.', 'Instrumentene viser blant annet driftstimer, drivstoff eller batteri, og varsellamper.', 'Varsellamper kan gjelde oljetrykk, temperatur, lading og bremser.', 'Lyser en varsellampe, stopper du og melder fra.'] },
+      { id: 'exit', type: 'quiz', min: 7, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hva er den vanligste kraftoverføringen på trucker med forbrenningsmotor?', v: ['Automatgir', 'Manuelt gir med clutch', 'Kjede eller reim'], r: 0 },
+          { s: 'Hva gir elektronisk regulering på en eltruck?', v: ['Trinnløs kjøring', 'Lengre levetid på dekkene', 'Høyere løftekapasitet'], r: 0 },
+          { s: 'Hvor mange volt gir et batteri med 18 celler?', v: ['18 V', '36 V', '9 V'], r: 1 },
+          { s: 'Hvilke hjul styrer på en motvektstruck?', v: ['Forhjulene', 'Bakhjulene', 'Alle fire'], r: 1 },
+          { s: 'Hvorfor skal du aldri lete etter hydraulikklekkasjer med hånda?', v: ['Oljen er varm', 'Olje under høyt trykk kan trenge inn i huden', 'Oljen er giftig å lukte på'], r: 1 },
+          { s: 'Hva skjer på en eltruck når føreren går av setet?', v: ['Ingenting', 'Setebryteren stopper trucken', 'Trucken bremser først etter ett minutt'], r: 1 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+        punkter: ['Kjedene bærer gaffelvognen. Ryker en kjede, faller lasten.', 'Hydraulikken gir løft og tilt. Aldri kjenn etter lekkasjer med hånda.', 'Motvektstrucken styrer med bakhjulene.', 'Varsellampe eller feil på bremser: stopp og meld fra.'] },
+    ],
+  };
+
   const HVEM = ['Arbeidsgiver', 'Arbeidstaker'];
   const INNLED = {
     id: 'm22-1', modul: 'Modul 2.2', nr: 1, tittel: 'Innledning og krav til truckfører', timer: 1,
@@ -664,7 +813,7 @@ svg text { font-family: var(--body); }
       { id: 'film', type: 'tavle', min: 3, tittel: 'Film: Krav til truckføreren', film: { kap: 'Modul 2.2 kapittel 1', fil: 'Mod 2.2 video/Kap 1. Innledning med krav til truckfører.m4v', tid: '2:28' },
         punkter: ['Hvilke krav stilles til deg som fører?', 'Hva er forskjellen på sertifisert og dokumentert opplæring?'] },
       { id: 'krav', type: 'tavle', min: 6, tittel: 'Krav til truckføreren',
-        punkter: ['Truck med fast førerplass (T2–T8) krever sertifisert sikkerhetsopplæring. T1 krever dokumentert opplæring.', 'I tillegg skal du få opplæring på den trucken du skal bruke.', 'Du må være 18 år for å kjøre truck i arbeid. Elever i videregående kan få opplæring fra 16 år under skolens veiledning.', 'Du må være fysisk og psykisk skikket, med godt syn, god hørsel og god vurderingsevne.', 'Etter bestått teori og praksis får du kompetansebevis for trucktypene du har opplæring på.'] },
+        punkter: ['Truck med fast førerplass krever sertifisert sikkerhetsopplæring. Ledestyrte trucker uten førerplass krever dokumentert opplæring.', 'I tillegg skal du få opplæring på den trucken du skal bruke.', 'Du må være 18 år for å kjøre truck i arbeid. Elever i videregående kan få opplæring fra 16 år under skolens veiledning.', 'Du må være fysisk og psykisk skikket, med godt syn, god hørsel og god vurderingsevne.', 'Etter bestått teori og praksis får du kompetansebevis for trucktypene du har opplæring på.'] },
       { id: 'ansvar', type: 'tavle', min: 7, tittel: 'Lover, forskrifter og ansvar',
         punkter: ['Arbeidsmiljøloven: arbeidsgiver har hovedansvaret (§ 2-1) og skal sørge for opplæring og instruks (§ 3-2).', 'Arbeidstaker skal bruke verneutstyr, melde fra om feil og avbryte arbeid ved fare (§ 2-3).', 'Bryter du reglene, kan du straffes (§ 19-2).', 'Internkontrollforskriften krever systematisk HMS-arbeid.', 'Forskriftene om utførelse av arbeid, organisering, arbeidsplasser og administrative ordninger regulerer opplæring, bruk og kontroll.', 'Maskinforskriften stiller krav til trucken, og vegtrafikkreglene gjelder på offentlig vei.'] },
       { id: 'ansvarquiz', type: 'quiz', min: 6, tittel: 'Hvem har plikten?',
@@ -691,7 +840,7 @@ svg text { font-family: var(--body); }
         punkter: ['Truck er i forskriften «løfte- og stablevogn for gods»: mobilt motordrevet arbeidsutstyr for kombinert løfting, flytting og stabling.', 'NS-EN ISO 3691-1 gir sikkerhetskravene til motoriserte trucker.', 'NS-EN 1175 gir krav til det elektriske utstyret.', 'Trucken skal være CE-merket og ha bruksanvisning på norsk.'] },
       { id: 'exit', type: 'quiz', min: 5, tittel: 'Exit ticket',
         spm: [
-          { s: 'Hvilke trucker krever sertifisert opplæring?', v: ['Alle trucker', 'Trucker med fast førerplass (T2–T8)', 'Bare trucker over 10 tonn'], r: 1 },
+          { s: 'Hvilke trucker krever sertifisert opplæring?', v: ['Alle trucker', 'Trucker med fast førerplass', 'Bare trucker over 10 tonn'], r: 1 },
           { s: 'Hvor gammel må du være for å kjøre truck i arbeid?', v: ['16 år', '17 år', '18 år'], r: 2 },
           { s: 'Hvem har hovedansvaret for helse, miljø og sikkerhet på arbeidsplassen?', v: ['Arbeidsgiver', 'Verneombudet', 'Truckføreren'], r: 0 },
           { s: 'Du har kompetansebevis og begynner hos en ny arbeidsgiver med en truck du ikke har kjørt før. Hva trenger du i tillegg?', v: ['Ingenting', 'Opplæring på den trucken du skal bruke', 'Et nytt kurs'], r: 1 },
@@ -1170,7 +1319,7 @@ svg text { font-family: var(--body); }
         kilde: 'Forskrift om utførelse av arbeid §§ 10-2 og 10-3.',
       },
       krav: {
-        si: ['§ 10-3: løfte- og stablevogn for gods med permanent førerplass krever sertifisert sikkerhetsopplæring. Det gjelder T2–T8.', 'T1 (lede trucker uten fast førerplass) krever dokumentert opplæring etter § 10-2, ikke sertifisert.', '§ 10-4: i tillegg skal arbeidsgiver gi opplæring på den trucken du faktisk skal bruke.', 'Under 18 år er truckkjøring forbudt (org./ledelse § 12-6 q). Unntak for opplæring: fra 17 år, og fra 16 år i videregående under skolens kyndige veiledning (§ 12-7).', 'Kompetansebeviset skal ha navn og fødselsdato, bilde, hvilket utstyr du er opplært på, utstedelsesdato og utsteder (adm. ordninger § 8-2).', 'Arbeidsgiver kan bare sette deg til å kjøre det du har opplæring på (§ 10-2).'],
+        si: ['§ 10-3: løfte- og stablevogn for gods med permanent førerplass krever sertifisert sikkerhetsopplæring.', 'Ledestyrte trucker uten førerplass krever dokumentert opplæring etter § 10-2, ikke sertifisert.', 'Kildene beskriver klasse T1 ulikt. ABC kaller den dokumentert opplæring, mens kompetansebeviset viser T1 (lavtløftende plukktruck og palletruck med førerplass) som sertifisert klasse. Hold deg til regelen i § 10-3: fast førerplass gir sertifisert opplæring.', '§ 10-4: i tillegg skal arbeidsgiver gi opplæring på den trucken du faktisk skal bruke.', 'Under 18 år er truckkjøring forbudt (org./ledelse § 12-6 q). Unntak for opplæring: fra 17 år, og fra 16 år i videregående under skolens kyndige veiledning (§ 12-7).', 'Kompetansebeviset skal ha navn og fødselsdato, bilde, hvilket utstyr du er opplært på, utstedelsesdato og utsteder (adm. ordninger § 8-2).', 'Arbeidsgiver kan bare sette deg til å kjøre det du har opplæring på (§ 10-2).'],
         spor: ['Hvem i klassen er under 18? Hva betyr det for praksisen?'],
         kilde: 'Forskrift om utførelse av arbeid §§ 10-2 til 10-4. Forskrift om organisering, ledelse og medvirkning §§ 12-6 og 12-7. Forskrift om administrative ordninger § 8-2.',
       },
@@ -1239,6 +1388,40 @@ svg text { font-family: var(--body); }
       slutt: { gjor: 'Neste leksjon er truckens konstruksjon og virkemåte.' },
     },
   });
+  Object.assign(NOTATER, {
+    'm22-2': {
+      inn: { si: ['Leksjon 2 i modul 2.2 er satt av til 2 timer. Den dekker målsetting 4 (trucktyper og bruksområder) og 7 (tilleggsutstyr).', 'Trucker over 10 tonn (T6–T8) er ikke med, siden skolen ikke bruker dem.'], kilde: 'Kvalitetshåndboka pkt. 6.8, leksjon 2. Opplæringsplan modul 2.2.' },
+      gjett: { gjor: 'La elevene svare. Bruk fordelingen til å introdusere trucktypene.' },
+      film: { gjor: 'Første gang i timen: trykk «Velg filmmappen på PC-en» og velg mappen Truck ekstra. Be elevene notere trucktypene de ser.', spor: ['Hvilke av truckene har dere sett i bruk?'], kilde: 'Noorsi-film. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' },
+      prinsipp: { si: ['Skyvemasttrucken fungerer som en motvektstruck når masten er skjøvet fram, og som en støttebenstruck når masten er trukket inn.', 'Motvektsprinsippet er vektstangprinsippet fra stabilitetsleksjonen.'], kilde: 'Truck ABC s. 112 og 198.' },
+      klasser: { si: ['Kildene beskriver klasse T1 ulikt. Kompetansebeviset viser T1 som lavtløftende plukktruck og palletruck med førerplass. Regelen i § 10-3 er det som avgjør: fast førerplass gir krav om sertifisert opplæring.', 'Teleskoptruck krever en egen tilleggsmodul.', 'Trucker over 10 tonn (T6–T8) krever egen opplæring, men er ikke en del av opplæringen ved skolen.'], kilde: 'Forskrift om utførelse av arbeid §§ 10-2 og 10-3. Kvalitetshåndboka pkt. 6.8. Opplæringsplan for tilleggsmodul teleskoptruck.' },
+      klassequiz: { gjor: 'Vis resultatet og ta opp klassene flest blandet.' },
+      bruk: { si: ['Skyvemasttrucken løfter høyt og er følsom for ujevnt underlag. Gulvet må være plant og tåle trucken.', 'Svinggaffeltrucker går ofte på skinner eller følger en ledning i gulvet i de smale gangene.', 'Sidelasteren har lasten på siden og kan kjøre langt gods gjennom vanlige porter.'], kilde: 'Truck ABC s. 111–116. Oppgavesamling modul 2.2.' },
+      brukquiz: { gjor: 'La elevene diskutere to og to før de svarer.' },
+      utstyr: { si: ['Tilleggsutstyr hører under dokumentert sikkerhetsopplæring (§§ 10-1 og 10-2) og utstyrsspesifikk opplæring (§ 10-4).', 'Arbeidskurv brukes bare når den er godkjent for personløft (§§ 18-7 og 18-8).', 'Kranarm gjør trucken til løfteutstyr for hengende last. Lasten kan svinge, og kapasiteten står på eget skilt.'], kilde: 'Forskrift om utførelse av arbeid §§ 10-1, 10-2, 10-4, 18-7 og 18-8. Oppgavesamling modul 2.2.' },
+      utstyrquiz: { gjor: 'Vis resultatet. Knytt kapasitetsspørsmålet til stabilitetsleksjonen.' },
+      omvisning: { gjor: 'Gå ut til skolens trucker. Ved skolen finnes motvektstrucker, skyvemasttruck, stabler og en T1. Del klassen i grupper som tar hver sin truck og presenterer den for de andre.', si: ['Les maskinskiltet sammen: nominell kapasitet, TPA og egenvekt.', 'Har trucken tilleggsutstyr, finn tilleggsskiltet.'], kilde: 'Kvalitetshåndboka pkt. 6.4 (skolens trucker).' },
+      exit: { gjor: 'Elevene svarer alene. Ta opp det flest bommer på.' },
+      slutt: { gjor: 'Neste leksjon er truckulykker.' },
+    },
+    'm22-4': {
+      inn: { si: ['Leksjon 4 i modul 2.2 er satt av til 2 timer. Den dekker målsetting 2: truckens konstruksjon og virkemåte.'], kilde: 'Kvalitetshåndboka pkt. 6.8, leksjon 4. Opplæringsplan modul 2.2.' },
+      gjett: { gjor: 'La elevene svare og vis fordelingen. Mange tror sylinderen alene holder lasten.' },
+      film: { gjor: 'Første gang i timen: trykk «Velg filmmappen på PC-en» og velg mappen Truck ekstra. Filmen er lang, så stopp gjerne underveis.', spor: ['Hvilken del av trucken var ny for dere?'], kilde: 'Noorsi-film. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' },
+      deler: { gjor: 'Vis figuren og pek ut delene. Bruk gjerne en ekte truck hvis dere har tid.', kilde: 'Truck ABC s. 120–121.' },
+      drift: { si: ['Dieselmotoren kan bare brukes innendørs i begrenset grad, og bør da ha partikkelfilter.', 'Propangass gir mindre røyk og lukt enn diesel, men avgassen inneholder fortsatt kullos (CO).', 'Hydrostatisk kraftoverføring betyr at hydraulikkmotorer driver hjulene.', 'Ved lading oppstår knallgass. Syrevekten måles med syremåler og viser hvor fullt batteriet er.'], kilde: 'Truck ABC s. 122–131. Oppgavesamling modul 2.2.' },
+      batteri: { gjor: 'Elevene regner alene. Gå raskt gjennom svaret.' },
+      hydraulikk: { si: ['Overtrykksventilen (overstrømningsventilen) slipper oljen tilbake til tanken når trykket blir for høyt, for eksempel når lasten er for tung.', 'Reduksjons- eller slangebruddsventilen begrenser hvor fort lasten kan synke, også hvis en slange ryker.', 'Hydraulikkolje under høyt trykk kan trenge gjennom huden og gi alvorlige skader.', 'Overoppheting av hydraulikken kan komme av for lavt oljenivå eller av å holde spaken inne når masten er i toppstilling.'], kilde: 'Truck ABC s. 132–136. Oppgavesamling modul 2.2.' },
+      loft: { si: ['Mastetyper: med friløft, uten friløft og med transport-friløft.', 'Gaffelvognen henger i løftekjedene. Slangebruddsventilen hjelper ikke hvis en kjede ryker.'], kilde: 'Truck ABC s. 137–142. Oppgavesamling modul 2.2.' },
+      mastquiz: { gjor: 'Vis resultatet. Spørsmål 4 er det mange som bommer på.' },
+      styring: { si: ['Svingpunktet ligger i forhjulet på den siden du svinger mot. Bakenden svinger ut til motsatt side.', 'Med servostyring kjenner du ikke kreftene på hjulene.', 'Massive dekk tåler punktering. Luftgummidekk demper bedre på ujevnt underlag ute.'], kilde: 'NDLA: «Viktig å vite når du kjører truck». Truck ABC s. 123 og 146–148.' },
+      bremser: { si: ['Det er krav om setebryter, fotbryter eller annen sikkerhetsbryter som gjør at trucken bare kan kjøres når føreren er på plass. Mangler den, skal den ettermonteres.', 'Bremsetyper: trommelbremser, skivebremser, elektromagnetiske bremser og motorbrems (reversering).'], kilde: 'Truck ABC s. 143–145.' },
+      manover: { si: ['Symbolene på spakene er standardiserte, så de ser like ut på de fleste trucker.', 'Instrumentene og varsellampene skal sjekkes før kjøringen starter.'], kilde: 'Truck ABC s. 271. Noorsi-plakaten «Daglig sikkerhetskontroll», punkt 8 og 9.' },
+      exit: { gjor: 'Elevene svarer alene. Ta opp det flest bommer på.' },
+      slutt: { gjor: 'Neste leksjon er kontroll og rapportering.' },
+    },
+  });
+
   // Filmstegene: Noorsi-filmene spilles av fra lærerens PC (mappa Truck ekstra). De legges ikke ut.
   const filmNotat = (gjor, spor) => ({ gjor: 'Første gang i timen: trykk «Velg filmmappen på PC-en» og velg mappen Truck ekstra. Da spilles filmen på tavla. ' + gjor, spor, kilde: 'Noorsi-film, se filnavnet over. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' });
   Object.assign(NOTATER['m22-1'], { film: filmNotat('Be elevene se etter kravene til føreren.', ['Hvilke krav overrasket dere?']) });
@@ -1282,7 +1465,7 @@ svg text { font-family: var(--body); }
     if (t.feil) n.feil = (n.feil || []).concat(t.feil);
     n.kilde = (n.kilde ? n.kilde + ' ' : '') + OPPG;
   }
-  for (const l of [STAB, GODS, BRUK, KONTROLL, INNLED, ULYKKER]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
+  for (const l of [STAB, GODS, BRUK, KONTROLL, INNLED, ULYKKER, TYPER, KONSTR]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
 
   // Fasit for aktivitetene, slik læreren ser den i notatene.
   function fasitTekst(st) {
@@ -1322,9 +1505,9 @@ svg text { font-family: var(--body); }
     ] },
     { modul: 'Modul 2.2', navn: 'Løfte- og stablevogner for gods (truck)', leks: [
       INNLED,
-      { nr: 2, tittel: 'Trucktyper og tilleggsutstyr', timer: 2 },
+      TYPER,
       ULYKKER,
-      { nr: 4, tittel: 'Truckens konstruksjon og virkemåte', timer: 2 },
+      KONSTR,
       KONTROLL,
       STAB,
       GODS,
@@ -1621,7 +1804,7 @@ svg text { font-family: var(--body); }
     const box = x => `<div class="figbox">${x}</div>`;
     return f === 'skilt' ? figSkilt() : f === 'tpa' ? box(figTpa()) : f === 'trekant' ? box(figTrekant()) :
       f === 'pall' ? box(figPall()) : f === 'symboler' ? box(figSymboler()) : f === 'rampe' ? box(figRampe()) : f === 'kontroller' ? figKontroller() :
-      f === 'komponenter' ? box(figKomponenter()) : '';
+      f === 'komponenter' ? box(figKomponenter()) : f === 'prinsipp' ? box(figPrinsipp()) : f === 'klasser' ? figKlasser() : f === 'hydraulikk' ? figHydraulikk() : '';
   }
   function figTavle(st, pre = 'tv') {
     if (st.film) return filmKort(st.film);

@@ -78,7 +78,9 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 Ferdige leksjoner i modul 2.2:
 
 - Leksjon 1, Innledning og krav til truckfører (45 min): krav til fører og alder, ansvar etter arbeidsmiljøloven, truckens deler og standarder.
+- Leksjon 2, Trucktyper og tilleggsutstyr (2 × 45 min): motvekts- og støttebensprinsippet, klassene T1–T5, bruksområder, tilleggsutstyr og en runde ved skolens trucker.
 - Leksjon 3, Truckulykker (45 min): årsaker, et ulykkescase, konsekvenser, forsikring, forebygging og rapportering.
+- Leksjon 4, Truckens konstruksjon og virkemåte (2 × 45 min): hoveddeler, motor og kraftoverføring, batteri, hydraulikk, løftesystem, styring, bremser og instrumenter.
 - Leksjon 5, Kontroll og rapportering (2 × 45 min): daglig kontroll med praktisk øvelse, feil og rapportering, periodisk og sakkyndig kontroll (forskrift om utførelse av arbeid kap. 12–13).
 - Leksjon 8, Bruks- og sikkerhetsbestemmelser (45 min): offentlig vei, kjøring, personløft, parkering, brann og Ex, drivstoff, gass og lading.
 
