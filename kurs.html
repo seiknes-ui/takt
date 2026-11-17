@@ -865,9 +865,60 @@ svg text { font-family: var(--body); }
   }
   const lesTall = s => { const n = parseFloat(String(s).replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : null; };
 
+  // ---------- Artifact på claude.ai ----------
+  // Der finnes window.claude.use. Live går da gjennom plattformens rom, og den som kan redigere artifactet, er lærer.
+  const ART = !!(window.claude && window.claude.use);
+  let ROOM = null;
+  const artKlar = ART ? Promise.all([window.claude.use('room'), window.claude.use('user')]).then(async ([r, u]) => {
+    ROOM = r;
+    const redaktor = u ? await u.canEdit().catch(() => false) : false;
+    AUTH = redaktor ? { token: '', navn: 'redaktør av siden', exp: Infinity } : null;
+  }).catch(() => {}) : Promise.resolve();
+
+  // Samme grensesnitt som rom() under. Tavla og lærerens telefon sender på emnene «tavle» og «styr», som bare
+  // redaktører kan sende på, så elevene kan ikke styre noe. Elevene sender svarene sine som presence.
+  function romArt(kode, peer, opts) {
+    let r = null, stopped = false, pres = {}, timer = 0;
+    const meld = new Map();
+    const lever = () => {
+      if (!r) return;
+      const ps = [];
+      for (const p of r.peers()) if (!p.sameTab && p.presence && p.presence.n) ps.push({ peer: p.peer, presence: p.presence });
+      for (const [k, v] of meld) if (Date.now() - v.t < 15000) ps.push({ peer: k, presence: v.presence });
+      opts.onPeers(ps);
+    };
+    const send = () => {
+      if (!r || stopped) return;
+      if (pres.role === 'leder') r.emit(pres.fjern ? 'styr' : 'tavle', pres).catch(() => {});
+      else r.presence(pres).catch(() => {});
+    };
+    if (!ROOM) { setTimeout(() => opts.onConn && opts.onConn(false), 0); return { sett(p) { pres = p; }, forlat() {} }; }
+    ROOM.join('kurs-' + kode).then(room => {
+      if (stopped) { room.leave().catch(() => {}); return; }
+      r = room;
+      const hor = msg => {
+        if (msg.sameTab || !msg.data || typeof msg.data !== 'object') return;
+        const p = Object.assign({}, msg.data, { role: 'leder' });
+        if (msg.topic === 'styr') p.fjern = 1; else delete p.fjern;
+        meld.set(msg.peer, { presence: p, t: Date.now() });
+        lever();
+      };
+      r.on('tavle', hor); r.on('styr', hor);
+      r.onPeers(ch => { if (ch.joined.length && pres.role === 'leder') send(); lever(); });
+      r.onConnection(v => opts.onConn && opts.onConn(v));
+      send();
+      timer = setInterval(() => { if (pres.role === 'leder') send(); lever(); }, 3000);
+    }).catch(() => opts.onFeil && opts.onFeil(0));
+    return {
+      sett(p) { pres = p; send(); },
+      forlat() { stopped = true; clearInterval(timer); if (r) r.leave().catch(() => {}); },
+    };
+  }
+
   // ---------- Rom over HTTP (samme API som Taktlinja) ----------
   // Hver enhet sender sin status og leser de andres. Tavla er «leder» og krever lærertoken.
   function rom(kode, peer, opts) {
+    if (ART) return romArt(kode, peer, opts);
     let pres = {}, sent = '', lastSent = 0, lastReq = 0, busy = false, stopped = false, fails = 0, conn = null, kickT = null;
     const ms = opts.intervall || 1000;
     async function tick() {
@@ -901,10 +952,15 @@ svg text { font-family: var(--body); }
   }
 
   // ---------- Lærerinnlogging (samme som Taktlinja) ----------
-  let AUTH = (() => { const a = fetchStore('taktlinja-laerer'); return a && a.token && a.exp > Date.now() ? a : null; })();
+  let AUTH = ART ? null : (() => { const a = fetchStore('taktlinja-laerer'); return a && a.token && a.exp > Date.now() ? a : null; })();
   function renderLogin() {
     $('laerer-ut').hidden = !!AUTH; $('laerer-inn').hidden = !AUTH;
     if (AUTH) $('laerer-navn').textContent = AUTH.navn || 'lærer';
+    if (ART) {
+      $('laerer-ut').querySelectorAll('.field, .row').forEach(e => e.hidden = true);
+      $('laerer-ut').querySelector('p').textContent = 'Bare de som kan redigere denne siden, kan styre tavla. Elevene velger Elev og skriver koden fra tavla.';
+      $('btn-logout').hidden = true;
+    }
   }
   async function login() {
     const kode = $('in-laerer').value.trim(), msg = $('login-msg');
@@ -1001,13 +1057,18 @@ svg text { font-family: var(--body); }
     let h = `<h2>${esc(st.tittel)}</h2>`;
     if (st.type === 'velkommen') {
       const url = location.origin + location.pathname + '#elev';
-      h += `<div class="join"><div class="qr" id="tv-qr"></div><div><p class="ingress">Gå til</p><p class="url">${esc(url)}</p><p class="ingress" style="margin-top:16px">og skriv inn koden</p><div class="bigcode">${esc(T.kode)}</div></div></div>`;
+      h += ART
+        ? `<div><p class="ingress">Åpne Kursstien på telefonen, velg Elev og skriv inn koden</p><div class="bigcode">${esc(T.kode)}</div></div>`
+        : `<div class="join"><div class="qr" id="tv-qr"></div><div><p class="ingress">Gå til</p><p class="url">${esc(url)}</p><p class="ingress" style="margin-top:16px">og skriv inn koden</p><div class="bigcode">${esc(T.kode)}</div></div></div>`;
       h += `<h3>Med i rommet</h3><div class="navn" id="tv-navn"></div>`;
       el.innerHTML = h;
-      try { if (window.QRCode) new QRCode($('tv-qr'), { text: url + T.kode, width: 208, height: 208, correctLevel: QRCode.CorrectLevel.M }); else $('tv-qr').hidden = true; } catch (e) { $('tv-qr').hidden = true; }
+      if (!ART) try { if (window.QRCode) new QRCode($('tv-qr'), { text: url + T.kode, width: 208, height: 208, correctLevel: QRCode.CorrectLevel.M }); else $('tv-qr').hidden = true; } catch (e) { $('tv-qr').hidden = true; }
     } else if (st.type === 'tavle' || st.type === 'slutt') {
       if (st.fig === 'sim') {
-        h += `<iframe class="sim" src="${SIM_URL}" title="Truckstabilitet-simulatoren"></iframe>`;
+        // På claude.ai kan andre nettsteder ikke bygges inn, så der blir simulatoren en lenke.
+        h += ART
+          ? `<p class="ingress">Åpne simulatoren i en egen fane og del den skjermen.</p><p><a class="primary" style="display:inline-block;padding:14px 22px;border-radius:4px;background:var(--accent);color:var(--on-accent);font-weight:700;text-decoration:none" href="${SIM_URL}" target="_blank" rel="noopener">Åpne truckstabilitet-simulatoren</a></p>`
+          : `<iframe class="sim" src="${SIM_URL}" title="Truckstabilitet-simulatoren"></iframe>`;
       } else {
         const fh = figTavle(st), ph = st.punkter ? `<ul class="punkter">${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '';
         h += fh && ph ? `<div class="tv-grid"><div>${fh}</div>${ph}</div>` : fh || ph;
@@ -1139,7 +1200,14 @@ svg text { font-family: var(--body); }
   $('tv-vis').onclick = () => { T.vis = !T.vis; $('tv-vis').textContent = T.vis ? 'Skjul svaret' : 'Vis svaret'; oppdaterSvar(); sendTavle(); };
   $('tv-not').onclick = () => { T.notat = !T.notat; tavleSteg(); };
   $('tv-full').onclick = () => { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else document.documentElement.requestFullscreen().catch(() => {}); };
-  $('tv-slutt').onclick = () => { if (confirm('Avslutte leksjonen? Elevene mister forbindelsen til tavla.')) sluttTavle(); };
+  // Bekreftelse i selve knappen, siden claude.ai ikke viser confirm().
+  let sluttT = 0;
+  $('tv-slutt').onclick = () => {
+    const b = $('tv-slutt');
+    if (sluttT) { clearTimeout(sluttT); sluttT = 0; b.textContent = 'Avslutt'; sluttTavle(); return; }
+    b.textContent = 'Trykk igjen for å avslutte';
+    sluttT = setTimeout(() => { sluttT = 0; b.textContent = 'Avslutt'; }, 4000);
+  };
   document.addEventListener('keydown', e => {
     if ($('v-tavle').hidden || e.target.closest('input')) return;
     if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); gaTil(T.i + 1); }
@@ -1434,11 +1502,14 @@ svg text { font-family: var(--body); }
   const h = location.hash.slice(1);
   const m = h.match(/^elev(\d{4})?$/);
   if (m) { if (m[1]) $('in-kode').value = m[1]; ($('in-kode').value ? $('in-navn') : $('in-kode')).focus(); }
-  // Fortsetter der eleven eller tavla var hvis siden lastes på nytt.
-  const ge = sfetch('kurs-elev'), gt = sfetch('kurs-tavle'), gn = sfetch('kurs-notat');
-  if (gt && AUTH && LEKSJONER[gt.leks]) startTavle(gt.leks);
-  else if (gn && AUTH && gn.kode) startNotat(gn.kode);
-  else if (ge && ge.live && ge.kode && ge.navn) { Object.assign(E, { live: true, kode: ge.kode, navn: ge.navn, peer: ge.peer || rid(), a: ge.a || {} }); startElev(); }
+  // Fortsetter der eleven eller tavla var hvis siden lastes på nytt. På claude.ai først når vi vet hvem som ser siden.
+  artKlar.then(() => {
+    renderLogin();
+    const ge = sfetch('kurs-elev'), gt = sfetch('kurs-tavle'), gn = sfetch('kurs-notat');
+    if (gt && AUTH && LEKSJONER[gt.leks]) startTavle(gt.leks);
+    else if (gn && AUTH && gn.kode) startNotat(gn.kode);
+    else if (ge && ge.live && ge.kode && ge.navn) { Object.assign(E, { live: true, kode: ge.kode, navn: ge.navn, peer: ge.peer || rid(), a: ge.a || {} }); startElev(); }
+  });
   addEventListener('pagehide', () => { if (E.rom) E.rom.sett({ n: E.navn, a: E.a }); });
 })();
 </script>
