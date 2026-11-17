@@ -84,7 +84,9 @@ Ferdige leksjoner i modul 2.2:
 - Leksjon 5, Kontroll og rapportering (2 × 45 min): daglig kontroll med praktisk øvelse, feil og rapportering, periodisk og sakkyndig kontroll (forskrift om utførelse av arbeid kap. 12–13).
 - Leksjon 8, Bruks- og sikkerhetsbestemmelser (45 min): offentlig vei, kjøring, personløft, parkering, brann og Ex, drivstoff, gass og lading.
 
-Og på 2 × 45 min:
+Modul 1.1 (felles teori for kran, truck og masseforflytningsmaskiner): leksjon 1–4 og 6 på 45 min og leksjon 5 på 2 × 45 min. Farlig gods er en grunnleggende innføring; ADR i dybden tas i eget kurs.
+
+Modul 2.2, i tillegg, på 2 × 45 min:
 
 - Leksjon 6, Truckens stabilitet. Bruker truckstabilitet-simulatoren på seiknes-ui.github.io i en iframe.
 - Leksjon 7, Godshåndtering: lastbærere, emballasjesymboler, stabling og nedtaking, ruller og langgods, lasting av bil og jernbanevogn, signalgiving og sleping.

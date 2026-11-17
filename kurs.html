@@ -799,6 +799,247 @@ svg text { font-family: var(--body); }
     ],
   };
 
+  // ---------- Modul 1.1: felles teori for kran, truck og masseforflytningsmaskiner ----------
+  const HVILKEN_K = ['Kontroll før bruk', 'Periodisk kontroll og service', 'Sakkyndig kontroll'];
+  const M11_1 = {
+    id: 'm11-1', modul: 'Modul 1.1', nr: 1, tittel: 'Innledning: hvorfor sikkerhetsopplæring', timer: 1,
+    emner: ['Hvorfor sikkerhetsopplæring', 'Årsak til ulykker og skadestatistikk', 'Rapportering av uhell', 'Forsikring og økonomi', 'Adferd og holdninger til sikkerhet'],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Hvorfor sikkerhetsopplæring' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Hvorfor skjer ulykker?',
+        spm: 'Hva tror du er den vanligste årsaken til ulykker med arbeidsutstyr?',
+        valg: ['Tekniske feil på utstyret', 'Menneskelige feilvurderinger', 'Dårlig vær', 'Uflaks'], riktig: 1,
+        forklaring: 'De fleste ulykker skyldes menneskelige feilvurderinger, ikke tekniske feil. Derfor handler opplæringen like mye om holdninger som om teknikk.' },
+      { id: 'film', type: 'tavle', min: 3, tittel: 'Film: Innledning', film: { kap: 'Modul 1.1 kapittel 1', fil: 'Mod 1.1 video/Kap 1.   Innledning.m4v', tid: '2:28' },
+        punkter: ['Hvorfor kreves det opplæring?', 'Hvem har nytte av opplæringen?'] },
+      { id: 'opplaering', type: 'tavle', min: 8, tittel: 'Tre typer opplæring',
+        punkter: ['Dokumentert sikkerhetsopplæring for arbeidsutstyr som krever særlig aktsomhet (§§ 10-1 og 10-2).', 'Sertifisert sikkerhetsopplæring for blant annet truck med førerplass, kraner over 2 tm og masseforflytningsmaskiner over 15 kW (§ 10-3).', 'Utstyrsspesifikk opplæring på maskinen du skal bruke, i tillegg (§ 10-4).', 'Opplæringen går i moduler: 1.1 felles teori, 2 teori for maskintypen, 3 grunnleggende praksis og 4 praksis.', 'Du må være 18 år, fysisk og psykisk skikket, og ha bestått teori og praksis. Kompetansebeviset gjelder livet ut.'] },
+      { id: 'oppquiz', type: 'quiz', min: 7, tittel: 'Opplæringen',
+        spm: [
+          { s: 'Hva skal opplæringen i bruk av arbeidsutstyr omfatte?', v: ['Oppbygging, betjening, bruksegenskaper, vedlikehold og kontroll', 'Bare kjøring', 'Trafikkregler'], r: 0 },
+          { s: 'Kreves det dokumentasjon på at føreren har fått opplæring?', v: ['Ja', 'Nei'], r: 0 },
+          { s: 'Hvem har rett til å bruke arbeidsutstyret?', v: ['Alle med bilsertifikat', 'De som er fylt 18 år, er skikket og har fått riktig opplæring', 'Alle som er fysisk sterke nok'], r: 1 },
+          { s: 'Hvor får du nytt kompetansebevis hvis du mister det?', v: ['Politiet', 'Arbeidstilsynet', 'Registeret eller opplæringsvirksomheten som utstedte det'], r: 2 },
+        ] },
+      { id: 'holdning', type: 'tavle', min: 6, tittel: 'Holdninger til sikkerhet',
+        punkter: ['Ta deg tid. Stress og snarveier er en vanlig årsak til ulykker.', 'Følg reglene også når ingen ser deg.', 'Si fra når noe er farlig, også til kolleger.', 'En ulykke skjer ikke, den forårsakes.'] },
+      { id: 'rapport', type: 'tavle', min: 7, tittel: 'Uhell, forsikring og økonomi',
+        punkter: ['Meld fra til arbeidsgiver om alle uhell, skader og nestenuhell.', 'Arbeidsgiver skal registrere alle personskader.', 'Arbeidsgiver skal ha yrkesskadeforsikring. Den dekker skade på deg uten hensyn til skyld.', 'En ulykke koster: sykefravær, reparasjoner, produksjonsstans og i verste fall liv.'] },
+      { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hva er målet med sikkerhetsopplæringen?', v: ['Sikrere arbeidsplasser', 'Høyere lønn', 'Raskere arbeid'], r: 0 },
+          { s: 'Hva er den vanligste årsaken til ulykker med arbeidsutstyr?', v: ['Tekniske feil', 'Menneskelige feilvurderinger', 'Vær og føre'], r: 1 },
+          { s: 'Hvem melder du fra til om en ulykke?', v: ['Arbeidsgiver', 'Vaktmesteren', 'Ingen, hvis ingen ble skadet'], r: 0 },
+          { s: 'Hvor lenge gjelder kompetansebeviset?', v: ['5 år', '10 år', 'Livet ut'], r: 2 },
+          { s: 'Hvilken opplæring får du i tillegg til den sertifiserte?', v: ['Utstyrsspesifikk opplæring på maskinen du skal bruke', 'Førstehjelpskurs', 'Ingen'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+        punkter: ['Sertifisert, dokumentert og utstyrsspesifikk opplæring.', 'De fleste ulykker skyldes feilvurderinger. Holdninger betyr mye.', 'Meld fra om uhell og nestenuhell.'] },
+    ],
+  };
+
+  const LOV = ['Arbeidsmiljøloven', 'Internkontrollforskriften', 'Maskinforskriften', 'Byggherreforskriften', 'Forskrift om landtransport av farlig gods'];
+  const M11_2 = {
+    id: 'm11-2', modul: 'Modul 1.1', nr: 2, tittel: 'Lover og forskrifter', timer: 1,
+    emner: ['Arbeidsmiljøloven', 'Internkontrollforskriften', 'Forskrift om organisering, ledelse og medvirkning (1355)', 'Arbeidsplassforskriften (1356)', 'Forskrift om utførelse av arbeid (1357)', 'Forskrift om administrative ordninger (1360)', 'Maskinforskriften', 'Byggherreforskriften', 'Forskrift om farlig gods'],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Lover og forskrifter' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Lov eller forskrift?',
+        spm: 'Hva er forskjellen på en lov og en forskrift?',
+        valg: ['En forskrift er bare et råd', 'Loven vedtas av Stortinget. Forskriften utdyper loven og er like bindende', 'Forskriften gjelder bare offentlige virksomheter'], riktig: 1,
+        forklaring: 'Stortinget vedtar lovene. Forskriftene gis av departementet med hjemmel i loven, og de er like bindende.' },
+      { id: 'film', type: 'tavle', min: 2, tittel: 'Film: Lover og forskrifter', film: { kap: 'Modul 1.1 kapittel 2', fil: 'Mod 1.1 video/Kap 2. Lover og forskrifter.m4v', tid: '1:17' },
+        punkter: ['Hvilke lover og forskrifter nevnes?'] },
+      { id: 'tilsyn', type: 'tavle', min: 6, tittel: 'Lover, forskrifter og tilsyn',
+        punkter: ['Loven vedtas av Stortinget. Forskriften utdyper loven og er like bindende.', 'Arbeidstilsynet fører tilsyn med arbeidsmiljøet. Bare offentlige myndigheter kan gi dispensasjon.', 'DSB fører tilsyn med landtransport av farlig gods.', 'Miljødirektoratet fører tilsyn med det ytre miljøet.', 'Alle lover og forskrifter finner du på lovdata.no.'] },
+      { id: 'aml', type: 'tavle', min: 8, tittel: 'Arbeidsmiljøloven',
+        punkter: ['Arbeidsgiver skal sørge for at loven følges (§ 2-1) og gi opplæring og instruksjon (§ 3-2).', 'Arbeidstaker skal bruke verneutstyr, melde fra om feil og avbryte farlig arbeid (§ 2-3).', 'Bruksanvisning på norsk skal følge med maskinen (§ 5-5).', 'Verneombudet ivaretar arbeidstakernes interesser og kan stanse arbeid ved umiddelbar fare (§§ 6-2 og 6-3).', 'Arbeidsmiljøutvalg kreves i virksomheter med minst 30 ansatte, og fra 10 ansatte hvis en av partene krever det (§ 7-1).'] },
+      { id: 'ik', type: 'tavle', min: 5, tittel: 'Internkontrollforskriften',
+        punkter: ['Systematisk HMS-arbeid er et lovfestet krav.', 'Den som er ansvarlig for virksomheten, skal innføre internkontroll i samarbeid med arbeidstakerne (§ 4).', 'Arbeidstakerne skal medvirke.', 'HMS står for helse, miljø og sikkerhet.'] },
+      { id: 'forskrifter', type: 'tavle', min: 7, tittel: 'Forskriftene du må kjenne',
+        punkter: ['Organisering, ledelse og medvirkning: risikovurdering, opplæring og arbeid for unge under 18 år.', 'Arbeidsplassforskriften: hvordan arbeidsplassen skal være utformet.', 'Utførelse av arbeid: opplæring, bruk og kontroll av arbeidsutstyr.', 'Administrative ordninger: kompetansebevis, opplæringsvirksomheter og sakkyndig kontroll.', 'Maskinforskriften: krav til produsenter. CE-merke og samsvarserklæring.', 'Byggherreforskriften gjelder bygge- og anleggsplasser.'] },
+      { id: 'hvilken', type: 'quiz', min: 6, tittel: 'Hvilken regel?',
+        spm: [
+          { s: 'Arbeidstaker skal bruke verneutstyr og melde fra om feil.', v: LOV, r: 0 },
+          { s: 'Virksomheten skal ha systematisk HMS-arbeid.', v: LOV, r: 1 },
+          { s: 'Maskinen skal være CE-merket og ha samsvarserklæring.', v: LOV, r: 2 },
+          { s: 'Krav om HMS på bygge- og anleggsplasser.', v: LOV, r: 3 },
+          { s: 'Krav til merking av kolli med farlig gods.', v: LOV, r: 4 },
+        ] },
+      { id: 'exit', type: 'quiz', min: 4, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hvem fører tilsyn med at arbeidsmiljøloven følges?', v: ['Verneombudet', 'Arbeidstilsynet', 'Politiet'], r: 1 },
+          { s: 'Hvem har ansvaret for å starte HMS-arbeidet i bedriften?', v: ['Myndighetene', 'Eier eller arbeidsgiver', 'Arbeidstilsynet'], r: 1 },
+          { s: 'Hvem retter maskinforskriften seg mot?', v: ['Produsent, importør og leverandør', 'Fører og operatør', 'Verneombudet'], r: 0 },
+          { s: 'Hvem er tilsynsmyndighet for transport av farlig gods på vei og jernbane?', v: ['Arbeidstilsynet', 'DSB', 'Politiet'], r: 1 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 2, tittel: 'Oppsummering',
+        punkter: ['Lov fra Stortinget, forskrift fra departementet. Begge er bindende.', 'Arbeidsmiljøloven og internkontrollforskriften er grunnmuren.', 'Arbeidstilsynet, DSB og Miljødirektoratet fører tilsyn.'] },
+    ],
+  };
+
+  const ROLLE = ['Arbeidsgiver', 'Arbeidstaker', 'Verneombudet'];
+  const M11_3 = {
+    id: 'm11-3', modul: 'Modul 1.1', nr: 3, tittel: 'Arbeidsmiljø, ansvar og konsekvenser', timer: 1,
+    emner: ['Vurdering av arbeidsmiljøet med hensyn til risiko og tiltak', 'Arbeidsgivers plikter og ansvar', 'Arbeidstakers plikter og ansvar', 'Forsikring, ansvar og konsekvenser', 'Eksempler på arbeidsulykker'],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Arbeidsmiljø, ansvar og konsekvenser' },
+      { id: 'film', type: 'tavle', min: 5, tittel: 'Film: Arbeidsmiljø, ansvar og konsekvenser', film: { kap: 'Modul 1.1 kapittel 3', fil: 'Mod 1.1 video/Kap 3. Arbeidsmiljø, ansvar og konsekvenser.m4v', tid: '4:58' },
+        punkter: ['Hvem har ansvar for hva?', 'Hvilke konsekvenser får ulykkene?'] },
+      { id: 'risiko', type: 'tavle', min: 7, tittel: 'Risikovurdering',
+        punkter: ['Hva kan gå galt? Hva blir konsekvensene? Hva kan vi gjøre for å hindre det?', 'Risikovurderingen gjøres før arbeidet starter.', 'Sikker jobbanalyse (SJA) brukes ved nye, uvanlige eller risikofylte oppgaver.', 'Avvik: et krav i lover, forskrifter eller rutiner er ikke oppfylt. Nestenuhell: noe kunne ført til skade.'] },
+      { id: 'sja', type: 'rekkefolge', min: 5, tittel: 'Sikker jobbanalyse',
+        spm: 'Sett stegene i en sikker jobbanalyse i riktig rekkefølge.',
+        ledd: ['Beskriv jobben og del den opp i trinn', 'Finn farene i hvert trinn', 'Vurder hvor stor risikoen er', 'Bestem tiltak som fjerner eller reduserer risikoen', 'Gjør jobben med tiltakene på plass', 'Gå gjennom hvordan det gikk'],
+        forklaring: 'Først må du vite hva jobben består av. Så finner du farene, vurderer dem og bestemmer tiltak før arbeidet starter.' },
+      { id: 'plikter', type: 'tavle', min: 6, tittel: 'Hvem har ansvaret?',
+        punkter: ['Arbeidsgiver har hovedansvaret for arbeidsmiljøet (§ 2-1).', 'Arbeidstaker skal medvirke: bruke verneutstyr, melde fra om feil og avbryte arbeid ved fare (§ 2-3).', 'Verneombudet ivaretar arbeidstakernes interesser og kan stanse arbeid ved umiddelbar fare (§ 6-3).', 'Du har rett og plikt til å nekte å bruke utstyr som ikke er forsvarlig.'] },
+      { id: 'rollequiz', type: 'quiz', min: 6, tittel: 'Hvem gjør hva?',
+        spm: [
+          { s: 'Sørger for opplæring og instruksjon', v: ROLLE, r: 0 },
+          { s: 'Bruker påbudt verneutstyr', v: ROLLE, r: 1 },
+          { s: 'Kan stanse arbeidet ved umiddelbar fare til Arbeidstilsynet har vurdert det', v: ROLLE, r: 2 },
+          { s: 'Melder fra om feil og mangler som kan gi fare', v: ROLLE, r: 1 },
+          { s: 'Skal ha yrkesskadeforsikring for de ansatte', v: ROLLE, r: 0 },
+        ] },
+      { id: 'konsekvens', type: 'tavle', min: 7, tittel: 'Konsekvenser',
+        punkter: ['Arbeidsgiver kan straffes med bøter eller fengsel inntil 1 år, ved særlig skjerpende omstendigheter inntil 5 år (§ 19-1).', 'Arbeidstaker kan straffes med bøter, ved forsett eller grov uaktsomhet med fengsel inntil 3 måneder (§ 19-2).', 'Bruk aldri arbeidsutstyr når du er påvirket av alkohol, rusmidler eller medisiner som kan påvirke deg.', 'En ulykke rammer også familie, kolleger og den som forårsaket den.'] },
+      { id: 'exit', type: 'quiz', min: 5, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Når brukes sikker jobbanalyse?', v: ['Ved nye, uvanlige eller risikofylte oppgaver', 'Bare etter en ulykke', 'Én gang i året'], r: 0 },
+          { s: 'Hva er et nestenuhell?', v: ['En hendelse som kunne ført til skade', 'En liten skade', 'En feil på maskinen'], r: 0 },
+          { s: 'Hvem har hovedansvaret for arbeidsmiljøet?', v: ['Arbeidstaker', 'Arbeidsgiver', 'Verneombudet'], r: 1 },
+          { s: 'Kan en arbeidstaker straffes for brudd på arbeidsmiljøloven?', v: ['Ja, med bøter og i alvorlige tilfeller fengsel', 'Nei, bare arbeidsgiver', 'Nei, bare med advarsel'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 2, tittel: 'Oppsummering',
+        punkter: ['Vurder risikoen før du starter. Bruk SJA ved uvanlige oppgaver.', 'Arbeidsgiver har hovedansvaret, men du har plikter selv.', 'Brudd på reglene kan straffes, også for deg som arbeidstaker.'] },
+    ],
+  };
+
+  const M11_4 = {
+    id: 'm11-4', modul: 'Modul 1.1', nr: 4, tittel: 'Ytre miljø', timer: 1,
+    emner: ['Hvordan vi påvirker miljøet rundt oss', 'Hvordan vi tar vare på det'],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Ytre miljø' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Det lekker olje',
+        spm: 'Det lekker hydraulikkolje fra en maskin ute på grusen. Hva gjør du først?',
+        valg: ['Fortsetter og melder fra etterpå', 'Stopper maskinen og hindrer at oljen sprer seg til sluk og grunn', 'Spyler oljen bort med vann'], riktig: 1,
+        forklaring: 'Stopp lekkasjen hvis det er trygt, og hindre at oljen når sluk, vann og grunn. Bruk absorbent og meld fra. Ved akutt forurensning skal det varsles straks.' },
+      { id: 'film', type: 'tavle', min: 2, tittel: 'Film: Ytre miljø', film: { kap: 'Modul 1.1 kapittel 4', fil: 'Mod 1.1 video/Kap 4. Ytre miljø, miljøvern.m4v', tid: '1:16' },
+        punkter: ['Hvordan kan maskinene skade miljøet?'] },
+      { id: 'lover', type: 'tavle', min: 7, tittel: 'Lover for ytre miljø',
+        punkter: ['Det ytre miljøet er luft, vann og jord.', 'Forurensningsloven skal verne mot forurensning og redusere avfall. Ingen må gjøre noe som kan føre til forurensning uten at det er lovlig (§ 7).', 'Ved akutt forurensning skal det varsles straks (§ 39). I praksis ringer du 110.', 'Produktkontrolloven: produkter skal ikke skade helse eller miljø. Naturmangfoldloven verner natur og arter.', 'Avfall skal ikke etterlates i naturen (§ 28).'] },
+      { id: 'olje', type: 'tavle', min: 8, tittel: 'Oljesøl, avfall og kjemikalier',
+        punkter: ['Slangebrudd er en vanlig årsak til oljesøl. Ha absorbent klar.', 'Farlig avfall, som spillolje, batterier og oljefiltre, holdes atskilt og leveres til godkjent mottak.', 'Sikkerhetsdatabladet forteller hvordan et kjemikalie skal brukes, lagres og håndteres ved uhell.', 'Bruk erstatningsstoffer som er mindre skadelige når det er mulig.', 'Ta hensyn til natur og dyreliv når du kjører i terrenget.'] },
+      { id: 'avgass', type: 'tavle', min: 7, tittel: 'Avgass, støy og treemballasje',
+        punkter: ['Unngå unødvendig tomgang. Avgassen inneholder blant annet kullos (CO) og nitrogenoksider (NOx).', 'Forbrenningsmotor innendørs krever god ventilasjon. Partikkelfilter reduserer sot.', 'Støy plager også naboer og dyreliv.', 'Treemballasje og paller til eksport skal være varmebehandlet og IPPC-merket med HT, så skadedyr ikke spres.'] },
+      { id: 'quiz', type: 'quiz', min: 7, tittel: 'Miljøquiz',
+        spm: [
+          { s: 'Hva heter databladet som forteller hvordan et kjemikalie skal håndteres?', v: ['Helsedatablad', 'Miljødatablad', 'Sikkerhetsdatablad'], r: 2 },
+          { s: 'Hva er et erstatningsstoff?', v: ['Et mindre skadelig stoff som erstatter et farligere', 'Et billigere stoff', 'Et stoff som brenner lettere'], r: 0 },
+          { s: 'Hvorfor skal treemballasje til eksport være IPPC-merket?', v: ['For å vise hvem som eier pallen', 'For å vise at den er behandlet så skadedyr ikke spres', 'For å vise hvor mye den tåler'], r: 1 },
+          { s: 'Hvor leverer du brukt hydraulikkolje?', v: ['I restavfallet', 'Til godkjent mottak for farlig avfall', 'I sluket'], r: 1 },
+          { s: 'Hva gjør du ved akutt forurensning?', v: ['Varsler straks, i praksis på 110', 'Venter til neste dag', 'Rydder selv og sier ingenting'], r: 0 },
+        ] },
+      { id: 'exit', type: 'quiz', min: 5, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hva er formålet med forurensningsloven?', v: ['Verne miljøet mot forurensning og redusere avfall', 'Regulere fiske', 'Regulere bygging'], r: 0 },
+          { s: 'Hva gjør du først ved oljesøl fra en maskin?', v: ['Stopper lekkasjen og hindrer spredning', 'Spyler med vann', 'Fortsetter arbeidet'], r: 0 },
+          { s: 'Hva er en vanlig årsak til oljesøl fra maskiner?', v: ['Slangebrudd', 'For mye diesel', 'Lavt lufttrykk'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 4, tittel: 'Oppsummering',
+        punkter: ['Hindre forurensning er alles plikt.', 'Ha absorbent klar, og varsle straks ved akutt forurensning.', 'Farlig avfall til godkjent mottak.', 'Unngå tomgang, og bruk mindre skadelige stoffer.'] },
+    ],
+  };
+
+  const M11_5 = {
+    id: 'm11-5', modul: 'Modul 1.1', nr: 5, tittel: 'Sikkerhetsbestemmelser for bruk av arbeidsutstyr', timer: 2,
+    emner: ['Sikkerhetsbestemmelser', 'Bruksanvisning', 'Sikkerhetsutstyr på arbeidsutstyr', 'Kontroll av arbeidsutstyr', 'Personlig verneutstyr', 'Personbefordring', 'Løfteoperasjoner med arbeidsutstyr', 'Fallsikring og stillas', 'Utførelse av arbeid kap. 10, 18 og 19'],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Sikkerhetsbestemmelser for bruk av arbeidsutstyr' },
+      { id: 'gjett', type: 'valg', min: 4, tittel: 'Ny maskin',
+        spm: 'Bedriften har kjøpt en ny maskin. Hvordan vet du at den oppfyller kravene?',
+        valg: ['Den er ny, så den er i orden', 'Den er CE-merket, har samsvarserklæring og bruksanvisning på norsk', 'Forhandleren sier det'], riktig: 1,
+        forklaring: 'CE-merket og samsvarserklæringen viser at produsenten har fulgt maskinforskriften. Bruksanvisningen på norsk er et krav etter arbeidsmiljøloven § 5-5.' },
+      { id: 'film', type: 'tavle', min: 6, tittel: 'Film: Sikkerhetsbestemmelser', film: { kap: 'Modul 1.1 kapittel 5', fil: 'Mod 1.1 video/Kap 5. Sikkerhetsbestemmelser for bruk av arbeidsutstyr.m4v', tid: '5:31' },
+        punkter: ['Hvilket sikkerhetsutstyr ser du?', 'Hvilket verneutstyr brukes?'] },
+      { id: 'maskin', type: 'tavle', min: 10, tittel: 'Krav til maskinen',
+        punkter: ['Bruksanvisning på norsk skal følge med (aml. § 5-5).', 'CE-merke og samsvarserklæring fra produsenten (maskinforskriften).', 'Nødstopp som stanser farlige bevegelser raskt.', 'Vern mot velt og fallende gjenstander på maskiner som kan velte (§ 19-4).', 'Maskinen skal ikke kunne kjøres uten at føreren er ved betjeningen.', 'Koble aldri ut vern eller sikkerhetsbrytere.'] },
+      { id: 'kontroll', type: 'tavle', min: 9, tittel: 'Kontroll av arbeidsutstyr', fig: 'kontroller',
+        punkter: ['Kontroll før bruk gjør du som fører.', 'Periodisk kontroll og service etter produsentens intervaller.', 'Sakkyndig kontroll minst hver 12. måned for kraner, truck og masseforflytningsmaskiner (§§ 13-1 og 13-2).', 'Feil som har betydning for sikkerheten: utstyret tas ut av bruk (§ 12-5).'] },
+      { id: 'kontrollquiz', type: 'quiz', min: 5, tittel: 'Hvilken kontroll?',
+        spm: [
+          { s: 'Sjekke bremser og nødstopp før skiftet', v: HVILKEN_K, r: 0 },
+          { s: 'Service etter et bestemt antall driftstimer', v: HVILKEN_K, r: 1 },
+          { s: 'Maskinen har vært ute av bruk i over et halvt år', v: HVILKEN_K, r: 2 },
+          { s: 'Det har gått tolv måneder siden siste attest', v: HVILKEN_K, r: 2 },
+        ] },
+      { id: 'pvu', type: 'tavle', min: 10, tittel: 'Støy, vibrasjoner og verneutstyr',
+        punkter: ['Kollektive tiltak først, for eksempel stillere maskiner og skjerming. Personlig verneutstyr når det ikke er nok.', 'Arbeidsgiver skaffer verneutstyret. Du plikter å bruke det (aml. §§ 2-3 og 3-2).', 'Støy: tiltak fra 80 dB, og grenseverdien er 85 dB. Impulslyd har grense på 130 dB.', '3 dB mer betyr dobbelt så mye lydenergi. Hørselstap er en av de vanligste yrkesskadene.', 'Helkroppsvibrasjoner kan gi rygg- og nakkeplager.'] },
+      { id: 'stoyquiz', type: 'quiz', min: 5, tittel: 'Støy og verneutstyr',
+        spm: [
+          { s: 'Fra hvilket støynivå skal arbeidsgiver sette i verk tiltak?', v: ['60 dB', '80 dB', '105 dB'], r: 1 },
+          { s: 'Hva betyr 3 dB mer støy?', v: ['Litt mer', 'Dobbelt så mye lydenergi', 'Ti ganger så mye'], r: 1 },
+          { s: 'Hvem skaffer personlig verneutstyr?', v: ['Arbeidsgiver', 'Du selv', 'Verneombudet'], r: 0 },
+        ] },
+      { id: 'hoyde', type: 'tavle', min: 9, tittel: 'Arbeid i høyden og stillas',
+        punkter: ['Arbeid i høyden skal risikovurderes (§ 17-1).', 'Kollektiv sikring som rekkverk og stillas kommer før personlig fallsikring.', 'Ved arbeid over 2 meter der det er fare for fall, brukes godkjent fallsikringssele med fallblokk.', 'Montering og bruk av stillas krever egen opplæring (§§ 17-2 til 17-5).'] },
+      { id: 'loft', type: 'tavle', min: 10, tittel: 'Personløft og løfteoperasjoner',
+        punkter: ['Personer løftes bare med utstyr og plattform beregnet for det (§ 18-8).', 'Unntaksvise løft: liten fare, kortvarig og enkel jobb. Betjeningen skal hele tiden være bemannet.', 'Utstyr som løfter last, skal være merket med største tillatte last (§ 18-2).', 'Stabilitet skal være sikret under alle forhold, og underlaget skal vurderes (§ 18-4).', 'Mobilt arbeidsutstyr skal ha vern mot velt og bremser, og føreren skal ha god sikt (§§ 19-4 og 19-5).'] },
+      { id: 'lovlig', type: 'quiz', min: 8, tittel: 'Er dette greit?',
+        spm: [
+          { s: 'En kollega står på en pall på gaflene for å nå en hylle.', v: ['Greit hvis det går fort', 'Ikke greit', 'Greit med hjelm'], r: 1 },
+          { s: 'Du kobler ut setebryteren fordi den piper.', v: ['Greit', 'Ikke greit'], r: 1 },
+          { s: 'Bruksanvisningen finnes bare på engelsk.', v: ['Greit', 'Ikke greit, den skal være på norsk'], r: 1 },
+          { s: 'Du finner en feil på bremsene og fortsetter forsiktig.', v: ['Greit', 'Ikke greit, maskinen skal tas ut av bruk'], r: 1 },
+          { s: 'Arbeidsgiver gir deg hørselvern, men du lar dem ligge.', v: ['Greit, det er ditt valg', 'Ikke greit, du plikter å bruke dem'], r: 1 },
+        ] },
+      { id: 'exit', type: 'quiz', min: 8, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hva sier arbeidsmiljøloven om bruksanvisning?', v: ['Den skal være på norsk', 'Engelsk godtas', 'Den er ikke påkrevd'], r: 0 },
+          { s: 'Hva gjør du når du oppdager en feil på arbeidsutstyret?', v: ['Fortsetter hvis det virker forsvarlig', 'Stopper arbeidet og melder fra til arbeidsgiver', 'Venter til skiftet er over'], r: 1 },
+          { s: 'Hvordan vet du at nytt arbeidsutstyr er lovlig?', v: ['Det har CE-merke og samsvarserklæring', 'Det er nytt', 'Det står i ordrebekreftelsen'], r: 0 },
+          { s: 'Hvor ofte skal kraner, truck og masseforflytningsmaskiner minst ha sakkyndig kontroll?', v: ['Hver 6. måned', 'Hver 12. måned', 'Hvert 2. år'], r: 1 },
+          { s: 'Hva kommer først: kollektive tiltak eller personlig verneutstyr?', v: ['Kollektive tiltak', 'Personlig verneutstyr', 'Det er likegyldig'], r: 0 },
+          { s: 'Når kan en person løftes med utstyr som ikke er beregnet for det?', v: ['Aldri', 'Unntaksvis: liten fare, kortvarig og med bemannet betjening', 'Når det haster'], r: 1 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 4, tittel: 'Oppsummering',
+        punkter: ['CE-merke, samsvarserklæring og bruksanvisning på norsk.', 'Kontroll før bruk, periodisk og sakkyndig kontroll.', 'Kollektive tiltak først, så personlig verneutstyr.', 'Personer løftes bare med utstyr beregnet for det.'] },
+    ],
+  };
+
+  const M11_6 = {
+    id: 'm11-6', modul: 'Modul 1.1', nr: 6, tittel: 'Farlig gods: merking og håndtering', timer: 1,
+    emner: ['Grunnleggende innføring', 'Bestemmelser', 'Krav til merking', 'Forholdsregler'],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Farlig gods' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Hva er farlig gods?',
+        spm: 'Hvilket av disse er farlig gods?',
+        valg: ['En pall med tung stålplate', 'Et fat med brannfarlig væske', 'Gods med skarpe kanter', 'Dårlig stablet gods'], riktig: 1,
+        forklaring: 'Farlig gods er stoffer som er eksplosive, brannfarlige, giftige, etsende, radioaktive eller på annen måte farlige for helse og miljø. Tungt eller skarpt gods er ikke farlig gods.' },
+      { id: 'film', type: 'tavle', min: 7, tittel: 'Film: Farlig gods', film: { kap: 'Modul 1.1 kapittel 6', fil: 'Mod 1.1 video/Kap 6. Farlig gods.m4v', tid: '6:22' },
+        punkter: ['Hvordan er farlig gods merket?', 'Hva gjør du hvis noe lekker?'] },
+      { id: 'hva', type: 'tavle', min: 6, tittel: 'Regelverket',
+        punkter: ['Farlig gods kan eksplodere, brenne, forgifte, etse eller stråle.', 'Internasjonale regler: ADR for vei, RID for jernbane, IMDG for sjø og ICAO for fly.', 'Forskrift om landtransport av farlig gods gjør ADR og RID gjeldende i Norge. DSB fører tilsyn.', 'Den som laster, losser eller håndterer farlig gods, skal ha opplæring.'] },
+      { id: 'klasser', type: 'tavle', min: 6, tittel: 'Fareklassene',
+        punkter: ['1 Eksplosive stoffer · 2 Gasser · 3 Brannfarlige væsker', '4 Brannfarlige faste stoffer · 5 Oksiderende stoffer og organiske peroksider', '6 Giftige og smittefarlige stoffer · 7 Radioaktive stoffer', '8 Etsende stoffer · 9 Forskjellige farlige stoffer, for eksempel litiumbatterier'] },
+      { id: 'merking', type: 'tavle', min: 6, tittel: 'Merking',
+        punkter: ['Kolli merkes med faresedler, kvadrater på spissen som viser fareklassen.', 'Kjøretøy med farlig gods har oransje skilt foran og bak.', 'Skilt med tall: farenummeret øverst og UN-nummeret nederst. UN-nummeret forteller hvilket stoff det er.', 'Kjemikalier på arbeidsplassen har egne faresymboler med rød kant. Det er et annet merkesystem.'] },
+      { id: 'truck', type: 'tavle', min: 6, tittel: 'Når du håndterer farlig gods',
+        punkter: ['Skadet eller lekk emballasje avvises alltid.', 'Lekker et kolli: stopp, hold avstand, varsle og følg bedriftens beredskapsrutiner.', 'Hold ulike stoffer atskilt etter reglene for samlasting.', 'Har du ikke fått opplæring, har du rett til å la være å håndtere farlig gods.'] },
+      { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hvilken fareklasse er brannfarlige væsker?', v: ['Klasse 1', 'Klasse 3', 'Klasse 8'], r: 1 },
+          { s: 'Hva forteller UN-nummeret?', v: ['Hvilket stoff det er', 'Hvor mye det veier', 'Hvem som har sendt det'], r: 0 },
+          { s: 'Er det internasjonale regler for merking av farlig gods?', v: ['Ja', 'Nei, bare norske'], r: 0 },
+          { s: 'Hva gjør du med skadet farlig gods?', v: ['Avviser det', 'Tar det imot og melder fra senere', 'Teiper emballasjen'], r: 0 },
+          { s: 'Hvem fører tilsyn med landtransport av farlig gods?', v: ['Arbeidstilsynet', 'DSB', 'Statens vegvesen'], r: 1 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+        punkter: ['Farlig gods merkes med faresedler etter fareklasse.', 'Oransje skilt: farenummer øverst, UN-nummer nederst.', 'Skadet gods avvises. Ved lekkasje: stopp, hold avstand og varsle.'] },
+    ],
+  };
+
   const HVEM = ['Arbeidsgiver', 'Arbeidstaker'];
   const INNLED = {
     id: 'm22-1', modul: 'Modul 2.2', nr: 1, tittel: 'Innledning og krav til truckfører', timer: 1,
@@ -1422,6 +1663,78 @@ svg text { font-family: var(--body); }
     },
   });
 
+  const filmGjor = 'Første gang i timen: trykk «Velg filmmappen på PC-en» og velg mappen Truck ekstra. ';
+  const FILMKILDE = 'Noorsi-film. Kvalitetshåndboka pkt. 6.7: video i hver leksjon.';
+  Object.assign(NOTATER, {
+    'm11-1': {
+      inn: { gjor: 'Presenter kurset: modul 1.1 er felles teori for kran, truck og masseforflytningsmaskiner, og avsluttes med prøve i Dugga. Presenter deg selv og la deltakerne presentere seg.', si: ['Leksjon 1 i modul 1.1 er satt av til 1 time.'], kilde: 'Kvalitetshåndboka pkt. 6.7, leksjon 1. Opplæringsplan modul 1 (august 2023).' },
+      gjett: { si: ['De fleste ulykker skyldes menneskelige feilvurderinger, ikke tekniske feil.'], kilde: 'Teoritreneren, fagkort «Ulykker og risiko».' },
+      film: { gjor: filmGjor, kilde: FILMKILDE },
+      opplaering: { si: ['§ 10-2: opplæringen skal gi kunnskap om oppbygging, betjening, bruksegenskaper, bruksområde, vedlikehold og kontroll. Den skal dokumenteres.', '§ 10-3 lister utstyret som krever sertifisert opplæring, blant annet truck med førerplass, kraner og masseforflytningsmaskiner over 15 kW.', 'Under 18 år er slikt arbeid forbudt, med unntak for opplæring fra 17 år, og fra 16 år i videregående under skolens kyndige veiledning (org./ledelse §§ 12-6 og 12-7).', 'Modul 3 tas hos opplæringsvirksomheten. Modul 4 kan tas i bedriften med fadder.'], kilde: 'Forskrift om utførelse av arbeid §§ 10-1 til 10-4. Forskrift om organisering, ledelse og medvirkning §§ 12-6 og 12-7.' },
+      oppquiz: { gjor: 'Elevene svarer alene. Gå gjennom svarene.' },
+      holdning: { spor: ['Hva gjør du hvis en kollega tar en farlig snarvei?', 'Hvorfor tar folk snarveier?'], kilde: 'Kvalitetshåndboka pkt. 6.7: adferd og holdninger til sikkerhet.' },
+      rapport: { si: ['Arbeidstaker skal melde fra om skader og feil (aml. § 2-3). Arbeidsgiver registrerer personskader (§ 5-1).', 'Yrkesskadeforsikringen gir full erstatning uten hensyn til skyld (yrkesskadeforsikringsloven § 3).'], kilde: 'Arbeidsmiljøloven §§ 2-3 og 5-1. Yrkesskadeforsikringsloven § 3.' },
+      exit: { gjor: 'Elevene svarer alene. Ta opp det flest bommer på.' },
+      slutt: { gjor: 'Neste leksjon er lover og forskrifter.' },
+    },
+    'm11-2': {
+      inn: { si: ['Leksjon 2 i modul 1.1 er satt av til 1 time. Det er en kort innføring, ikke en gjennomgang av hver paragraf.'], kilde: 'Kvalitetshåndboka pkt. 6.7, leksjon 2.' },
+      film: { gjor: filmGjor, kilde: FILMKILDE },
+      tilsyn: { gjor: 'Vis gjerne lovdata.no på tavla og søk opp arbeidsmiljøloven.', si: ['Håndboka sier at aktuelle forskrifter vises digitalt på lovdata.no på hvert kurs.'], kilde: 'Kvalitetshåndboka pkt. 6.2.4.' },
+      aml: { si: ['Verneombud skal velges i alle virksomheter. Med færre enn 5 ansatte kan partene skriftlig avtale en annen ordning (§ 6-1).', 'Bedriftshelsetjenesten er en uavhengig faglig tjeneste som hjelper virksomheten med arbeidsmiljøet. Arbeidsgiver må ha den når risikoforholdene tilsier det (§ 3-3).', 'Grensen for arbeidsmiljøutvalg er nå 30 ansatte (10 hvis en part krever det). Eldre materiell, også teoritreneren, sier 50. Sjekk hvordan prøven i Dugga spør.'], kilde: 'Arbeidsmiljøloven §§ 2-1, 2-3, 3-2, 3-3, 5-5, 6-1 til 6-3 og 7-1.' },
+      ik: { si: ['§ 5 lister hva det systematiske HMS-arbeidet skal inneholde. Blant annet skal mål, ansvar, risikovurderinger og rutiner for avvik dokumenteres skriftlig.'], kilde: 'Internkontrollforskriften §§ 4 og 5.' },
+      forskrifter: { si: ['CE-merke kreves for maskiner produsert etter 1. januar 1995.', 'Byggherreforskriften krever HMS-kort på bygge- og anleggsplasser.'], kilde: 'Forskriftene 1355, 1356, 1357 og 1360. Maskinforskriften. Byggherreforskriften. Teoritreneren, fagkort «Andre forskrifter du må kjenne».' },
+      hvilken: { gjor: 'Elevene svarer to og to.' },
+      exit: { gjor: 'Elevene svarer alene.' },
+      slutt: { gjor: 'Neste leksjon er arbeidsmiljø, ansvar og konsekvenser.' },
+    },
+    'm11-3': {
+      inn: { si: ['Leksjon 3 i modul 1.1 er satt av til 1 time.'], kilde: 'Kvalitetshåndboka pkt. 6.7, leksjon 3.' },
+      film: { gjor: filmGjor, kilde: FILMKILDE },
+      risiko: { si: ['Risikovurdering er påkrevd etter forskrift om organisering, ledelse og medvirkning kap. 7.', 'Avvik og nestenuhell skal rapporteres, så årsakene kan fjernes.'], spor: ['Hvilke risikoer finnes i verkstedet eller lageret her?'], kilde: 'Forskrift om organisering, ledelse og medvirkning § 7-1. Teoritreneren, fagkort «Avvik, nestenuhell og risikovurdering».' },
+      sja: { gjor: 'Vis resultatet. Ta gjerne en SJA på tavla for en konkret jobb, for eksempel å bytte gassflaske på en truck.' },
+      plikter: { si: ['§ 2-3 bokstav c: arbeidstaker skal avbryte arbeidet hvis det ikke kan fortsette uten fare for liv eller helse.', '§ 6-3: verneombudet kan stanse arbeidet til Arbeidstilsynet har tatt stilling.'], kilde: 'Arbeidsmiljøloven §§ 2-1, 2-3 og 6-3.' },
+      rollequiz: { gjor: 'Vis resultatet og ta opp verneombudets stanserett.' },
+      konsekvens: { si: ['På offentlig vei regnes du som påvirket fra 0,2 promille (vegtrafikkloven).', 'Medisin med rød varseltrekant: ikke kjør før du vet at den ikke påvirker deg.'], kilde: 'Arbeidsmiljøloven §§ 19-1 og 19-2. Truck ABC s. 37. Teoritreneren, fagkort «Rus, medisiner og kjøring».' },
+      exit: { gjor: 'Elevene svarer alene.' },
+      slutt: { gjor: 'Neste leksjon er ytre miljø.' },
+    },
+    'm11-4': {
+      inn: { si: ['Leksjon 4 i modul 1.1 er satt av til 1 time.'], kilde: 'Kvalitetshåndboka pkt. 6.7, leksjon 4.' },
+      gjett: { gjor: 'La elevene svare og vis fordelingen.' },
+      film: { gjor: filmGjor, kilde: FILMKILDE },
+      lover: { si: ['Forurensningsloven § 1: formålet er å verne det ytre miljø mot forurensning, redusere avfall og fremme bedre behandling av avfall.', '§ 39: ved akutt forurensning skal politiet varsles straks. Varslingen skjer i praksis på nødnummer 110.', '§ 40: virksomheter som kan gi akutt forurensning, skal ha beredskap.'], kilde: 'Forurensningsloven §§ 1, 7, 28, 39 og 40.' },
+      olje: { si: ['Farlig avfall skal leveres til virksomhet med tillatelse (avfallsforskriften kap. 11).', 'Sikkerhetsdatablad het tidligere HMS-datablad.'], kilde: 'Avfallsforskriften kap. 11. Oppgavesamling modul 1.1.' },
+      avgass: { si: ['Paller og treemballasje til eksport skal være behandlet og merket etter den internasjonale standarden ISPM 15. Merket viser IPPC-logoen og HT for varmebehandlet.'], kilde: 'Truck ABC s. 59–60. Rettingen i Dugga: IPPC/HT.' },
+      quiz: { gjor: 'Vis resultatet.' },
+      exit: { gjor: 'Elevene svarer alene.' },
+      slutt: { gjor: 'Neste leksjon er sikkerhetsbestemmelser for bruk av arbeidsutstyr.' },
+    },
+    'm11-5': {
+      inn: { si: ['Leksjon 5 i modul 1.1 er satt av til 2 timer. Håndboka viser til kapittel 10, 18 og 19 i forskrift om utførelse av arbeid.'], kilde: 'Kvalitetshåndboka pkt. 6.7, leksjon 5.' },
+      film: { gjor: filmGjor, kilde: FILMKILDE },
+      maskin: { si: ['Maskinforskriften retter seg mot produsenter, importører og leverandører.', 'Merkingen skal vise produsent, betegnelse, CE-merke, serie- eller typebetegnelse og byggeår.', 'Eldre maskiner uten CE-merke har maskinsertifikat.'], kilde: 'Arbeidsmiljøloven § 5-5. Maskinforskriften. Forskrift om utførelse av arbeid §§ 10-10 og 19-4.' },
+      kontroll: { si: ['Forklar kontrollene kort her. Truckelevene får det grundig i modul 2.2 leksjon 5.'], kilde: 'Forskrift om utførelse av arbeid kap. 12 og 13.' },
+      pvu: { si: ['Nedre tiltaksverdi er 80 dB for de fleste arbeidsforhold. Øvre tiltaksverdi og grenseverdi er 85 dB over 8 timer, og 130 dB for impulslyd.', 'Arbeidsgiver skal stille verneutstyr til rådighet, gi opplæring og sørge for at det brukes (aml. § 3-2 andre ledd).'], kilde: 'Forskrift om tiltaks- og grenseverdier. Arbeidsmiljøloven §§ 2-3 og 3-2.' },
+      stoyquiz: { gjor: 'Vis resultatet.' },
+      hoyde: { si: ['Stillas med øverste gulv fra 2 meter krever egen opplæring for montering (§ 17-2).', 'Grensen på 2 meter for fallsikring er beholdt som i prøven i Dugga.'], kilde: 'Forskrift om utførelse av arbeid §§ 17-1 til 17-5. Truck ABC s. 74.' },
+      loft: { si: ['§ 18-7: utstyr som løfter personer, skal hindre at plattformen faller ned, at personen faller ut, og at personen blir klemt eller knust.', '§ 19-5: mobilt arbeidsutstyr skal ha innretning som hindrer utilsiktet start, bremser, og hjelpemidler for sikt når føreren ikke ser godt nok.'], kilde: 'Forskrift om utførelse av arbeid §§ 18-2, 18-4, 18-7, 18-8, 19-4 og 19-5.' },
+      lovlig: { gjor: 'La elevene diskutere to og to før de svarer.' },
+      exit: { gjor: 'Elevene svarer alene.' },
+      slutt: { gjor: 'Neste leksjon er farlig gods.' },
+    },
+    'm11-6': {
+      inn: { si: ['Leksjon 6 i modul 1.1 er satt av til 1 time. Det er en grunnleggende innføring. ADR i dybden tas i eget kurs.'], kilde: 'Kvalitetshåndboka pkt. 6.7, leksjon 6.' },
+      film: { gjor: filmGjor, kilde: FILMKILDE },
+      hva: { si: ['Forskrift om landtransport av farlig gods gjør ADR (vei) og RID (jernbane) til norsk rett.', 'Virksomheter som håndterer farlig gods, skal ha sikkerhetsrådgiver.', 'Et bedriftsområde som er stengt for alminnelig trafikk, er unntatt ADR og RID.'], kilde: 'Forskrift om landtransport av farlig gods. Teoritreneren, fagkort «Regelverk og skilting».' },
+      klasser: { si: ['Klasse 4 er delt i 4.1, 4.2 og 4.3, klasse 5 i 5.1 og 5.2, og klasse 6 i 6.1 og 6.2.'], kilde: 'Teoritreneren, fagkort «Fareklasser – oversikt».' },
+      merking: { si: ['Faresedlene for transport og faresymbolene for kjemikalier (CLP) er to ulike systemer. Mange blander dem.'], kilde: 'Truck ABC s. 86–90.' },
+      truck: { kilde: 'Truck ABC s. 82–93. Teoritreneren, fagkort «Farlig gods og truck».' },
+      exit: { gjor: 'Elevene svarer alene. Etter denne leksjonen er det prøve i Dugga.' },
+      slutt: { gjor: 'Modul 1.1 er ferdig. Neste er prøven i Dugga, og deretter modul 2.' },
+    },
+  });
+
   // Filmstegene: Noorsi-filmene spilles av fra lærerens PC (mappa Truck ekstra). De legges ikke ut.
   const filmNotat = (gjor, spor) => ({ gjor: 'Første gang i timen: trykk «Velg filmmappen på PC-en» og velg mappen Truck ekstra. Da spilles filmen på tavla. ' + gjor, spor, kilde: 'Noorsi-film, se filnavnet over. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' });
   Object.assign(NOTATER['m22-1'], { film: filmNotat('Be elevene se etter kravene til føreren.', ['Hvilke krav overrasket dere?']) });
@@ -1465,7 +1778,7 @@ svg text { font-family: var(--body); }
     if (t.feil) n.feil = (n.feil || []).concat(t.feil);
     n.kilde = (n.kilde ? n.kilde + ' ' : '') + OPPG;
   }
-  for (const l of [STAB, GODS, BRUK, KONTROLL, INNLED, ULYKKER, TYPER, KONSTR]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
+  for (const l of [STAB, GODS, BRUK, KONTROLL, INNLED, ULYKKER, TYPER, KONSTR, M11_1, M11_2, M11_3, M11_4, M11_5, M11_6]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
 
   // Fasit for aktivitetene, slik læreren ser den i notatene.
   function fasitTekst(st) {
@@ -1495,12 +1808,12 @@ svg text { font-family: var(--body); }
   // Hele stien. Bare leksjoner med steg kan startes.
   const STI = [
     { modul: 'Modul 1.1', navn: 'Arbeidsmiljø, ansvar og konsekvenser', leks: [
-      { nr: 1, tittel: 'Innledning: hvorfor sikkerhetsopplæring', timer: 1 },
-      { nr: 2, tittel: 'Lover og forskrifter', timer: 1 },
-      { nr: 3, tittel: 'Arbeidsmiljø, ansvar og konsekvenser', timer: 1 },
-      { nr: 4, tittel: 'Ytre miljø', timer: 1 },
-      { nr: 5, tittel: 'Sikkerhetsbestemmelser for bruk av arbeidsutstyr', timer: 2 },
-      { nr: 6, tittel: 'Farlig gods: merking og håndtering', timer: 1 },
+      M11_1,
+      M11_2,
+      M11_3,
+      M11_4,
+      M11_5,
+      M11_6,
       { nr: 7, tittel: 'Eksamen: skriftlig teoretisk prøve', timer: 1, dugga: true },
     ] },
     { modul: 'Modul 2.2', navn: 'Løfte- og stablevogner for gods (truck)', leks: [
