@@ -473,6 +473,16 @@ svg text { font-family: var(--body); }
     return s + '</svg>';
   }
 
+  // De tre kontrollene side om side: hvem, når og dokumentasjon.
+  function figKontroller() {
+    const k = [
+      ['Daglig kontroll', 'Føreren', 'Før bruk, hver dag eller hvert skift', 'Sjekkliste eller kontrollskjema etter bedriftens rutine'],
+      ['Periodisk kontroll og vedlikehold', 'Person med opplæring, ofte verksted eller service', 'Etter produsentens intervaller og bedriftens rutine', 'Vedlikeholdsjournal: hva som er gjort og av hvem'],
+      ['Sakkyndig kontroll', 'Sertifisert sakkyndig virksomhet', 'Minst hver 12. måned, og ellers når § 13-2 krever det', 'Attest om at trucken er fullt forsvarlig å bruke, og kontrollmerke'],
+    ];
+    return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${k.map(([t, hvem, nar, dok], i) => `<div class="figbox" style="border-top:4px solid ${['var(--ok)', 'var(--a1)', 'var(--accent)'][i]}"><b style="font-size:17px">${esc(t)}</b><dl style="margin:8px 0 0;display:grid;gap:6px;font-size:14px"><dt class="muted small">Hvem</dt><dd style="margin:0">${esc(hvem)}</dd><dt class="muted small">Når</dt><dd style="margin:0">${esc(nar)}</dd><dt class="muted small">Dokumentasjon</dt><dd style="margin:0">${esc(dok)}</dd></dl></div>`).join('')}</div>`;
+  }
+
   const SIM_URL = 'https://seiknes-ui.github.io/simmulator/truck/';
 
   // ---------- Kursinnhold ----------
@@ -606,6 +616,115 @@ svg text { font-family: var(--body); }
         ] },
       { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
         punkter: ['Sjekk lastbæreren og merkingen før du løfter.', 'Løft og senk bare når trucken står stille, og med masten loddrett ved stabelen.', 'Bilen skal være sikret før du kjører inn. Sjåføren bestemmer plasseringen.', 'Ser du ikke, bruk signalperson. Er du i tvil, stopp.'] },
+    ],
+  };
+
+  const HVILKEN = ['Daglig kontroll', 'Periodisk kontroll og vedlikehold', 'Sakkyndig kontroll'];
+  const KONTROLL = {
+    id: 'm22-5', modul: 'Modul 2.2', nr: 5, tittel: 'Kontroll og rapportering', timer: 2,
+    emner: ['Daglig kontroll: hva kontrollen gjelder', 'Kontrollrutiner og kontrollpunkter', 'Rapportere feil og kontrollskjema', 'Periodisk kontroll: hva, hvem, ansvar og dokumentasjon', 'Sakkyndig kontroll: hva, hvem, når, ansvar og kontrollbok'],
+    mal: [2],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Kontroll og rapportering' },
+      { id: 'mandag', type: 'valg', min: 4, tittel: 'Mandag morgen',
+        spm: 'Trucken var i orden da den ble parkert på fredag. Nå er det mandag morgen, og du skal kjøre. Hvem skal sjekke at den er i orden?',
+        valg: ['Verkstedet', 'Du, med daglig kontroll før du kjører', 'Arbeidsgiveren, én gang i uka', 'Ingen, den var jo i orden på fredag'], riktig: 1,
+        forklaring: 'Føreren gjør daglig kontroll før bruk. Det kan ha skjedd noe siden sist: en lekkasje, en skade fra en annen fører eller et flatt dekk.' },
+      { id: 'tre', type: 'tavle', min: 7, tittel: 'Tre typer kontroll', fig: 'kontroller',
+        punkter: ['Daglig kontroll gjør du som fører før du kjører.', 'Periodisk kontroll og vedlikehold gjøres etter faste intervaller av folk med opplæring.', 'Sakkyndig kontroll gjøres av en sertifisert sakkyndig virksomhet, minst hver 12. måned.', 'Arbeidsgiveren har ansvaret for at alle tre blir gjort.'] },
+      { id: 'daglig', type: 'tavle', min: 9, tittel: 'Daglig kontroll',
+        punkter: ['Gå rundt trucken: ytre skader, dekk og felger, og lekkasjer under trucken.', 'Væsker og energi: olje og kjølevæske på forbrenningsmotor, batteri og lading på elektrisk truck, gassflaske og kobling på gasstruck.', 'Løftesystemet: mast, kjeder, gaffelvogn og gaffelarmer, uten sprekker, skjevheter eller slakke kjeder.', 'Fra førersetet: instrumenter, horn, lys og varsellamper, setebelte eller annen fastholding.', 'Funksjonstest: styring, bremser og parkeringsbrems, løft, senk og tilt, og hydraulikken uten lekkasjer.', 'Fyll ut sjekklisten. Det du ikke har sjekket, vet du ikke.'] },
+      { id: 'rekke', type: 'rekkefolge', min: 5, tittel: 'Daglig kontroll i rekkefølge',
+        spm: 'Sett stegene i en fornuftig rekkefølge for daglig kontroll.',
+        ledd: ['Gå rundt trucken og se etter skader, dekk og lekkasjer', 'Sjekk olje, kjølevæske eller batteri', 'Sett deg i førersetet og sjekk instrumenter, horn og lys', 'Test styring, bremser og parkeringsbrems', 'Test løft, senk og tilt', 'Fyll ut sjekklisten og meld fra om feil'],
+        forklaring: 'Først det du ser utenfra, så det du sjekker fra førersetet, så funksjonstesten. Sjekklisten fylles ut til slutt, og feil meldes med en gang.' },
+      { id: 'praksis', type: 'tavle', min: 15, tittel: 'Daglig kontroll i praksis',
+        punkter: ['Gå ut til trucken to og to.', 'Én gjør kontrollen og sier høyt hva som sjekkes. Den andre følger med på sjekklisten.', 'Bytt roller.', 'Skriv ned alt dere finner, selv det som virker lite.'] },
+      { id: 'feil', type: 'tavle', min: 6, tittel: 'Når du finner en feil',
+        punkter: ['Feil som har betydning for sikkerheten: trucken tas ut av bruk straks og brukes ikke før feilen er rettet (§ 12-5).', 'Meld fra til nærmeste leder, og skriv feilen i kontrollskjemaet.', 'Merk trucken, for eksempel med «ute av drift», og ta ut nøkkelen så ingen andre bruker den.', 'Skader og uhell meldes, også de som ikke førte til personskade.'] },
+      { id: 'feilquiz', type: 'quiz', min: 6, tittel: 'Hva gjør du?',
+        spm: [
+          { s: 'Bremsen tar dårlig når du tester den. Hva gjør du?', v: ['Kjører forsiktig resten av dagen', 'Tar trucken ut av bruk og melder fra', 'Bruker parkeringsbremsen i stedet'], r: 1 },
+          { s: 'Hornet virker ikke. Hva gjør du?', v: ['Ingenting, du kan rope', 'Tar trucken ut av bruk og melder fra', 'Bruker den, men kjører ikke i kryss'], r: 1 },
+          { s: 'En løftekjede har et sprukket ledd. Hva gjør du?', v: ['Tar trucken ut av bruk og melder fra', 'Løfter bare lette laster', 'Smører kjedet'], r: 0 },
+        ],
+        forklaring: 'Bremser, horn og løftekjeder har betydning for sikkerheten. Da skal trucken ut av bruk til feilen er rettet.' },
+      { id: 'periodisk', type: 'tavle', min: 7, tittel: 'Periodisk kontroll og vedlikehold',
+        punkter: ['Arbeidsgiveren skal sørge for periodisk kontroll av utstyr som slites og kan bli farlig (§ 12-3).', 'Kontroll og vedlikehold skal bare gjøres av folk med nødvendig opplæring (§ 12-2).', 'Følg produsentens serviceintervaller i bruksanvisningen.', 'Vedlikehold gjøres med trucken stanset og energien frakoblet (§ 12-6).', 'Det skal komme tydelig fram hva som er kontrollert og av hvem. Journalen skal være tilgjengelig for verneombudet, AMU og tilsynet (§ 12-8).'] },
+      { id: 'sakkyndig', type: 'tavle', min: 9, tittel: 'Sakkyndig kontroll',
+        punkter: ['Truck (løfte- og stablevogn for gods) skal ha sakkyndig kontroll (§ 13-1).', 'Minst hver 12. måned, og dessuten etter 6 måneder ute av bruk, etter betydelig overbelastning, etter større reparasjoner og når miljøet krever det (§ 13-2).', 'Kontrollen gjøres av en sertifisert sakkyndig virksomhet, uavhengig av bedriften.', 'Den sakkyndige sjekker slitedeler, gjør funksjonskontroll med last, kontrollerer verneinnretninger og at instruksjonene finnes.', 'Bedriften får en attest om at trucken er fullt forsvarlig å bruke. Dokumentasjonen følger trucken ved salg (§ 13-4).'] },
+      { id: 'hvilken', type: 'quiz', min: 9, tittel: 'Hvilken kontroll?',
+        spm: [
+          { s: 'Sjekke at hornet og bremsene virker før skiftet', v: HVILKEN, r: 0 },
+          { s: 'Service og smøring etter et bestemt antall driftstimer', v: HVILKEN, r: 1 },
+          { s: 'Trucken har stått ubrukt i åtte måneder og skal tas i bruk igjen', v: HVILKEN, r: 2 },
+          { s: 'Se etter lekkasjer under trucken', v: HVILKEN, r: 0 },
+          { s: 'Masten er reparert etter en stor skade', v: HVILKEN, r: 2 },
+          { s: 'Det har gått tolv måneder siden siste attest', v: HVILKEN, r: 2 },
+        ],
+        forklaring: 'Daglig kontroll er førerens sjekk før bruk. Periodisk kontroll og vedlikehold følger serviceintervallene. Sakkyndig kontroll kreves minst hver 12. måned og i tillegg etter lang tid ute av bruk, stor overbelastning eller større reparasjoner.' },
+      { id: 'exit', type: 'quiz', min: 8, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hvem gjør den daglige kontrollen?', v: ['Verkstedet', 'Føreren', 'Den sakkyndige'], r: 1 },
+          { s: 'Hva skjer med en truck som har en feil som har betydning for sikkerheten?', v: ['Den kan brukes forsiktig', 'Den tas ut av bruk til feilen er rettet', 'Den brukes til feilen er meldt'], r: 1 },
+          { s: 'Hvor ofte skal en truck minst ha sakkyndig kontroll?', v: ['Hver 6. måned', 'Hver 12. måned', 'Hvert 2. år'], r: 1 },
+          { s: 'Hvem kan utføre sakkyndig kontroll?', v: ['Hvem som helst med truckførerbevis', 'En sertifisert sakkyndig virksomhet', 'Verneombudet'], r: 1 },
+          { s: 'Hvem har ansvaret for at kontrollene blir gjort?', v: ['Arbeidsgiveren', 'Truckprodusenten', 'Den som kjørte sist'], r: 0 },
+          { s: 'Hva skal komme fram i dokumentasjonen av kontroll og vedlikehold?', v: ['Hva som er kontrollert og hvem som gjorde det', 'Bare datoen', 'Ingenting, det holder å gjøre det'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+        punkter: ['Daglig kontroll før bruk er førerens ansvar.', 'Feil som har betydning for sikkerheten: ta trucken ut av bruk og meld fra.', 'Periodisk kontroll og vedlikehold følger produsentens intervaller og dokumenteres.', 'Sakkyndig kontroll minst hver 12. måned, med attest.'] },
+    ],
+  };
+
+  const BRUK = {
+    id: 'm22-9', modul: 'Modul 2.2', nr: 9, tittel: 'Bruks- og sikkerhetsbestemmelser', timer: 1,
+    emner: ['Bruk på offentlig vei', 'Kjøring med truck', 'Personløft', 'Truckens løftekapasitet', 'Parkering', 'Brann- og eksplosjonsfare', 'Ex-trucker', 'Fylling av drivstoff og lading'],
+    mal: [3, 15],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Bruks- og sikkerhetsbestemmelser' },
+      { id: 'vei', type: 'valg', min: 4, tittel: 'Ut på veien?',
+        spm: 'Du skal kjøre trucken 200 meter langs en offentlig vei til lageret ved siden av. Hva må være på plass?',
+        valg: ['Bare kompetansebeviset for truck', 'Riktig førerkort, og trucken og lasten må følge trafikkreglene', 'Ingenting, det er så kort', 'Varsellys på taket'], riktig: 1,
+        forklaring: 'På offentlig vei gjelder vegtrafikkloven. Du trenger førerkort som passer for trucken og lastens totalvekt, og lasten må være sikret og innenfor tillatt bredde. Kompetansebeviset gjelder bruken av trucken, ikke kjøring på vei.' },
+      { id: 'veitavle', type: 'tavle', min: 4, tittel: 'Trucken på offentlig vei',
+        punkter: ['Vegtrafikkloven gjelder: kjør hensynsfullt og vær aktpågivende (§ 3).', 'Du trenger førerkort som passer for trucken og lastens totalvekt.', 'Lasten skal være sikret og innenfor tillatt bredde. Utstikkende gafler skal merkes.', 'Bedriftens egne regler kan gjelde i tillegg.'] },
+      { id: 'kjoring', type: 'tavle', min: 7, tittel: 'Kjøring på arbeidsplassen',
+        punkter: ['Tilpass farten etter sikt, underlag, last og folk rundt deg.', 'Kjør med lasten senket. Hindrer lasten sikten, rygger du eller bruker en medhjelper.', 'Hold avstand, gjerne tre trucklengder til trucken foran.', 'Kjøreveier og gangveier skal være skilt fra hverandre der det er mulig. Respekter merkingen.', 'Ingen passasjerer, og ingen skal gå under løftet last.', 'Heis: sjekk at heisen tåler truck, last og fører. Kjør inn med lasten først.'] },
+      { id: 'kjorquiz', type: 'quiz', min: 5, tittel: 'Hva gjør du?',
+        spm: [
+          { s: 'Lasten er så høy at du ikke ser framover. Hva gjør du?', v: ['Kjører sakte og tuter', 'Rygger, eller bruker en medhjelper', 'Løfter lasten så du ser under den'], r: 1 },
+          { s: 'En kollega vil sitte på gaflene et stykke. Hva svarer du?', v: ['Ja, hvis vi kjører sakte', 'Nei, det er ikke lov å ta med passasjerer', 'Ja, hvis han holder seg fast'], r: 1 },
+          { s: 'Du nærmer deg et uoversiktlig kryss i lageret. Hva gjør du?', v: ['Senker farten og varsler', 'Holder farten for å komme fort forbi', 'Kjører midt i krysset så du blir sett'], r: 0 },
+        ],
+        forklaring: 'Du skal se dit du kjører. Passasjerer er forbudt. Ved kryss, porter og andre steder med dårlig sikt senker du farten og varsler.' },
+      { id: 'personloft', type: 'tavle', min: 5, tittel: 'Personløft',
+        punkter: ['Personer skal bare løftes med utstyr og plattform som er beregnet for det (§ 18-8).', 'Plattformen skal ikke kunne falle ned, og personen skal ikke kunne falle ut, knuses eller klemmes (§ 18-7).', 'Unntaksvis kan annet utstyr brukes: lite farlig, kortvarig og enkel jobb.', 'Da skal føreren hele tiden være ved betjeningen, og den som løftes skal ha et sikkert kommunikasjonsmiddel og kunne evakueres trygt.', 'Stå aldri på gaflene eller på en vanlig pall.'] },
+      { id: 'parkering', type: 'rekkefolge', min: 5, tittel: 'Parker trucken',
+        spm: 'Sett stegene i riktig rekkefølge når du parkerer trucken etter bruk.',
+        ledd: ['Kjør til en lovlig parkeringsplass, ikke foran nødutganger, brannutstyr eller i gangveier', 'Senk gaflene helt ned til gulvet', 'Tilt masten litt forover så gaffelspissene ligger mot gulvet', 'Sett på parkeringsbremsen', 'Slå av trucken og ta ut nøkkelen'],
+        forklaring: 'Gafler som står oppe eller stikker opp, er en snublefare og kan skade folk. Nøkkelen tas ut så ingen uten opplæring kan bruke trucken.' },
+      { id: 'brann', type: 'tavle', min: 4, tittel: 'Brann- og eksplosjonsfare',
+        punkter: ['I områder merket som eksplosjonsfarlige (Ex) skal bare Ex-godkjente trucker brukes.', 'En vanlig truck kan lage gnister og varme som tenner gass, damp eller støv.', 'Vit hvor nærmeste brannslukker er, og hvordan den brukes.', 'Sølt drivstoff og olje tørkes opp med en gang.'] },
+      { id: 'fylling', type: 'tavle', min: 9, tittel: 'Drivstoff, gass og lading',
+        punkter: ['Diesel: motoren av, ingen røyking eller åpen flamme, og tørk opp søl.', 'Propan: bytt flaske på et godt ventilert sted, med motoren av og hansker på. Gassen er tyngre enn luft og samler seg i groper og kjellere.', 'Lekkasjesøk aldri med flamme. Bruk lekkasjespray eller såpevann.', 'Lading av blybatteri: ventilert ladeplass, lokket åpent og røyking forbudt. Ved lading dannes knallgass, som er svært eksplosiv.', 'Slå av laderen før du kobler fra, og fyll destillert vann etter lading. Bruk briller og hansker.', 'Litium-ion-batterier: følg produsentens regler. De skal ikke etterfylles.'] },
+      { id: 'fyllquiz', type: 'quiz', min: 6, tittel: 'Gass og lading',
+        spm: [
+          { s: 'Hvorfor er en propanlekkasje i et lager med kjeller ekstra farlig?', v: ['Gassen er lettere enn luft og stiger', 'Gassen er tyngre enn luft og samler seg nede', 'Propan er ikke brannfarlig'], r: 1 },
+          { s: 'Hvordan sjekker du om en gasskobling lekker?', v: ['Med en lighter', 'Med lekkasjespray eller såpevann', 'Ved å lukte på koblingen'], r: 1 },
+          { s: 'Hva må du gjøre før du kobler laderen fra batteriet?', v: ['Slå av laderen', 'Fylle vann', 'Ingenting'], r: 0 },
+          { s: 'Hvorfor er det røykeforbud på ladeplassen?', v: ['Røyk skader batteriet', 'Det dannes knallgass, som er svært eksplosiv', 'Det er bare en ordensregel'], r: 1 },
+        ] },
+      { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hva trenger du for å kjøre trucken på offentlig vei?', v: ['Bare kompetansebevis', 'Riktig førerkort, og du må følge trafikkreglene', 'Tillatelse fra kommunen'], r: 1 },
+          { s: 'Når kan en person løftes med en vanlig truckpall?', v: ['Når det går fort', 'Aldri. Personløft skal skje med utstyr som er beregnet for det', 'Når en kollega holder øye med det'], r: 1 },
+          { s: 'Hvordan skal gaflene stå når trucken er parkert?', v: ['Litt løftet så de ikke skrapes', 'Nede på gulvet, med spissene mot gulvet', 'Helt oppe'], r: 1 },
+          { s: 'Hvilken truck kan brukes i et område merket Ex?', v: ['Alle elektriske trucker', 'Bare Ex-godkjente trucker', 'Alle trucker med brannslukker'], r: 1 },
+          { s: 'Lasten hindrer sikten framover. Hva gjør du?', v: ['Rygger eller bruker medhjelper', 'Kjører sakte', 'Løfter lasten høyere'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+        punkter: ['På offentlig vei gjelder trafikkreglene, og du trenger riktig førerkort.', 'Se dit du kjører. Ingen passasjerer og ingen under løftet last.', 'Personer løftes bare med utstyr som er beregnet for det.', 'Parker med gaflene nede, bremsen på og nøkkelen ute.', 'Gass er tyngre enn luft, og lading gir knallgass. Ingen flamme og god ventilasjon.'] },
     ],
   };
 
@@ -774,8 +893,127 @@ svg text { font-family: var(--body); }
         gjor: 'Repeter det som var vanskeligst i exit ticket. Neste leksjon i stien er bruks- og sikkerhetsbestemmelser.',
       },
     },
+    'm22-9': {
+      inn: {
+        gjor: 'La elevene koble seg på mens du presenterer timen.',
+        si: ['Mål for timen: kjøre trygt, parkere riktig og håndtere drivstoff, gass og lading uten fare.', 'Leksjon 9 i modul 2.2 er satt av til 1 time. Den dekker målsetting 3 (riktig bruk og faremomenter) og 15 (fylling av drivstoff og lading).'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 9 og målsettingene 3 og 15.',
+      },
+      vei: {
+        gjor: 'La elevene svare, og bruk svarene til å skille mellom kompetansebevis og førerkort.',
+        si: ['Kompetansebeviset dokumenterer at du har sikkerhetsopplæring på trucken. Det er ikke et førerkort.', 'På offentlig vei gjelder vegtrafikkloven og trafikkreglene som for andre kjøretøy.'],
+        feil: ['At kompetansebeviset er nok til å kjøre på vei.'],
+        kilde: 'Vegtrafikkloven § 3. Truck ABC s. 270.',
+      },
+      veitavle: {
+        si: ['Grunnregelen i vegtrafikkloven § 3: alle skal ferdes hensynsfullt og være aktpågivende og varsomme.', 'Hvilket førerkort som kreves, avhenger av trucken og lastens totalvekt. Sjekk med bedriften før du kjører ut.', 'Lasten skal sikres som på andre kjøretøy, og utstikkende gafler merkes.'],
+        spor: ['Hvem har kjørt traktor på vei? Hva er likt?'],
+        kilde: 'Vegtrafikkloven § 3. Truck ABC s. 270 og øvingsoppgaver kap. 7.',
+      },
+      kjoring: {
+        gjor: 'Bruk gjerne bilder fra elevenes egne arbeidsplasser og spør hvor de har sett farlige situasjoner.',
+        si: ['Arbeidsplassforskriften krever at gående og kjørende ferdsel kan foregå forsvarlig, med sikkerhetsavstand for gående (§ 2-18).', 'Kjøreveier skal merkes, gjerne med hvite eller gule striper (§ 5-17).', 'Ved porter for kjøretøy skal det finnes egne dører for gående (§ 2-9).', 'Påkjørsler, særlig ved rygging, er blant de vanligste truckulykkene. Se deg alltid bak.', 'Mobiltelefonen hører ikke hjemme i hånda når du kjører.'],
+        spor: ['Hvor på arbeidsplassen deres møtes gående og trucker?'],
+        kilde: 'Arbeidsplassforskriften §§ 2-9, 2-18 og 5-17. Truck ABC s. 236 og 253–273.',
+      },
+      kjorquiz: {
+        gjor: 'Elevene svarer alene. Bruk resultatet til en kort runde om hva som er vanskelig å huske i praksis.',
+      },
+      personloft: {
+        gjor: 'Vis gjerne et bilde av en godkjent personløftekurv for truck.',
+        si: ['Hovedregelen i § 18-8: personer løftes bare med utstyr og plattform som er beregnet for å løfte personer.', 'Unntaksvise løft skal innebære liten fare, være kortvarige og gjelde enkle oppgaver.', 'Da skal betjeningsstedet hele tiden være bemannet, og den som løftes skal ha et driftssikkert kommunikasjonsmiddel og kunne evakueres trygt.', '§ 18-7 stiller krav til utstyret: plattformen skal ikke kunne falle ned, og personen skal ikke kunne falle ut, knuses, klemmes eller støtes.'],
+        feil: ['At det er greit å stå på gaflene eller på en pall «bare en gang».'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 18-7 og 18-8.',
+      },
+      parkering: {
+        gjor: 'Vis resultatet og spør hvorfor hvert steg er viktig.',
+        si: ['Gafler som står oppe, er en fare for folk som går forbi.', 'Nøkkelen tas ut så ingen uten opplæring kan bruke trucken.', 'Nødutganger, brannutstyr og gangveier skal alltid være frie.'],
+      },
+      brann: {
+        si: ['Ex-merkede områder er områder der det kan være eksplosiv atmosfære av gass, damp eller støv.', 'En Ex-truck er bygd så den ikke kan tenne en eksplosiv atmosfære. En vanlig truck kan det.', 'Trucker som kan utgjøre brannfare, skal ha brannslukker hvis det ikke finnes slukkeutstyr i nærheten (§ 19-5 f).'],
+        spor: ['Hvor kan det finnes eksplosjonsfarlige områder? (Tankanlegg, lakkering, kornsiloer, lagre med brannfarlige væsker.)'],
+        kilde: 'Forskrift om utførelse av arbeid § 19-5. Opplæringsplan modul 2.2, leksjon 9: brann- og eksplosjonsfare, Ex-trucker.',
+      },
+      fylling: {
+        gjor: 'Vis gjerne en propanflaske og en ladeplass hvis skolen har det.',
+        si: ['Propan (LPG) er tyngre enn luft og kan samle seg i kjellere, sluk og groper. Bytt flaske utendørs eller i godt ventilerte rom.', 'Flytende propan er svært kaldt og kan gi frostskader. Bruk hansker ved flaskebytte.', 'Skadde gassflasker og flasker som har gått ut på kontroll, skal ikke fylles (forskrift om håndtering av farlig stoff § 15a).', 'Ved lading av blybatterier dannes hydrogen. Blandet med luft blir det knallgass, som er svært eksplosiv. Derfor ventilasjon og røykeforbud.', 'Batterisyre er etsende. Ha øyeskylling tilgjengelig, og bruk briller og hansker.'],
+        feil: ['At propan stiger til værs som helium.', 'At man kan lete etter lekkasjer med lighter.'],
+        kilde: 'Forskrift om håndtering av farlig stoff § 15a. Truck ABC s. 165–172 og 264.',
+      },
+      fyllquiz: {
+        gjor: 'Vis resultatet og ta opp spørsmålet om propan hvis mange bommer.',
+      },
+      exit: {
+        gjor: 'Elevene svarer alene. Ta opp det flest bommer på.',
+      },
+      slutt: {
+        gjor: 'Repeter det som var vanskeligst. Etter denne leksjonen gjenstår den skriftlige prøven i modul 2.2.',
+      },
+    },
+    'm22-5': {
+      inn: {
+        gjor: 'La elevene koble seg på. Har skolen en truck, kan du allerede nå avtale at dere skal ut til den midt i timen.',
+        si: ['Mål for timen: gjøre daglig kontroll selv, vite hva du gjør når du finner en feil, og kjenne forskjellen på periodisk og sakkyndig kontroll.', 'Leksjon 5 i modul 2.2 er satt av til 2 timer. Den dekker målsetting 2: krav til kontroll og viktigheten av vedlikehold.'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 5 og målsetting 2.',
+      },
+      mandag: {
+        gjor: 'La elevene svare og vis fordelingen.',
+        si: ['Den daglige kontrollen er førerens del av det systematiske arbeidet med kontroll og vedlikehold.', 'Forskriften sier ikke «daglig kontroll» med de ordene. Kravet følger av arbeidsgivers plikt til systematisk kontroll (§§ 12-3 og 12-4), av bruksanvisningen og av bedriftens rutiner.'],
+        feil: ['At det holder at trucken var i orden sist den ble brukt.'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 12-3 og 12-4. Truck ABC s. 75 og 151.',
+      },
+      tre: {
+        gjor: 'Gå gjennom de tre kolonnene og spør hvem i bedriften som gjør hva.',
+        si: ['Arbeidsgiveren har ansvaret for alle tre kontrollene, men føreren gjør den daglige.', 'Rutinene for sakkyndig kontroll skal stå i bedriftens internkontrollsystem (§ 13-4).'],
+        feil: ['At sakkyndig kontroll erstatter daglig kontroll. De gjelder ulike ting.'],
+        kilde: 'Forskrift om utførelse av arbeid kap. 12 og 13. Forskrift om administrative ordninger §§ 8-6 og 8-7.',
+      },
+      daglig: {
+        gjor: 'Vis gjerne bedriftens eller skolens egen sjekkliste, og sammenlign med punktene.',
+        si: ['Sjekklisten følger bruksanvisningen. Ulike trucker har ulike punkter.', 'Se etter sprekker i gaffelarmene, særlig i knekken, og at gaflene er like lange og låst.', 'Løftekjeder: like stramme, uten rust, skadde ledd eller sprukne bolter.', 'Hydraulikk: oljelekkasjer ved sylindere, slanger og koblinger.', 'Dekk: skader, slitasje og riktig lufttrykk på luftgummihjul. Feil lufttrykk gir dårligere stabilitet.'],
+        spor: ['Hvilke feil tror dere er vanligst?'],
+        kilde: 'Truck ABC s. 151–164 (sjekkliste med 8 punkter, mest bilder). Opplæringsplan modul 2.2, leksjon 5.',
+      },
+      rekke: {
+        gjor: 'Vis resultatet. Det finnes flere fornuftige rekkefølger, så ta en kort prat om hvorfor denne er logisk.',
+        feil: ['Å teste bremser og løft før man har sett etter lekkasjer og skader.'],
+      },
+      praksis: {
+        gjor: 'Har dere en truck tilgjengelig, gå ut og gjør daglig kontroll i par med bedriftens eller skolens sjekkliste. Har dere ikke det, bruk bilder eller film og la elevene peke ut punktene.',
+        si: ['La elevene si høyt hva de sjekker og hva de ser etter.', 'Legg gjerne inn en feil på forhånd, for eksempel en løs gaffellås eller et skilt som mangler, og se om de finner den.'],
+      },
+      feil: {
+        si: ['§ 12-5: arbeidsutstyr skal straks tas ut av bruk hvis det oppdages feil som har betydning for sikkerheten, og skal ikke brukes før feilen er rettet.', 'Arbeidstakeren har plikt til å melde fra om feil og mangler som kan føre til fare (arbeidsmiljøloven § 2-3).', 'Rapporter også nestenulykker. De viser hvor neste ulykke kan skje.'],
+        spor: ['Hvem i bedriften melder dere fra til?'],
+        kilde: 'Forskrift om utførelse av arbeid § 12-5. Arbeidsmiljøloven § 2-3.',
+      },
+      feilquiz: {
+        gjor: 'Vis resultatet. Ta opp at føreren aldri skal vurdere om en sikkerhetsfeil er «liten nok».',
+      },
+      periodisk: {
+        si: ['§ 12-3: arbeidsgiveren skal sørge for periodisk kontroll når utstyr utsettes for påvirkninger som gir forringelse som kan føre til farlige situasjoner.', '§ 12-2: kontroll, vedlikehold og reparasjon skal bare gjøres av personer med nødvendig opplæring, øvelse og instruksjon.', '§ 12-8: har trucken en vedlikeholdsjournal, skal den holdes oppdatert. Det skal komme tydelig fram hva som er kontrollert og hvem som gjorde det.', 'Brukes trucken utenfor bedriften, skal dokumentasjonen for siste kontroll følge med (§ 12-8).'],
+        feil: ['At føreren kan gjøre reparasjoner selv uten opplæring.'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 12-2, 12-3, 12-6 og 12-8.',
+      },
+      sakkyndig: {
+        gjor: 'Vis gjerne et ekte kontrollmerke eller en attest.',
+        si: ['§ 13-1: løfte- og stablevogner for gods skal ha sakkyndig kontroll utført av sakkyndig virksomhet.', '§ 13-2: hver 12. måned, etter 6 måneder ute av bruk når det kan gi fare, når miljøet krever hyppigere kontroll, etter betydelig overbelastning og etter større reparasjoner eller ombygginger. Lengre intervaller kan godtas når det er dokumentert forsvarlig.', 'Den sakkyndige virksomheten skal være sertifisert og uavhengig (forskrift om administrative ordninger § 8-6).', 'Kontrollen omfatter slitedeler, funksjonskontroll med passende last, verneinnretninger og at instruksjonene finnes (§ 8-7). Den ender med en attest.', '§ 13-4: dokumentasjonen skal kunne vises tilsynet og følger trucken ved eierskifte.'],
+        feil: ['At sakkyndig kontroll bare er en ekstra service på verkstedet.'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 13-1, 13-2 og 13-4. Forskrift om administrative ordninger §§ 8-6 og 8-7.',
+      },
+      hvilken: {
+        gjor: 'Elevene sorterer alene eller i par. Vis resultatet og ta opp situasjonene flest bommet på.',
+        feil: ['Mange plasserer «stått ubrukt i åtte måneder» under daglig kontroll. Etter mer enn 6 måneder ute av bruk kreves sakkyndig kontroll når det kan gi fare.'],
+      },
+      exit: {
+        gjor: 'Elevene svarer alene. Ta opp det flest bommer på.',
+      },
+      slutt: {
+        gjor: 'Repeter det som var vanskeligst. Neste leksjon er truckens stabilitet.',
+      },
+    },
   };
-  for (const l of [STAB, GODS]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
+  for (const l of [STAB, GODS, BRUK, KONTROLL]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
 
   // Fasit for aktivitetene, slik læreren ser den i notatene.
   function fasitTekst(st) {
@@ -816,10 +1054,10 @@ svg text { font-family: var(--body); }
       { nr: 2, tittel: 'Trucktyper og tilleggsutstyr', timer: 2 },
       { nr: 3, tittel: 'Truckulykker', timer: 1 },
       { nr: 4, tittel: 'Truckens konstruksjon og virkemåte', timer: 2 },
-      { nr: 5, tittel: 'Kontroll og rapportering', timer: 2 },
+      KONTROLL,
       STAB,
       GODS,
-      { nr: 9, tittel: 'Bruks- og sikkerhetsbestemmelser', timer: 1 },
+      BRUK,
       { nr: 10, tittel: 'Skriftlig teoretisk prøve', timer: 1 },
     ] },
   ];
@@ -1089,7 +1327,7 @@ svg text { font-family: var(--body); }
   function figStatisk(f) {
     const box = x => `<div class="figbox">${x}</div>`;
     return f === 'skilt' ? figSkilt() : f === 'tpa' ? box(figTpa()) : f === 'trekant' ? box(figTrekant()) :
-      f === 'pall' ? box(figPall()) : f === 'symboler' ? box(figSymboler()) : f === 'rampe' ? box(figRampe()) : '';
+      f === 'pall' ? box(figPall()) : f === 'symboler' ? box(figSymboler()) : f === 'rampe' ? box(figRampe()) : f === 'kontroller' ? figKontroller() : '';
   }
   function figTavle(st, pre = 'tv') {
     if (st.fig === 'vippe') {

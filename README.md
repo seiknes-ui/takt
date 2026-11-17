@@ -74,7 +74,12 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 - **Live**: bruker `POST /api/rom/{kode}` som Taktlinja. Tavla er `leder`. Hver elev sender fornavn og svar, og tavla regner ut resultatene. Ingenting lagres etter timen, og rommet slettes av TTL-en.
 - **Innhold**: leksjonene ligger som data i siden (`STI` og leksjonsobjektene `STAB` og `GODS`). Hver leksjon oppgir hvilke emner fra planen den dekker. Bare leksjoner med `steg` kan startes, de andre vises som «Kommer».
 
-Ferdige leksjoner, begge i modul 2.2 og på 2 × 45 min:
+Ferdige leksjoner i modul 2.2:
+
+- Leksjon 5, Kontroll og rapportering (2 × 45 min): daglig kontroll med praktisk øvelse, feil og rapportering, periodisk og sakkyndig kontroll (forskrift om utførelse av arbeid kap. 12–13).
+- Leksjon 9, Bruks- og sikkerhetsbestemmelser (45–60 min): offentlig vei, kjøring, personløft, parkering, brann og Ex, drivstoff, gass og lading.
+
+Og på 2 × 45 min:
 
 - Leksjon 6, Truckens stabilitet. Bruker truckstabilitet-simulatoren på seiknes-ui.github.io i en iframe.
 - Leksjon 7, Godshåndtering: lastbærere, emballasjesymboler, stabling og nedtaking, ruller og langgods, lasting av bil og jernbanevogn, signalgiving og sleping.
