@@ -69,11 +69,14 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 
 - **Tavla**: læreren logger inn med samme kode som på Taktlinja, velger en leksjon og får en kode på fire sifre og en QR-kode. Piltastene blar, V viser svaret, N viser lærernotatet og F gir fullskjerm.
 - **Eleven**: går til `kurs.html#elev`, skriver inn koden og fornavnet og følger tavla. Oppgavene låses når læreren viser svaret. «Øv på egen hånd» går gjennom leksjonen uten lærer og viser fasit etter hvert svar.
-- **Steg**: `tavle` (figur og stikkord), `valg` (flervalg, eller avstemning uten fasit), `tall` (utregning med toleranse), `trykk` (eleven trykker i en figur) og `quiz` (flere spørsmål). Tavla viser antall svar og, når svaret vises, fordelingen.
+- **Steg**: `tavle` (figur og stikkord), `valg` (flervalg, eller avstemning uten fasit), `tall` (utregning med toleranse), `trykk` (eleven trykker i en figur), `quiz` (flere spørsmål, eventuelt med et emballasjesymbol) og `rekkefolge` (eleven setter steg i riktig rekkefølge, stokket ulikt for hver elev). Tavla viser antall svar og, når svaret vises, fordelingen.
 - **Live**: bruker `POST /api/rom/{kode}` som Taktlinja. Tavla er `leder`. Hver elev sender fornavn og svar, og tavla regner ut resultatene. Ingenting lagres etter timen, og rommet slettes av TTL-en.
-- **Innhold**: leksjonene ligger som data i siden (`STI` og leksjonsobjektene, først `STAB`). Hver leksjon oppgir hvilke emner fra planen den dekker. Bare leksjoner med `steg` kan startes, de andre vises som «Kommer».
+- **Innhold**: leksjonene ligger som data i siden (`STI` og leksjonsobjektene `STAB` og `GODS`). Hver leksjon oppgir hvilke emner fra planen den dekker. Bare leksjoner med `steg` kan startes, de andre vises som «Kommer».
 
-Første leksjon er modul 2.2 leksjon 6, Truckens stabilitet (2 × 45 min). Den bruker truckstabilitet-simulatoren på seiknes-ui.github.io i en iframe.
+Ferdige leksjoner, begge i modul 2.2 og på 2 × 45 min:
+
+- Leksjon 6, Truckens stabilitet. Bruker truckstabilitet-simulatoren på seiknes-ui.github.io i en iframe.
+- Leksjon 7, Godshåndtering: lastbærere, emballasjesymboler, stabling og nedtaking, ruller og langgods, lasting av bil og jernbanevogn, signalgiving og sleping.
 
 ## Kvalitetsdelen
 
