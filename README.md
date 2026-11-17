@@ -61,6 +61,7 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
   - `oppsett` (partisjonsnøkkel `/laererId`): lærerens aktive oppsett.
   - `runder` (`/laererId`): rundeloggen.
   - `rom` (`/kode`, TTL 60 s): live-status under runder.
+  - `kurs` (`/laererId`): eksamensnotater til Kursstien, ett dokument per modul, felles for lærerne. Bare for innlogget lærer.
 - **Live-runder**: hver enhet sender sin status til `POST /api/rom/{lagkode}` omtrent hvert sekund og får tilbake statusen til alle i laget. Bare en innlogget lærer kan være tavle, og bare én lærer kan bruke samme lagkode om gangen.
 
 ## Kursstien
@@ -71,6 +72,7 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 - **Lærernotater**: hvert steg har notater med hva læreren gjør, fagstoff å bygge på, spørsmål til klassen, vanlige misforståelser, fasit og kilder (`NOTATER` i siden). De vises i et panel på tavla (N), eller på lærerens egen telefon: logg inn, skriv koden fra tavla og velg «Notater til tavla». Telefonen følger tavla og kan bla og vise svar. Den er også `leder` i rommet og krever lærertoken, så elever kan ikke styre tavla.
 - **Eleven**: går til `kurs.html#elev`, skriver inn koden og fornavnet og følger tavla. Oppgavene låses når læreren viser svaret. «Øv på egen hånd» går gjennom leksjonen uten lærer og viser fasit etter hvert svar.
 - **Steg**: `tavle` (figur og stikkord), `valg` (flervalg, eller avstemning uten fasit), `tall` (utregning med toleranse), `trykk` (eleven trykker i en figur), `quiz` (flere spørsmål, eventuelt med et emballasjesymbol) og `rekkefolge` (eleven setter steg i riktig rekkefølge, stokket ulikt for hver elev). Tavla viser antall svar og, når svaret vises, fordelingen.
+- **Fra prøven**: spørsmålene fra den avsluttende teoriprøven (modul 1.1 og 2.2) står med fasit i lærernotatet på steget der temaet tas opp, med merket «Rettet i Dugga» eller «Sjekk mot Dugga» der det trengs. Velkomststeget viser hvilke prøvespørsmål leksjonen dekker. Prøvene er beskyttet (MA-system), og fasiten skal ikke nå elevene, så de ligger **ikke** i siden eller i repoet. Læreren laster opp `eksamen-1.1.json` og `eksamen-2.2.json` fra den private kildebanken (`fagkilder/kilder/egne/`) én gang med «Last opp eksamensnotater» på startsiden. De lagres felles for skolens lærere i containeren `kurs` og hentes med `GET /api/kurs/eksamen`, som krever lærertoken. Som Artifact på claude.ai finnes ikke API-et, og da vises ikke prøvespørsmålene.
 - **Film**: filmstegene spiller Noorsi-filmene fra lærerens PC. Læreren trykker «Velg filmmappen på PC-en» og velger mappen med filmene; nettleseren spiller dem lokalt, og ingenting lastes opp. Filmene skal ikke legges i repoet.
 - **Live**: bruker `POST /api/rom/{kode}` som Taktlinja. Tavla er `leder`. Hver elev sender fornavn og svar, og tavla regner ut resultatene. Ingenting lagres etter timen, og rommet slettes av TTL-en.
 - **Innhold**: leksjonene ligger som data i siden (`STI` og leksjonsobjektene `STAB` og `GODS`). Hver leksjon oppgir hvilke emner fra planen den dekker. Bare leksjoner med `steg` kan startes, de andre vises som «Kommer».

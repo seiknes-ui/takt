@@ -53,6 +53,13 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .msg { color: var(--bad); margin: 8px 0 0; min-height: 1.2em; }
 .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); }
 .pill.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.pill.warn { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--ink); }
+.prove { display: grid; gap: 10px; }
+.prove .q { border-left: 3px solid var(--accent); padding: 2px 0 2px 10px; }
+.prove .q > p { margin: 0 0 4px; }
+.prove ol { list-style: upper-alpha; padding-left: 1.4em; margin: 0; display: grid; gap: 2px; }
+.prove li.r { font-weight: 700; color: var(--ok); }
+.prove li.r::after { content: " ✓"; }
 svg text { font-family: var(--body); }
 
 /* Startsiden */
@@ -213,6 +220,11 @@ svg text { font-family: var(--body); }
         <div class="field"><label for="in-notatkode">Kode fra tavla</label><input id="in-notatkode" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="1234"></div>
         <p class="msg" id="notat-msg"></p>
         <div class="row"><button class="primary" id="btn-notat" type="button">Notater til tavla</button><button id="btn-logout" type="button">Logg ut</button></div>
+        <div id="eksamen-boks">
+          <h3>Fra prøven</h3>
+          <p class="small" id="eksamen-status">Henter eksamensnotater …</p>
+          <div class="row"><button id="btn-eksamen" type="button">Last opp eksamensnotater</button><input type="file" id="in-eksamen" accept=".json,application/json" multiple hidden></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1789,6 +1801,70 @@ svg text { font-family: var(--body); }
     if (st.type === 'rekkefolge') return st.ledd.map((l, i) => `${i + 1}. ${l}`);
     return [];
   }
+  // ---------- Eksamensnotater ----------
+  // Spørsmål fra den avsluttende teoriprøven med fasit, koblet til steg. Prøven er beskyttet og fasiten
+  // skal ikke nå elevene, så notatene ligger bak lærerinnloggingen i API-et og aldri i denne fila.
+  const EKS = { moduler: {}, steg: new Map(), feil: '' };
+  const modulAv = leks => leks.id.startsWith('m11-') ? '1.1' : '2.2';
+  function indekserEksamen() {
+    EKS.steg = new Map();
+    for (const [m, e] of Object.entries(EKS.moduler)) for (const q of e.spm || []) for (const k of q.steg || []) {
+      if (!EKS.steg.has(k)) EKS.steg.set(k, []);
+      EKS.steg.get(k).push({ m, q });
+    }
+  }
+  const STATUS_TEKST = { rettet: '<span class="pill">Rettet i Dugga</span>', sjekk: '<span class="pill warn">Sjekk mot Dugga</span>' };
+  function proveHTML(st, leks) {
+    const qs = EKS.steg.get(leks.id + ':' + st.id) || [];
+    let h = '';
+    if (st.type === 'velkommen') {
+      const m = modulAv(leks), alle = (EKS.moduler[m] || {}).spm || [];
+      const her = alle.filter(q => (q.steg || []).some(k => k.startsWith(leks.id + ':')));
+      if (her.length) h += `<h3>Fra prøven i denne leksjonen</h3><p class="small">${her.length} spørsmål fra prøven i modul ${m} tas opp her: nr. ${her.map(q => q.nr).join(', ')}. De står under steget der temaet kommer.</p>`;
+    }
+    if (!qs.length) return h;
+    h += `<h3>Fra prøven (${qs.length})</h3><div class="prove">` + qs.map(({ m, q }) =>
+      `<div class="q"><p><b>${m} nr. ${q.nr}.</b> ${esc(q.s)} ${STATUS_TEKST[q.status] || ''}</p><ol>${q.v.map((v, i) => `<li${i === q.r ? ' class="r"' : ''}>${esc(v)}</li>`).join('')}</ol>${q.merknad ? `<p class="small muted">${esc(q.merknad)}</p>` : ''}</div>`).join('') + '</div>';
+    const skilt = qs.find(({ m, q }) => /maskinskilt/i.test(q.s) && (EKS.moduler[m] || {}).skilt);
+    if (skilt) h += `<p class="small muted">${esc(EKS.moduler[skilt.m].skilt)}</p>`;
+    return h;
+  }
+  function renderEksamen() {
+    const el = $('eksamen-status');
+    if (!el) return;
+    if (EKS.feil) { el.textContent = EKS.feil; return; }
+    const mods = Object.entries(EKS.moduler);
+    if (!mods.length) { el.textContent = 'Ingen eksamensnotater lastet opp ennå. Last opp eksamen-1.1.json og eksamen-2.2.json fra kildebanken. Da står prøvespørsmålene med fasit i lærernotatene. Elevene ser dem aldri.'; return; }
+    el.innerHTML = mods.sort().map(([m, e]) => {
+      const uten = (e.spm || []).filter(q => !(q.steg || []).length);
+      return `Modul ${m}: ${e.spm.length} spørsmål${uten.length ? `, ${uten.length} ikke koblet til noe steg (nr. ${uten.map(q => q.nr).join(', ')})` : ', alle koblet til steg'}.${e.oppdatert ? ` <span class="muted">Lastet opp ${new Date(e.oppdatert).toLocaleDateString('nb-NO')}${e.av ? ' av ' + esc(e.av) : ''}.</span>` : ''}`;
+    }).join('<br>');
+  }
+  async function hentEksamen() {
+    EKS.moduler = {}; EKS.feil = ''; indekserEksamen();
+    if (ART || !AUTH || !AUTH.token) { renderEksamen(); return; }
+    try {
+      const r = await fetch('/api/kurs/eksamen', { headers: { 'x-laerer-token': AUTH.token } });
+      if (r.ok) EKS.moduler = (await r.json()).moduler || {};
+      else EKS.feil = r.status === 401 ? 'Logg inn på nytt for å se eksamensnotatene.' : 'Kunne ikke hente eksamensnotatene.';
+    } catch (e) { EKS.feil = 'Kunne ikke hente eksamensnotatene. Sjekk nettforbindelsen.'; }
+    indekserEksamen(); renderEksamen();
+  }
+  async function lastOppEksamen(filer) {
+    const el = $('eksamen-status'), ut = [];
+    for (const fil of filer) {
+      let d;
+      try { d = JSON.parse(await fil.text()); } catch (e) { ut.push(`${fil.name}: ikke gyldig JSON.`); continue; }
+      try {
+        const r = await fetch('/api/kurs/eksamen', { method: 'PUT', headers: { 'content-type': 'application/json', 'x-laerer-token': AUTH.token }, body: JSON.stringify(d) });
+        const svar = await r.json().catch(() => ({}));
+        ut.push(r.ok ? `Modul ${svar.modul}: ${svar.antall} spørsmål lagret.` : `${fil.name}: ${svar.feil || 'feil ' + r.status}`);
+      } catch (e) { ut.push(`${fil.name}: kunne ikke sende.`); }
+    }
+    await hentEksamen();
+    el.innerHTML = ut.map(esc).join('<br>') + '<br>' + el.innerHTML;
+  }
+
   function notatHTML(st, leks) {
     const n = st.notat || {}, liste = a => `<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
     let h = `<p class="small muted">${st.min} min${AKTIV.includes(st.type) ? ' · aktivitet' : ''}</p>`;
@@ -1799,6 +1875,7 @@ svg text { font-family: var(--body); }
     if (n.feil && n.feil.length) h += `<h3>Vanlige misforståelser</h3>${liste(n.feil)}`;
     const fasit = fasitTekst(st);
     if (fasit.length) h += `<h3>Fasit</h3>${liste(fasit)}${st.forklaring ? `<p class="small">${esc(st.forklaring)}</p>` : ''}`;
+    h += proveHTML(st, leks);
     if (n.kilde) h += `<h3>Kilder</h3><p class="small">${esc(n.kilde)}</p>`;
     if (!st.notat && !fasit.length) h += '<p class="muted">Ingen notat for dette steget.</p>';
     if (st.type === 'velkommen' && leks.emner) h += `<h3>Emner fra planen i leksjonen</h3><p class="small">${leks.emner.map(esc).join(' · ')}</p>`;
@@ -1961,6 +2038,9 @@ svg text { font-family: var(--body); }
   function renderLogin() {
     $('laerer-ut').hidden = !!AUTH; $('laerer-inn').hidden = !AUTH;
     if (AUTH) $('laerer-navn').textContent = AUTH.navn || 'lærer';
+    $('eksamen-boks').hidden = ART || !AUTH;
+    if (!ART && AUTH && EKS.token !== AUTH.token) { EKS.token = AUTH.token; hentEksamen(); }
+    if (!AUTH) { EKS.token = null; EKS.moduler = {}; indekserEksamen(); }
     if (ART) {
       $('laerer-ut').querySelectorAll('.field, .row').forEach(e => e.hidden = true);
       $('laerer-ut').querySelector('p').textContent = 'Bare de som kan redigere denne siden, kan styre tavla. Elevene velger Elev og skriver koden fra tavla.';
@@ -1982,6 +2062,8 @@ svg text { font-family: var(--body); }
     renderLogin();
   }
   $('btn-login').onclick = login;
+  $('btn-eksamen').onclick = () => $('in-eksamen').click();
+  $('in-eksamen').onchange = e => { const fl = [...e.target.files]; e.target.value = ''; if (fl.length && AUTH) lastOppEksamen(fl); };
   $('in-laerer').onkeydown = e => { if (e.key === 'Enter') login(); };
   $('btn-logout').onclick = () => { AUTH = null; store('taktlinja-laerer', null); renderLogin(); };
 
