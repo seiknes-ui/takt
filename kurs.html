@@ -486,7 +486,8 @@ svg text { font-family: var(--body); }
   const SIM_URL = 'https://seiknes-ui.github.io/simmulator/truck/';
 
   // ---------- Kursinnhold ----------
-  // Stien følger emnelistene i opplæringsplanene for modul 1 (august 2023) og modul 2.2 (juni 2022).
+  // Stien følger emnelistene i opplæringsplanene for modul 1 (august 2023) og modul 2.2 (juni 2022), nummerert
+  // som leksjonsanvisningene i Sauda vgs' kvalitetshåndbok (pkt. 6.7 og 6.8).
   // Stegtyper: velkommen, tavle, valg (riktig = null gir avstemning), tall, trykk, quiz, slutt.
   // emner: hvilke punkter i planens emneliste steget dekker.
   const STAB = {
@@ -681,7 +682,7 @@ svg text { font-family: var(--body); }
   };
 
   const BRUK = {
-    id: 'm22-9', modul: 'Modul 2.2', nr: 9, tittel: 'Bruks- og sikkerhetsbestemmelser', timer: 1,
+    id: 'm22-8', modul: 'Modul 2.2', nr: 8, tittel: 'Bruks- og sikkerhetsbestemmelser', timer: 1,
     emner: ['Bruk på offentlig vei', 'Kjøring med truck', 'Personløft', 'Truckens løftekapasitet', 'Parkering', 'Brann- og eksplosjonsfare', 'Ex-trucker', 'Fylling av drivstoff og lading'],
     mal: [3, 15],
     steg: [
@@ -896,11 +897,11 @@ svg text { font-family: var(--body); }
         gjor: 'Repeter det som var vanskeligst i exit ticket. Neste leksjon i stien er bruks- og sikkerhetsbestemmelser.',
       },
     },
-    'm22-9': {
+    'm22-8': {
       inn: {
         gjor: 'La elevene koble seg på mens du presenterer timen.',
-        si: ['Mål for timen: kjøre trygt, parkere riktig og håndtere drivstoff, gass og lading uten fare.', 'Leksjon 9 i modul 2.2 er satt av til 1 time. Den dekker målsetting 3 (riktig bruk og faremomenter) og 15 (fylling av drivstoff og lading).'],
-        kilde: 'Opplæringsplan modul 2.2, leksjon 9 og målsettingene 3 og 15.',
+        si: ['Mål for timen: kjøre trygt, parkere riktig og håndtere drivstoff, gass og lading uten fare.', 'Leksjon 8 i modul 2.2 er satt av til 1 time. Den dekker målsetting 3 (riktig bruk og faremomenter) og 15 (fylling av drivstoff og lading).'],
+        kilde: 'Opplæringsplan modul 2.2, målsettingene 3 og 15. Kvalitetshåndboka pkt. 6.8, leksjon 8.',
       },
       vei: {
         gjor: 'La elevene svare, og bruk svarene til å skille mellom kompetansebevis og førerkort.',
@@ -1051,13 +1052,14 @@ svg text { font-family: var(--body); }
 
   // Hele stien. Bare leksjoner med steg kan startes.
   const STI = [
-    { modul: 'Modul 1', navn: 'Arbeidsmiljø, ansvar og konsekvenser', leks: [
+    { modul: 'Modul 1.1', navn: 'Arbeidsmiljø, ansvar og konsekvenser', leks: [
       { nr: 1, tittel: 'Innledning: hvorfor sikkerhetsopplæring', timer: 1 },
       { nr: 2, tittel: 'Lover og forskrifter', timer: 1 },
       { nr: 3, tittel: 'Arbeidsmiljø, ansvar og konsekvenser', timer: 1 },
       { nr: 4, tittel: 'Ytre miljø', timer: 1 },
       { nr: 5, tittel: 'Sikkerhetsbestemmelser for bruk av arbeidsutstyr', timer: 2 },
       { nr: 6, tittel: 'Farlig gods: merking og håndtering', timer: 1 },
+      { nr: 7, tittel: 'Eksamen: skriftlig teoretisk prøve', timer: 1, dugga: true },
     ] },
     { modul: 'Modul 2.2', navn: 'Løfte- og stablevogner for gods (truck)', leks: [
       { nr: 1, tittel: 'Innledning og krav til truckfører', timer: 1 },
@@ -1068,7 +1070,7 @@ svg text { font-family: var(--body); }
       STAB,
       GODS,
       BRUK,
-      { nr: 10, tittel: 'Skriftlig teoretisk prøve', timer: 1 },
+      { nr: 9, tittel: 'Eksamen: skriftlig teoretisk prøve', timer: 1, dugga: true },
     ] },
   ];
   const LEKSJONER = Object.fromEntries(STI.flatMap(m => m.leks).filter(l => l.steg).map(l => [l.id, l]));
@@ -1077,7 +1079,7 @@ svg text { font-family: var(--body); }
   function renderSti() {
     $('sti').innerHTML = STI.map(m => `<div class="modul"><h3>${esc(m.modul)} · ${esc(m.navn)}</h3><div class="leks">${m.leks.map(l => {
       const klar = !!l.steg;
-      return `<button type="button" class="lk${klar ? ' klar' : ''}" ${klar ? `data-leks="${l.id}"` : 'disabled'}><span class="nr">Leksjon ${l.nr} · ${l.timer} t</span><b>${esc(l.tittel)}</b><span class="small muted">${klar ? `${l.steg.length} steg, ${l.steg.filter(s => AKTIV.includes(s.type)).length} aktiviteter` : 'Kommer'}</span></button>`;
+      return `<button type="button" class="lk${klar ? ' klar' : ''}" ${klar ? `data-leks="${l.id}"` : 'disabled'}><span class="nr">Leksjon ${l.nr} · ${l.timer} t</span><b>${esc(l.tittel)}</b><span class="small muted">${klar ? `${l.steg.length} steg, ${l.steg.filter(s => AKTIV.includes(s.type)).length} aktiviteter` : l.dugga ? 'Tas i Dugga' : 'Kommer'}</span></button>`;
     }).join('')}</div></div>`).join('');
   }
 

@@ -65,7 +65,7 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 
 ## Kursstien
 
-`kurs.html` er truckførerkurset som en sti med én stasjon per leksjon i Arbeidstilsynets opplæringsplaner (modul 1, august 2023, og modul 2.2, juni 2022). Læreren viser på tavla, og elevene svarer på telefonen.
+`kurs.html` er truckførerkurset som en sti med én stasjon per leksjon i Arbeidstilsynets opplæringsplaner (modul 1, august 2023, og modul 2.2, juni 2022). Leksjonene er nummerert som i skolens kvalitetshåndbok, og eksamen tas i Dugga. Læreren viser på tavla, og elevene svarer på telefonen.
 
 - **Tavla**: læreren logger inn med samme kode som på Taktlinja, velger en leksjon og får en kode på fire sifre og en QR-kode. Piltastene blar, V viser svaret, N viser lærernotatet og F gir fullskjerm.
 - **Lærernotater**: hvert steg har notater med hva læreren gjør, fagstoff å bygge på, spørsmål til klassen, vanlige misforståelser, fasit og kilder (`NOTATER` i siden). De vises i et panel på tavla (N), eller på lærerens egen telefon: logg inn, skriv koden fra tavla og velg «Notater til tavla». Telefonen følger tavla og kan bla og vise svar. Den er også `leder` i rommet og krever lærertoken, så elever kan ikke styre tavla.
@@ -77,7 +77,7 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 Ferdige leksjoner i modul 2.2:
 
 - Leksjon 5, Kontroll og rapportering (2 × 45 min): daglig kontroll med praktisk øvelse, feil og rapportering, periodisk og sakkyndig kontroll (forskrift om utførelse av arbeid kap. 12–13).
-- Leksjon 9, Bruks- og sikkerhetsbestemmelser (45–60 min): offentlig vei, kjøring, personløft, parkering, brann og Ex, drivstoff, gass og lading.
+- Leksjon 8, Bruks- og sikkerhetsbestemmelser (45–60 min): offentlig vei, kjøring, personløft, parkering, brann og Ex, drivstoff, gass og lading.
 
 Og på 2 × 45 min:
 
