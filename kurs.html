@@ -1240,7 +1240,7 @@ svg text { font-family: var(--body); }
     },
   });
   // Filmstegene: Noorsi-filmene spilles av fra lærerens PC (mappa Truck ekstra). De legges ikke ut.
-  const filmNotat = (gjor, spor) => ({ gjor: 'Spill av filmen fra PC-en. ' + gjor, spor, kilde: 'Noorsi-film, se filnavnet over. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' });
+  const filmNotat = (gjor, spor) => ({ gjor: 'Første gang i timen: trykk «Velg filmmappen på PC-en» og velg mappen Truck ekstra. Da spilles filmen på tavla. ' + gjor, spor, kilde: 'Noorsi-film, se filnavnet over. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' });
   Object.assign(NOTATER['m22-1'], { film: filmNotat('Be elevene se etter kravene til føreren.', ['Hvilke krav overrasket dere?']) });
   Object.assign(NOTATER['m22-3'], { film: filmNotat('Stopp gjerne etter hver ulykke og spør hva som gikk galt.', ['Hvilken ulykke var mest overraskende?']) });
   Object.assign(NOTATER['m22-5'], { film: filmNotat('Filmen er kort. Bruk den som overgang til daglig kontroll.', ['Hva sjekket føreren først?']) });
@@ -1578,6 +1578,10 @@ svg text { font-family: var(--body); }
         h += ART
           ? `<p class="ingress">Åpne simulatoren i en egen fane og del den skjermen.</p><p><a class="primary" style="display:inline-block;padding:14px 22px;border-radius:4px;background:var(--accent);color:var(--on-accent);font-weight:700;text-decoration:none" href="${SIM_URL}" target="_blank" rel="noopener">Åpne truckstabilitet-simulatoren</a></p>`
           : `<iframe class="sim" src="${SIM_URL}" title="Truckstabilitet-simulatoren"></iframe>`;
+      } else if (st.film && finnFilm(st.film.fil)) {
+        // Filmen er valgt fra lærerens PC: spill den i full bredde med stikkordene under.
+        h += `<video class="sim" style="height:min(58vh,640px);background:#000" id="tv-video" src="${filmUrl(finnFilm(st.film.fil))}" controls preload="metadata"></video>`;
+        if (st.punkter) h += `<ul class="punkter">${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul>`;
       } else {
         const fh = figTavle(st), ph = st.punkter ? `<ul class="punkter">${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '';
         h += fh && ph ? `<div class="tv-grid"><div>${fh}</div>${ph}</div>` : fh || ph;
@@ -1596,8 +1600,22 @@ svg text { font-family: var(--body); }
     oppdaterSvar();
   }
 
+  // Filmene lastes aldri opp. Læreren velger mappen Truck ekstra på sin egen PC, og nettleseren spiller filene lokalt.
+  // Valget gjelder til siden lukkes. Filene finnes igjen på stien under mappen, eller på filnavnet.
+  const FILMER = { filer: [], url: new Map() };
+  const nfc = s => String(s).normalize('NFC').toLowerCase();
+  function finnFilm(fil) {
+    const sti = nfc(fil), navn = sti.split('/').pop();
+    return FILMER.filer.find(f => nfc(f.webkitRelativePath || '').endsWith(sti)) || FILMER.filer.find(f => nfc(f.name) === navn) || null;
+  }
+  function filmUrl(f) {
+    if (!FILMER.url.has(f)) FILMER.url.set(f, URL.createObjectURL(f));
+    return FILMER.url.get(f);
+  }
   function filmKort(fl) {
-    return `<div class="figbox" style="display:grid;gap:8px;border-left:6px solid var(--accent)"><span class="small muted">Film fra Noorsi · ${esc(fl.kap)}</span><b style="font-size:clamp(22px,2.2vw,32px)">▶ ${esc(fl.tid)}</b><span class="small muted">Spilles av fra lærerens PC</span></div>`;
+    return `<div class="figbox" style="display:grid;gap:10px;border-left:6px solid var(--accent)"><span class="small muted">Film fra Noorsi · ${esc(fl.kap)}</span><b style="font-size:clamp(22px,2.2vw,32px)">▶ ${esc(fl.tid)}</b>` +
+      `<label style="display:inline-block;justify-self:start;padding:10px 16px;border-radius:4px;background:var(--accent);color:var(--on-accent);font-weight:700;cursor:pointer">Velg filmmappen på PC-en<input type="file" id="tv-filmmappe" webkitdirectory multiple hidden></label>` +
+      `<span class="small muted">Velg mappen Truck ekstra. Filmene spilles av fra PC-en og lastes ikke opp. ${FILMER.filer.length ? 'Fant ikke denne filmen i mappen du valgte.' : ''}</span></div>`;
   }
   function figStatisk(f) {
     const box = x => `<div class="figbox">${x}</div>`;
@@ -1621,6 +1639,10 @@ svg text { font-family: var(--body); }
   }
   function kobleFigur(st, pre = 'tv') {
     const P = id => $(pre + '-' + id);
+    if (st.film && P('filmmappe')) P('filmmappe').onchange = e => {
+      FILMER.filer = [...e.target.files].filter(f => /\.(m4v|mp4|mov|webm)$/i.test(f.name));
+      tegnScene();
+    };
     if (st.fig === 'vippe') {
       const tegn = () => {
         const v = figVippe(T.fig.m, T.fig.tpa);
