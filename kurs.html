@@ -483,6 +483,32 @@ svg text { font-family: var(--body); }
     return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${k.map(([t, hvem, nar, dok], i) => `<div class="figbox" style="border-top:4px solid ${['var(--ok)', 'var(--a1)', 'var(--accent)'][i]}"><b style="font-size:17px">${esc(t)}</b><dl style="margin:8px 0 0;display:grid;gap:6px;font-size:14px"><dt class="muted small">Hvem</dt><dd style="margin:0">${esc(hvem)}</dd><dt class="muted small">Når</dt><dd style="margin:0">${esc(nar)}</dd><dt class="muted small">Dokumentasjon</dt><dd style="margin:0">${esc(dok)}</dd></dl></div>`).join('')}</div>`;
   }
 
+  // Motvektstruck fra siden med nummererte deler. Numrene brukes i komponentquizen (KOMPONENTER).
+  const KOMPONENTER = ['Gaffelarm', 'Gaffelvogn', 'Mast', 'Løftekjede', 'Tiltsylinder', 'Førervern', 'Motvekt', 'Drivhjul', 'Styrehjul'];
+  function figKomponenter() {
+    const nr = (n, x, y, tx, ty) => `<line x1="${x}" y1="${y}" x2="${tx}" y2="${ty}" stroke="var(--muted)" stroke-width="1.5"/><circle cx="${tx}" cy="${ty}" r="14" fill="var(--accent)"/><text x="${tx}" y="${ty + 5}" text-anchor="middle" font-size="15" font-weight="700" fill="var(--on-accent)">${n}</text>`;
+    let s = `<svg class="fig" viewBox="0 0 640 330" role="img" aria-label="Motvektstruck med nummererte deler">`;
+    s += `<line x1="20" y1="290" x2="620" y2="290" stroke="var(--line)" stroke-width="3"/>`;
+    s += `<rect x="150" y="170" width="250" height="90" rx="12" fill="color-mix(in srgb, var(--truck) 30%, var(--surface))" stroke="var(--truck)" stroke-width="2"/>`;
+    s += `<rect x="150" y="160" width="70" height="100" rx="10" fill="color-mix(in srgb, var(--truck) 55%, var(--surface))"/>`;
+    s += `<path d="M230 170 V80 H360 V170" fill="none" stroke="var(--steel)" stroke-width="6"/><path d="M226 80 H364" stroke="var(--steel)" stroke-width="8"/>`;
+    s += `<rect x="410" y="40" width="14" height="245" fill="var(--steel)"/><rect x="426" y="60" width="10" height="225" fill="var(--steel)" opacity=".7"/>`;
+    s += `<path d="M432 70 V250" stroke="var(--ink)" stroke-width="3" stroke-dasharray="5 3"/>`;
+    s += `<rect x="440" y="215" width="16" height="65" fill="var(--steel)"/><rect x="454" y="272" width="140" height="10" fill="var(--steel)"/>`;
+    s += `<path d="M360 200 L410 160" stroke="var(--a1)" stroke-width="8" stroke-linecap="round"/>`;
+    for (const [x, r] of [[200, 30], [380, 34]]) s += `<circle cx="${x}" cy="${290 - r}" r="${r}" fill="var(--tyre)" stroke="var(--steel)" stroke-width="2"/><circle cx="${x}" cy="${290 - r}" r="${r / 3}" fill="var(--steel)"/>`;
+    s += nr(1, 540, 277, 560, 315);
+    s += nr(2, 448, 240, 500, 200);
+    s += nr(3, 417, 60, 470, 30);
+    s += nr(4, 432, 120, 500, 110);
+    s += nr(5, 385, 180, 330, 125);
+    s += nr(6, 295, 80, 295, 30);
+    s += nr(7, 170, 200, 100, 150);
+    s += nr(8, 380, 256, 330, 315);
+    s += nr(9, 200, 260, 120, 300);
+    return s + '</svg>';
+  }
+
   const SIM_URL = 'https://seiknes-ui.github.io/simmulator/truck/';
 
   // ---------- Kursinnhold ----------
@@ -620,6 +646,101 @@ svg text { font-family: var(--body); }
     ],
   };
 
+  const HVEM = ['Arbeidsgiver', 'Arbeidstaker'];
+  const INNLED = {
+    id: 'm22-1', modul: 'Modul 2.2', nr: 1, tittel: 'Innledning og krav til truckfører', timer: 1,
+    emner: ['Krav til truckfører', 'Lover og forskrifter: internkontroll, arbeidsmiljøloven, 1355, 1356, 1357, 1360, maskinforskriften, vegtrafikk', 'Hvorfor opplæring av truckfører', 'Arbeidsoppgaver og ansvar', 'Definisjon på truck og navn på komponenter', 'Orientering om standarder'],
+    mal: [1],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Innledning og krav til truckfører' },
+      { id: 'hvorfor', type: 'valg', min: 3, tittel: 'Hvorfor kurs?',
+        spm: 'Hvorfor tror du det kreves egen opplæring for å kjøre truck?',
+        valg: ['Truck er vanskelig å kjøre', 'Truck er involvert i mange alvorlige ulykker', 'Forsikringsselskapet krever det', 'Arbeidsgiver vil spare penger'], riktig: null,
+        forklaring: 'Truck kan gi alvorlige skader på føreren og andre. Derfor krever forskrift om utførelse av arbeid sertifisert sikkerhetsopplæring for truck med fast førerplass.' },
+      { id: 'krav', type: 'tavle', min: 7, tittel: 'Krav til truckføreren',
+        punkter: ['Truck med fast førerplass (T2–T8) krever sertifisert sikkerhetsopplæring. T1 krever dokumentert opplæring.', 'I tillegg skal du få opplæring på den trucken du skal bruke.', 'Du må være 18 år for å kjøre truck i arbeid. Elever i videregående kan få opplæring fra 16 år under skolens veiledning.', 'Du må være fysisk og psykisk skikket, med godt syn, god hørsel og god vurderingsevne.', 'Etter bestått teori og praksis får du kompetansebevis for trucktypene du har opplæring på.'] },
+      { id: 'ansvar', type: 'tavle', min: 8, tittel: 'Lover, forskrifter og ansvar',
+        punkter: ['Arbeidsmiljøloven: arbeidsgiver har hovedansvaret (§ 2-1) og skal sørge for opplæring og instruks (§ 3-2).', 'Arbeidstaker skal bruke verneutstyr, melde fra om feil og avbryte arbeid ved fare (§ 2-3).', 'Bryter du reglene, kan du straffes (§ 19-2).', 'Internkontrollforskriften krever systematisk HMS-arbeid.', 'Forskriftene om utførelse av arbeid, organisering, arbeidsplasser og administrative ordninger regulerer opplæring, bruk og kontroll.', 'Maskinforskriften stiller krav til trucken, og vegtrafikkreglene gjelder på offentlig vei.'] },
+      { id: 'ansvarquiz', type: 'quiz', min: 6, tittel: 'Hvem har plikten?',
+        spm: [
+          { s: 'Sørge for at du får opplæring før du kjører', v: HVEM, r: 0 },
+          { s: 'Bruke påbudt verneutstyr', v: HVEM, r: 1 },
+          { s: 'Melde fra om feil på trucken som kan gi fare', v: HVEM, r: 1 },
+          { s: 'Sørge for at trucken har sakkyndig kontroll', v: HVEM, r: 0 },
+          { s: 'Avbryte arbeidet hvis det ikke kan fortsette uten fare', v: HVEM, r: 1 },
+          { s: 'Lage skriftlig instruks for arbeid med særlig fare', v: HVEM, r: 0 },
+        ],
+        forklaring: 'Arbeidsgiver har hovedansvaret og skal sørge for opplæring, instruks og kontroll (§§ 2-1 og 3-2). Arbeidstaker skal bruke verneutstyr, melde fra om feil og avbryte farlig arbeid (§ 2-3).' },
+      { id: 'komponenter', type: 'quiz', min: 8, tittel: 'Truckens deler', fig: 'komponenter',
+        spm: [
+          { s: 'Hva er del nummer 3?', v: ['Mast', 'Løftekjede', 'Tiltsylinder'], r: 0 },
+          { s: 'Hva er del nummer 5?', v: ['Løftesylinder', 'Tiltsylinder', 'Styrestag'], r: 1 },
+          { s: 'Hva er del nummer 6?', v: ['Førervern', 'Mast', 'Gaffelvogn'], r: 0 },
+          { s: 'Hva er del nummer 7?', v: ['Batteri', 'Motvekt', 'Førerhus'], r: 1 },
+          { s: 'Hva er del nummer 2?', v: ['Gaffelarm', 'Gaffelvogn', 'Løftekjede'], r: 1 },
+          { s: 'Hva er del nummer 9?', v: ['Drivhjul', 'Styrehjul', 'Støttehjul'], r: 1 },
+        ],
+        forklaring: '1 gaffelarm, 2 gaffelvogn, 3 mast, 4 løftekjede, 5 tiltsylinder, 6 førervern, 7 motvekt, 8 drivhjul, 9 styrehjul.' },
+      { id: 'standard', type: 'tavle', min: 4, tittel: 'Definisjon og standarder',
+        punkter: ['Truck er i forskriften «løfte- og stablevogn for gods»: mobilt motordrevet arbeidsutstyr for kombinert løfting, flytting og stabling.', 'NS-EN ISO 3691-1 gir sikkerhetskravene til motoriserte trucker.', 'NS-EN 1175 gir krav til det elektriske utstyret.', 'Trucken skal være CE-merket og ha bruksanvisning på norsk.'] },
+      { id: 'exit', type: 'quiz', min: 5, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hvilke trucker krever sertifisert opplæring?', v: ['Alle trucker', 'Trucker med fast førerplass (T2–T8)', 'Bare trucker over 10 tonn'], r: 1 },
+          { s: 'Hvor gammel må du være for å kjøre truck i arbeid?', v: ['16 år', '17 år', '18 år'], r: 2 },
+          { s: 'Hvem har hovedansvaret for helse, miljø og sikkerhet på arbeidsplassen?', v: ['Arbeidsgiver', 'Verneombudet', 'Truckføreren'], r: 0 },
+          { s: 'Du har kompetansebevis og begynner hos en ny arbeidsgiver med en truck du ikke har kjørt før. Hva trenger du i tillegg?', v: ['Ingenting', 'Opplæring på den trucken du skal bruke', 'Et nytt kurs'], r: 1 },
+          { s: 'Hva gjør du hvis arbeidet ikke kan fortsette uten fare?', v: ['Fortsetter forsiktig', 'Avbryter arbeidet og melder fra', 'Venter til skiftet er over'], r: 1 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 2, tittel: 'Oppsummering',
+        punkter: ['Sertifisert opplæring for truck med fast førerplass, og opplæring på trucken du skal bruke.', '18 år for å kjøre i arbeid.', 'Arbeidsgiver har hovedansvaret, men du skal bruke verneutstyr, melde fra og avbryte farlig arbeid.'] },
+    ],
+  };
+
+  const FAKTOR = ['Menneske', 'Teknikk', 'Organisasjon og miljø'];
+  const ULYKKER = {
+    id: 'm22-3', modul: 'Modul 2.2', nr: 3, tittel: 'Truckulykker', timer: 1,
+    emner: ['Eksempler på uhell og ulykker', 'Årsakssammenheng', 'Konsekvenser for fører', 'Forsikringsvilkår', 'Forebygging av ulykker', 'Rapportering av uhell'],
+    mal: [1],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 2, tittel: 'Truckulykker' },
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Hva skjer oftest?',
+        spm: 'Hvilken type truckulykke tror du er blant de vanligste?',
+        valg: ['Påkjørsel, særlig ved rygging', 'Trucken velter', 'Last som faller ned', 'Klemskader'], riktig: 0,
+        forklaring: 'Påkjørsler, særlig ved rygging, er blant de vanligste truckulykkene. Derfor skal du alltid se deg bak, og gående og trucker skal holdes fra hverandre.' },
+      { id: 'arsak', type: 'tavle', min: 5, tittel: 'Hvorfor skjer ulykker?',
+        punkter: ['En ulykke har nesten alltid flere årsaker.', 'Menneske: fart, uoppmerksomhet, holdninger og manglende opplæring.', 'Teknikk: feil på trucken eller utstyr som ikke er kontrollert.', 'Organisasjon og miljø: tidspress, trange lokaler, dårlig lys, og gående og trucker i samme område.'] },
+      { id: 'case', type: 'quiz', min: 5, tittel: 'Ulykken i lageret',
+        ingress: 'Like før skiftslutt rygger en truckfører ut av en reolgang og treffer en kollega som går bak trucken. Ryggealarmen har ikke virket på en uke, og feilen er bare meldt muntlig. Det er ingen merket gangvei i lageret, og føreren ser seg ikke bak.',
+        spm: [
+          { s: 'Føreren ser seg ikke bak', v: FAKTOR, r: 0 },
+          { s: 'Ryggealarmen virker ikke', v: FAKTOR, r: 1 },
+          { s: 'Feilen er bare meldt muntlig og ikke fulgt opp', v: FAKTOR, r: 2 },
+          { s: 'Det er ingen merket gangvei', v: FAKTOR, r: 2 },
+          { s: 'Tidspress før skiftslutt', v: FAKTOR, r: 2 },
+        ],
+        forklaring: 'Ulykken har årsaker på alle tre nivåer. Trucken skulle vært tatt ut av bruk da ryggealarmen sluttet å virke, og gående og trucker skulle vært skilt fra hverandre.' },
+      { id: 'konsekvens', type: 'tavle', min: 5, tittel: 'Konsekvenser for føreren',
+        punkter: ['Du kan selv bli skadet, og mange får psykiske belastninger etter en alvorlig ulykke.', 'Bryter du reglene, kan du straffes med bøter, og i alvorlige tilfeller med fengsel.', 'Arbeidsgiver kan nekte deg å kjøre truck hvis du kjører uforsvarlig.', 'For bedriften: sykefravær, kostnader og gransking.'] },
+      { id: 'forsikring', type: 'tavle', min: 4, tittel: 'Forsikring',
+        punkter: ['Arbeidsgiver skal ha yrkesskadeforsikring. Den dekker skade på deg uten hensyn til skyld.', 'Truck som brukes på offentlig vei, skal være trafikkforsikret.', 'Bedriftens forsikringer har vilkår med sikkerhetsregler. Brytes de, kan erstatningen bli mindre.'] },
+      { id: 'forebygg', type: 'tavle', min: 5, tittel: 'Forebygg ulykker',
+        punkter: ['Risikovurdering og sikker jobbanalyse før arbeid med fare.', 'Kjøreregler og merkede kjøreveier og gangveier.', 'Daglig kontroll, og feil rettes før trucken brukes.', 'Utstyr som ryggealarm, blått varsellys og kamera.', 'Holdninger: en ulykke skjer ikke, den forårsakes.'] },
+      { id: 'rapport', type: 'tavle', min: 4, tittel: 'Rapportering av uhell',
+        punkter: ['Meld fra til leder om alle uhell, også skader på utstyr, reoler og gods.', 'Arbeidsgiver skal registrere alle personskader.', 'Ved dødsfall eller alvorlig skade skal arbeidsgiver straks varsle Arbeidstilsynet og politiet.', 'Rapporter nestenulykker også.'] },
+      { id: 'nyhet', type: 'tavle', min: 6, tittel: 'Fra virkeligheten',
+        punkter: ['Hva skjedde?', 'Hvilke årsaker ser du: menneske, teknikk, organisasjon?', 'Hva kunne ha hindret ulykken?', 'Hvem måtte varsles?'] },
+      { id: 'exit', type: 'quiz', min: 4, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hvilken type truckulykke er blant de vanligste?', v: ['Påkjørsel ved rygging', 'Brann i trucken', 'Punktering'], r: 0 },
+          { s: 'Hvem skal varsles straks ved en alvorlig arbeidsulykke?', v: ['Arbeidstilsynet og politiet', 'Bare forsikringsselskapet', 'Ingen, det holder å registrere den'], r: 0 },
+          { s: 'Hva gjør yrkesskadeforsikringen?', v: ['Dekker skade på arbeidstaker uten hensyn til skyld', 'Dekker skade på trucken', 'Dekker bare når arbeidsgiver har skylden'], r: 0 },
+          { s: 'Skal en nestenulykke rapporteres?', v: ['Ja', 'Nei, ingen ble skadet', 'Bare hvis noe ble ødelagt'], r: 0 },
+        ] },
+      { id: 'slutt', type: 'slutt', min: 2, tittel: 'Oppsummering',
+        punkter: ['Ulykker har som regel flere årsaker: menneske, teknikk og organisasjon.', 'Se deg alltid bak, og hold avstand til gående.', 'Meld fra om uhell og nestenulykker.', 'En ulykke skjer ikke, den forårsakes.'] },
+    ],
+  };
+
   const HVILKEN = ['Daglig kontroll', 'Periodisk kontroll og vedlikehold', 'Sakkyndig kontroll'];
   const KONTROLL = {
     id: 'm22-5', modul: 'Modul 2.2', nr: 5, tittel: 'Kontroll og rapportering', timer: 2,
@@ -687,39 +808,39 @@ svg text { font-family: var(--body); }
     mal: [3, 15],
     steg: [
       { id: 'inn', type: 'velkommen', min: 2, tittel: 'Bruks- og sikkerhetsbestemmelser' },
-      { id: 'vei', type: 'valg', min: 4, tittel: 'Ut på veien?',
+      { id: 'vei', type: 'valg', min: 3, tittel: 'Ut på veien?',
         spm: 'Du skal kjøre trucken 200 meter langs en offentlig vei til lageret ved siden av. Hva må være på plass?',
         valg: ['Bare kompetansebeviset for truck', 'Riktig førerkort, og trucken og lasten må følge trafikkreglene', 'Ingenting, det er så kort', 'Varsellys på taket'], riktig: 1,
         forklaring: 'På offentlig vei gjelder vegtrafikkloven. Du trenger førerkort som passer for trucken og lastens totalvekt, og lasten må være sikret og innenfor tillatt bredde. Kompetansebeviset gjelder bruken av trucken, ikke kjøring på vei.' },
-      { id: 'veitavle', type: 'tavle', min: 4, tittel: 'Trucken på offentlig vei',
+      { id: 'veitavle', type: 'tavle', min: 3, tittel: 'Trucken på offentlig vei',
         punkter: ['Vegtrafikkloven gjelder: kjør hensynsfullt og vær aktpågivende (§ 3).', 'Du trenger førerkort som passer for trucken og lastens totalvekt.', 'Lasten skal være sikret og innenfor tillatt bredde. Utstikkende gafler skal merkes.', 'Bedriftens egne regler kan gjelde i tillegg.'] },
-      { id: 'kjoring', type: 'tavle', min: 7, tittel: 'Kjøring på arbeidsplassen',
+      { id: 'kjoring', type: 'tavle', min: 5, tittel: 'Kjøring på arbeidsplassen',
         punkter: ['Tilpass farten etter sikt, underlag, last og folk rundt deg.', 'Kjør med lasten senket. Hindrer lasten sikten, rygger du eller bruker en medhjelper.', 'Hold avstand, gjerne tre trucklengder til trucken foran.', 'Kjøreveier og gangveier skal være skilt fra hverandre der det er mulig. Respekter merkingen.', 'Ingen passasjerer, og ingen skal gå under løftet last.', 'Heis: sjekk at heisen tåler truck, last og fører. Kjør inn med lasten først.'] },
-      { id: 'kjorquiz', type: 'quiz', min: 5, tittel: 'Hva gjør du?',
+      { id: 'kjorquiz', type: 'quiz', min: 4, tittel: 'Hva gjør du?',
         spm: [
           { s: 'Lasten er så høy at du ikke ser framover. Hva gjør du?', v: ['Kjører sakte og tuter', 'Rygger, eller bruker en medhjelper', 'Løfter lasten så du ser under den'], r: 1 },
           { s: 'En kollega vil sitte på gaflene et stykke. Hva svarer du?', v: ['Ja, hvis vi kjører sakte', 'Nei, det er ikke lov å ta med passasjerer', 'Ja, hvis han holder seg fast'], r: 1 },
           { s: 'Du nærmer deg et uoversiktlig kryss i lageret. Hva gjør du?', v: ['Senker farten og varsler', 'Holder farten for å komme fort forbi', 'Kjører midt i krysset så du blir sett'], r: 0 },
         ],
         forklaring: 'Du skal se dit du kjører. Passasjerer er forbudt. Ved kryss, porter og andre steder med dårlig sikt senker du farten og varsler.' },
-      { id: 'personloft', type: 'tavle', min: 5, tittel: 'Personløft',
+      { id: 'personloft', type: 'tavle', min: 4, tittel: 'Personløft',
         punkter: ['Personer skal bare løftes med utstyr og plattform som er beregnet for det (§ 18-8).', 'Plattformen skal ikke kunne falle ned, og personen skal ikke kunne falle ut, knuses eller klemmes (§ 18-7).', 'Unntaksvis kan annet utstyr brukes: lite farlig, kortvarig og enkel jobb.', 'Da skal føreren hele tiden være ved betjeningen, og den som løftes skal ha et sikkert kommunikasjonsmiddel og kunne evakueres trygt.', 'Stå aldri på gaflene eller på en vanlig pall.'] },
-      { id: 'parkering', type: 'rekkefolge', min: 5, tittel: 'Parker trucken',
+      { id: 'parkering', type: 'rekkefolge', min: 4, tittel: 'Parker trucken',
         spm: 'Sett stegene i riktig rekkefølge når du parkerer trucken etter bruk.',
         ledd: ['Kjør til en lovlig parkeringsplass, ikke foran nødutganger, brannutstyr eller i gangveier', 'Senk gaflene helt ned til gulvet', 'Tilt masten litt forover så gaffelspissene ligger mot gulvet', 'Sett på parkeringsbremsen', 'Slå av trucken og ta ut nøkkelen'],
         forklaring: 'Gafler som står oppe eller stikker opp, er en snublefare og kan skade folk. Nøkkelen tas ut så ingen uten opplæring kan bruke trucken.' },
-      { id: 'brann', type: 'tavle', min: 4, tittel: 'Brann- og eksplosjonsfare',
+      { id: 'brann', type: 'tavle', min: 3, tittel: 'Brann- og eksplosjonsfare',
         punkter: ['I områder merket som eksplosjonsfarlige (Ex) skal bare Ex-godkjente trucker brukes.', 'En vanlig truck kan lage gnister og varme som tenner gass, damp eller støv.', 'Vit hvor nærmeste brannslukker er, og hvordan den brukes.', 'Sølt drivstoff og olje tørkes opp med en gang.'] },
-      { id: 'fylling', type: 'tavle', min: 9, tittel: 'Drivstoff, gass og lading',
+      { id: 'fylling', type: 'tavle', min: 7, tittel: 'Drivstoff, gass og lading',
         punkter: ['Diesel: motoren av, ingen røyking eller åpen flamme, og tørk opp søl.', 'Propan: bytt flaske på et godt ventilert sted, med motoren av og hansker på. Gassen er tyngre enn luft og samler seg i groper og kjellere.', 'Lekkasjesøk aldri med flamme. Bruk lekkasjespray eller såpevann.', 'Lading av blybatteri: ventilert ladeplass, lokket åpent og røyking forbudt. Ved lading dannes knallgass, som er svært eksplosiv.', 'Slå av laderen før du kobler fra, og fyll destillert vann etter lading. Bruk briller og hansker.', 'Litium-ion-batterier: følg produsentens regler. De skal ikke etterfylles.'] },
-      { id: 'fyllquiz', type: 'quiz', min: 6, tittel: 'Gass og lading',
+      { id: 'fyllquiz', type: 'quiz', min: 4, tittel: 'Gass og lading',
         spm: [
           { s: 'Hvorfor er en propanlekkasje i et lager med kjeller ekstra farlig?', v: ['Gassen er lettere enn luft og stiger', 'Gassen er tyngre enn luft og samler seg nede', 'Propan er ikke brannfarlig'], r: 1 },
           { s: 'Hvordan sjekker du om en gasskobling lekker?', v: ['Med en lighter', 'Med lekkasjespray eller såpevann', 'Ved å lukte på koblingen'], r: 1 },
           { s: 'Hva må du gjøre før du kobler laderen fra batteriet?', v: ['Slå av laderen', 'Fylle vann', 'Ingenting'], r: 0 },
           { s: 'Hvorfor er det røykeforbud på ladeplassen?', v: ['Røyk skader batteriet', 'Det dannes knallgass, som er svært eksplosiv', 'Det er bare en ordensregel'], r: 1 },
         ] },
-      { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
+      { id: 'exit', type: 'quiz', min: 4, tittel: 'Exit ticket',
         spm: [
           { s: 'Hva trenger du for å kjøre trucken på offentlig vei?', v: ['Bare kompetansebevis', 'Riktig førerkort, og du må følge trafikkreglene', 'Tillatelse fra kommunen'], r: 1 },
           { s: 'Når kan en person løftes med en vanlig truckpall?', v: ['Når det går fort', 'Aldri. Personløft skal skje med utstyr som er beregnet for det', 'Når en kollega holder øye med det'], r: 1 },
@@ -727,7 +848,7 @@ svg text { font-family: var(--body); }
           { s: 'Hvilken truck kan brukes i et område merket Ex?', v: ['Alle elektriske trucker', 'Bare Ex-godkjente trucker', 'Alle trucker med brannslukker'], r: 1 },
           { s: 'Lasten hindrer sikten framover. Hva gjør du?', v: ['Rygger eller bruker medhjelper', 'Kjører sakte', 'Løfter lasten høyere'], r: 0 },
         ] },
-      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+      { id: 'slutt', type: 'slutt', min: 2, tittel: 'Oppsummering',
         punkter: ['På offentlig vei gjelder trafikkreglene, og du trenger riktig førerkort.', 'Se dit du kjører. Ingen passasjerer og ingen under løftet last.', 'Personer løftes bare med utstyr som er beregnet for det.', 'Parker med gaflene nede, bremsen på og nøkkelen ute.', 'Gass er tyngre enn luft, og lading gir knallgass. Ingen flamme og god ventilasjon.'] },
     ],
   };
@@ -1024,7 +1145,89 @@ svg text { font-family: var(--body); }
       },
     },
   };
-  for (const l of [STAB, GODS, BRUK, KONTROLL]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
+  Object.assign(NOTATER, {
+    'm22-1': {
+      inn: {
+        gjor: 'Presenter kurset: modul 2.2 er 14 timer teori og avsluttes med prøve i Dugga. Deretter kommer praktisk opplæring i modul 3.2 og 4.2.',
+        si: ['Leksjon 1 i modul 2.2 er satt av til 1 time.', 'Kurset gir kompetansebevis for de trucktypene eleven består praktisk prøve på. Ved skolen er det T2 og T4.'],
+        kilde: 'Kvalitetshåndboka pkt. 6.8, leksjon 1. Opplæringsplan modul 2.2.',
+      },
+      hvorfor: {
+        gjor: 'La elevene svare og bruk svarene til å starte samtalen. Det finnes ingen fasit.',
+        si: ['Truck er arbeidsutstyr som kan gi alvorlige skader. Derfor krever forskriften sertifisert opplæring.', 'Opplæringen skal gi kunnskap om oppbygging, betjening, bruksegenskaper og bruksområde, og om vedlikehold og kontroll (§ 10-2).'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 10-2 og 10-3.',
+      },
+      krav: {
+        si: ['§ 10-3: løfte- og stablevogn for gods med permanent førerplass krever sertifisert sikkerhetsopplæring. Det gjelder T2–T8.', 'T1 (lede trucker uten fast førerplass) krever dokumentert opplæring etter § 10-2, ikke sertifisert.', '§ 10-4: i tillegg skal arbeidsgiver gi opplæring på den trucken du faktisk skal bruke.', 'Under 18 år er truckkjøring forbudt (org./ledelse § 12-6 q). Unntak for opplæring: fra 17 år, og fra 16 år i videregående under skolens kyndige veiledning (§ 12-7).', 'Kompetansebeviset skal ha navn og fødselsdato, bilde, hvilket utstyr du er opplært på, utstedelsesdato og utsteder (adm. ordninger § 8-2).', 'Arbeidsgiver kan bare sette deg til å kjøre det du har opplæring på (§ 10-2).'],
+        spor: ['Hvem i klassen er under 18? Hva betyr det for praksisen?'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 10-2 til 10-4. Forskrift om organisering, ledelse og medvirkning §§ 12-6 og 12-7. Forskrift om administrative ordninger § 8-2.',
+      },
+      ansvar: {
+        si: ['§ 2-1: arbeidsgiver skal sørge for at loven blir fulgt.', '§ 3-2: arbeidsgiver skal sørge for opplæring, øvelse og instruksjon, og for skriftlig instruks ved arbeid med særlig fare.', '§ 2-3: arbeidstaker skal bruke påbudt verneutstyr, melde fra om feil og mangler, og avbryte arbeidet hvis det ikke kan fortsette uten fare.', '§ 19-2: arbeidstaker som bryter reglene, kan straffes med bøter, og ved forsett eller grov uaktsomhet med fengsel inntil 3 måneder.', 'Forskriftene som gjelder kurset: 1355 organisering, ledelse og medvirkning, 1356 arbeidsplassforskriften, 1357 utførelse av arbeid, 1360 administrative ordninger, maskinforskriften og vegtrafikkreglene.'],
+        feil: ['At det bare er arbeidsgiver som har ansvar.'],
+        kilde: 'Arbeidsmiljøloven §§ 2-1, 2-3, 3-2 og 19-2. Kvalitetshåndboka pkt. 6.2.2 og 6.8.',
+      },
+      ansvarquiz: {
+        gjor: 'Elevene svarer alene eller i par. Ta opp punktene der svarene sprikte.',
+      },
+      komponenter: {
+        gjor: 'Gå gjennom delene på figuren, og vis dem gjerne på en ekte truck senere.',
+        si: ['Truck er definert som «løfte- og stablevogn for gods: gaffeltruck og lignende mobilt motordrevet arbeidsutstyr for kombinert løfting, flytting og stabling».', 'På en motvektstruck er drivhjulene foran og styrehjulene bak.', 'Førervernet beskytter føreren mot fallende gjenstander.'],
+        kilde: 'Forskrift om utførelse av arbeid § 1-4 nr. 38. Truck ABC s. 120 og 142.',
+      },
+      standard: {
+        si: ['NS-EN ISO 3691-1 stiller sikkerhetskrav til motoriserte industritrucker og beskriver hvordan kravene verifiseres.', 'NS-EN 1175 stiller krav til det elektriske og elektroniske utstyret på trucker.', 'Maskinforskriften stiller krav til produsenten: trucken skal være CE-merket og ha bruksanvisning på norsk.', 'Som fører trenger du ikke kunne standardene, men vite at de finnes og at trucken skal oppfylle dem.'],
+        kilde: 'Kvalitetshåndboka pkt. 6.2.3. Maskinforskriften.',
+      },
+      exit: { gjor: 'Elevene svarer alene. Ta opp det flest bommer på.' },
+      slutt: { gjor: 'Neste leksjon er trucktyper og tilleggsutstyr.' },
+    },
+    'm22-3': {
+      inn: {
+        si: ['Leksjon 3 i modul 2.2 er satt av til 1 time.', 'Mål: forstå hvorfor truckulykker skjer, hva de fører til, og hvordan de forebygges og rapporteres.'],
+        kilde: 'Kvalitetshåndboka pkt. 6.8, leksjon 3. Opplæringsplan modul 2.2, målsetting 1.',
+      },
+      gjett: {
+        gjor: 'La elevene svare, vis fordelingen og spør hvorfor.',
+        si: ['Påkjørsler, særlig ved rygging, er blant de vanligste truckulykkene.', 'Ofte er det truckføreren som forårsaker ulykken, men årsakene bak er sammensatte.'],
+        kilde: 'Truck ABC s. 26 og 104.',
+      },
+      arsak: {
+        si: ['En ulykke har nesten alltid flere årsaker. Den direkte årsaken er det som skjer akkurat da. De bakenforliggende årsakene er det som gjorde det mulig.', 'Menneske: fart, uoppmerksomhet, holdninger og manglende opplæring.', 'Teknikk: feil på trucken eller utstyr som ikke er kontrollert.', 'Organisasjon og miljø: tidspress, trange lokaler, dårlig lys, og gående og trucker i samme område.'],
+        spor: ['Hvorfor er det ikke nok å si at «føreren gjorde en feil»?'],
+      },
+      case: {
+        gjor: 'Les caset høyt. La elevene sortere faktorene to og to.',
+        si: ['Ryggealarmen var meldt feil uten at trucken ble tatt ut av bruk. Det skulle den vært (§ 12-5).', 'Uten merket gangvei er skillet mellom gående og trucker ikke ivaretatt (arbeidsplassforskriften § 2-18).'],
+        kilde: 'Forskrift om utførelse av arbeid § 12-5. Arbeidsplassforskriften § 2-18.',
+      },
+      konsekvens: {
+        si: ['Føreren kan selv bli skadet, og mange som har vært involvert i alvorlige ulykker, får psykiske belastninger etterpå.', 'Arbeidstaker kan straffes etter arbeidsmiljøloven § 19-2: bøter, og ved forsett eller grov uaktsomhet fengsel inntil 3 måneder. Ved særlig skjerpende omstendigheter inntil 1 år.', 'Kompetansebeviset kan ikke tas fra deg, men arbeidsgiver kan nekte deg å kjøre hvis du kjører uforsvarlig.', 'For bedriften: sykefravær, kostnader, gransking og dårlig omdømme.'],
+        kilde: 'Arbeidsmiljøloven § 19-2. Truck ABC s. 23 og 104.',
+      },
+      forsikring: {
+        si: ['Arbeidsgiver har plikt til å ha yrkesskadeforsikring. Den gir full erstatning uten hensyn til om noen har skyld (yrkesskadeforsikringsloven § 3).', 'En truck som brukes på offentlig vei, er en motorvogn og skal være trafikkforsikret (bilansvarslova § 15).', 'Bedriftens forsikringer for truck, gods og bygninger har vilkår. Ofte står det sikkerhetsregler i vilkårene. Brytes de, kan erstatningen bli redusert.'],
+        feil: ['At forsikringen dekker alt uansett hva man gjør.'],
+        kilde: 'Yrkesskadeforsikringsloven § 3. Bilansvarslova § 15. Punktet om vilkår i bedriftens forsikringer bør sjekkes mot bedriftens egen avtale.',
+      },
+      forebygg: {
+        si: ['Risikovurdering og sikker jobbanalyse før arbeid med fare.', 'Kjøreregler, merkede kjøreveier og gangveier.', 'Daglig kontroll og rask oppfølging av feil.', 'Utstyr på trucken: ryggealarm, blått varsellys, kamera og setebryter.', 'Holdninger: en ulykke skjer ikke, den forårsakes.'],
+        kilde: 'Truck ABC s. 104–105.',
+      },
+      rapport: {
+        si: ['Meld fra til leder om alle uhell, også skader på utstyr, reoler og gods.', 'Arbeidsgiver skal registrere alle personskader (§ 5-1).', 'Ved dødsfall eller alvorlig skade skal arbeidsgiver straks varsle Arbeidstilsynet og politiet (§ 5-2).', 'Rapporter nestenulykker. De viser hvor neste ulykke kan skje.'],
+        kilde: 'Arbeidsmiljøloven §§ 2-3, 5-1 og 5-2.',
+      },
+      nyhet: {
+        gjor: 'Finn et aktuelt nyhetsoppslag om en truckulykke før timen, for eksempel fra Arbeidstilsynet eller en avis. Les eller vis det, og gå gjennom spørsmålene med klassen.',
+        si: ['Hold det saklig. Det kan sitte elever i klassen som har opplevd ulykker selv eller i familien.'],
+        kilde: 'Kvalitetshåndboka pkt. 6.8, leksjon 3: aktuelle nyhetsoppslag om ulykker.',
+      },
+      exit: { gjor: 'Elevene svarer alene. Ta opp det flest bommer på.' },
+      slutt: { gjor: 'Neste leksjon er truckens konstruksjon og virkemåte.' },
+    },
+  });
+  for (const l of [STAB, GODS, BRUK, KONTROLL, INNLED, ULYKKER]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
 
   // Fasit for aktivitetene, slik læreren ser den i notatene.
   function fasitTekst(st) {
@@ -1062,9 +1265,9 @@ svg text { font-family: var(--body); }
       { nr: 7, tittel: 'Eksamen: skriftlig teoretisk prøve', timer: 1, dugga: true },
     ] },
     { modul: 'Modul 2.2', navn: 'Løfte- og stablevogner for gods (truck)', leks: [
-      { nr: 1, tittel: 'Innledning og krav til truckfører', timer: 1 },
+      INNLED,
       { nr: 2, tittel: 'Trucktyper og tilleggsutstyr', timer: 2 },
-      { nr: 3, tittel: 'Truckulykker', timer: 1 },
+      ULYKKER,
       { nr: 4, tittel: 'Truckens konstruksjon og virkemåte', timer: 2 },
       KONTROLL,
       STAB,
@@ -1328,6 +1531,7 @@ svg text { font-family: var(--body); }
       kobleFigur(st);
     } else {
       if (st.spm && typeof st.spm === 'string') h += `<p class="spm-stor">${esc(st.spm)}</p>`;
+      if (st.ingress) h += `<p class="ingress">${esc(st.ingress)}</p>`;
       if (st.type === 'trykk') h += `<div class="tv-grid"><div class="figbox" id="tv-trykkfig"></div><div id="tv-svar"></div></div>`;
       else if (st.fig) h += `<div class="tv-grid"><div>${figStatisk(st.fig)}</div><div id="tv-svar"></div></div>`;
       else h += `<div id="tv-svar"></div>`;
@@ -1339,7 +1543,8 @@ svg text { font-family: var(--body); }
   function figStatisk(f) {
     const box = x => `<div class="figbox">${x}</div>`;
     return f === 'skilt' ? figSkilt() : f === 'tpa' ? box(figTpa()) : f === 'trekant' ? box(figTrekant()) :
-      f === 'pall' ? box(figPall()) : f === 'symboler' ? box(figSymboler()) : f === 'rampe' ? box(figRampe()) : f === 'kontroller' ? figKontroller() : '';
+      f === 'pall' ? box(figPall()) : f === 'symboler' ? box(figSymboler()) : f === 'rampe' ? box(figRampe()) : f === 'kontroller' ? figKontroller() :
+      f === 'komponenter' ? box(figKomponenter()) : '';
   }
   function figTavle(st, pre = 'tv') {
     if (st.fig === 'vippe') {
@@ -1639,6 +1844,7 @@ svg text { font-family: var(--body); }
     const v = E.a[st.id], fasit = fasitSynlig(st);
     let h = '';
     if (typeof st.spm === 'string') h += `<p>${esc(st.spm)}</p>`;
+    if (st.ingress) h += `<p class="figbox">${esc(st.ingress)}</p>`;
     if (st.fig && st.type !== 'trykk') h += figElevLes(st.fig);
     if (st.type === 'valg') {
       h += `<div class="opts">${st.valg.map((t, i) => {
