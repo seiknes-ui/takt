@@ -164,6 +164,12 @@ svg text { font-family: var(--body); }
 .qnav span.cur { background: var(--accent); }
 .les { font-size: 16px; }
 .les ul { padding-left: 1.2em; display: grid; gap: 6px; }
+.notat ul, .notatvis ul { padding-left: 1.2em; margin: 0; display: grid; gap: 6px; }
+.notatvis { padding-bottom: 80px; }
+.notatvis .card h3:first-of-type { margin-top: 8px; }
+.nstyr { position: fixed; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 8px; padding: 10px max(12px, env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); }
+.nstyr button { padding: 14px 8px; font-size: 16px; }
+.nneste { margin-top: 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 6px; font-size: 14px; color: var(--muted); }
 
 @media (max-width: 900px) {
   .tv-grid { grid-template-columns: 1fr; }
@@ -203,12 +209,26 @@ svg text { font-family: var(--body); }
       </div>
       <div id="laerer-inn" hidden>
         <p>Innlogget som <b id="laerer-navn"></b>. Velg en leksjon i stien under for å starte den på tavla.</p>
-        <div class="row"><button id="btn-logout" type="button">Logg ut</button></div>
+        <p class="small muted">Vil du ha notatene på telefonen eller en annen skjerm? Start leksjonen på tavla, logg inn på den andre enheten og velg «Notater til tavla» med koden fra tavla.</p>
+        <div class="field"><label for="in-notatkode">Kode fra tavla</label><input id="in-notatkode" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="1234"></div>
+        <p class="msg" id="notat-msg"></p>
+        <div class="row"><button class="primary" id="btn-notat" type="button">Notater til tavla</button><button id="btn-logout" type="button">Logg ut</button></div>
       </div>
     </div>
   </div>
   <h3>Stien gjennom kurset</h3>
   <div class="sti" id="sti"></div>
+</section>
+
+<!-- Lærerens notater på egen enhet: følger tavla og kan styre den -->
+<section id="v-notat" class="elev notatvis" hidden>
+  <div class="ehead"><span id="n-who"></span><span id="n-conn" class="pill">Kobler til …</span></div>
+  <div id="n-body"></div>
+  <div class="nstyr">
+    <button type="button" id="n-prev">←</button>
+    <button type="button" class="primary" id="n-vis">Vis svaret</button>
+    <button type="button" id="n-next">Neste →</button>
+  </div>
 </section>
 
 <!-- Eleven -->
@@ -225,6 +245,7 @@ svg text { font-family: var(--body); }
     <span class="muted small">Kode</span><span class="kode" id="tv-kode">····</span>
     <span class="pill" id="tv-n">0 elever</span>
     <span class="pill" id="tv-conn">Kobler til …</span>
+    <span class="pill ok" id="tv-fjern" hidden>Notater tilkoblet</span>
   </div>
   <div class="tv-main">
     <div class="tv-stage" id="tv-stage"></div>
@@ -463,18 +484,14 @@ svg text { font-family: var(--body); }
     emner: ['Vektstangprinsippet', 'Truckens understøtteflate', 'Tyngdepunkt', 'Sentrifugalkraft', 'Løftekapasitet', 'Tilleggsutstyr', 'Lastsenter/TP-avstand', 'Truckens merking/skilt', 'Lastdiagram', 'Stabilitet'],
     mal: [5, 6, 7, 8],
     steg: [
-      { id: 'inn', type: 'velkommen', min: 3, tittel: 'Truckens stabilitet',
-        notat: 'Elevene går til adressen eller skanner QR-koden og skriver inn koden og fornavnet sitt. Gå videre når de fleste er med. Elever som kommer sent, havner rett på steget dere er på.' },
+      { id: 'inn', type: 'velkommen', min: 3, tittel: 'Truckens stabilitet' },
       { id: 'gjett', type: 'valg', min: 4, tittel: 'Velter den?',
         spm: 'En motvektstruck har 1500 kg på gaflene. Føreren løfter lasten til 4 meter og tilter masten forover. Hva tror du skjer?',
         valg: ['Trucken står stødig', 'Trucken velter forover', 'Trucken velter til siden', 'Det kommer an på trucken og lasten'], riktig: null,
-        forklaring: 'Her er det ingen fasit ennå. Det kommer an på truckens kapasitet og hvor tyngdepunktet til lasten ligger. Men å tilte forover med høyt løftet last flytter tyngdepunktet fram mot tippekanten. Vi tester det i simulatoren.',
-        notat: 'Ikke avslør svaret. Vis fordelingen og spør et par elever hvorfor de svarte som de gjorde. Gå så til simulatoren.' },
-      { id: 'sim1', type: 'tavle', min: 5, tittel: 'Vi tester i simulatoren', fig: 'sim',
-        notat: 'Velg motvektstruck (T4) og legg på last. Løft høyt og tilt forover, og vis hvordan det felles tyngdepunktet og resultanten flytter seg mot forakselen. Spør: hva holder trucken nede bak? (Motvekten.)' },
+        forklaring: 'Her er det ingen fasit ennå. Det kommer an på truckens kapasitet og hvor tyngdepunktet til lasten ligger. Men å tilte forover med høyt løftet last flytter tyngdepunktet fram mot tippekanten. Vi tester det i simulatoren.' },
+      { id: 'sim1', type: 'tavle', min: 5, tittel: 'Vi tester i simulatoren', fig: 'sim' },
       { id: 'vippe', type: 'tavle', min: 8, tittel: 'Vektstangprinsippet', fig: 'vippe',
-        punkter: ['Forakselen er vippepunktet, tippekanten forover.', 'Trucken og motvekten holder igjen: vekt × avstand bak forakselen.', 'Lasten vipper framover: vekt × avstand foran forakselen.', 'Trucken står så lenge lastens moment er mindre enn truckens.'],
-        notat: 'Bruk glidebryterne. Øk lasten til trucken vipper. Sett så lasten litt under grensen og øk TPA: samme last velter når den kommer lenger ut. Spør: hva kan føreren selv påvirke? TPA, tilt, og hvordan lasten plasseres på gaflene.' },
+        punkter: ['Forakselen er vippepunktet, tippekanten forover.', 'Trucken og motvekten holder igjen: vekt × avstand bak forakselen.', 'Lasten vipper framover: vekt × avstand foran forakselen.', 'Trucken står så lenge lastens moment er mindre enn truckens.'] },
       { id: 'regn', type: 'tall', min: 7, tittel: 'Regn på vippa',
         spm: 'Trucken i figuren har et stabiliserende moment på 3000 kgm om forakselen. Fra forakselen til gaffelryggen er det 0,45 m.',
         felt: [
@@ -482,26 +499,21 @@ svg text { font-family: var(--body); }
           { l: 'Og når TPA er 1000 mm?', svar: 3000 / 1.45, enhet: 'kg', tol: 0.03 },
         ],
         hint: 'Armen er 0,45 m + TPA i meter. Last = 3000 kgm / arm.',
-        forklaring: 'Armen er 0,45 + 0,50 = 0,95 m, så 3000 / 0,95 ≈ 3160 kg. Med TPA 1000 mm blir armen 1,45 m og grensen ≈ 2070 kg. Dette er balansepunktet. Kapasiteten på skiltet ligger lavere, og marginen er ikke noe du skal bruke.',
-        notat: 'La elevene jobbe i par med kalkulator på telefonen. Gå gjennom utregningen på tavla etterpå.' },
+        forklaring: 'Armen er 0,45 + 0,50 = 0,95 m, så 3000 / 0,95 ≈ 3160 kg. Med TPA 1000 mm blir armen 1,45 m og grensen ≈ 2070 kg. Dette er balansepunktet. Kapasiteten på skiltet ligger lavere, og marginen er ikke noe du skal bruke.' },
       { id: 'trekant', type: 'tavle', min: 8, tittel: 'Støtteflaten er en trekant', fig: 'trekant',
-        punkter: ['Bakakselen er festet i midten (pendelaksel). Støtteflaten blir derfor en trekant, ikke et rektangel.', 'Det felles tyngdepunktet for truck og last må ligge inne i trekanten.', 'Med last flytter det felles tyngdepunktet seg fram mot forakselen.', 'Uten last ligger det bak, der trekanten er smalest. Da tåler trucken minst sideveis.'],
-        notat: 'Klikk gjennom tilstandene. Poenget mange overser: en tom truck i sving er mer utsatt for å velte sideveis enn en truck med last.' },
+        punkter: ['Bakakselen er festet i midten (pendelaksel). Støtteflaten blir derfor en trekant, ikke et rektangel.', 'Det felles tyngdepunktet for truck og last må ligge inne i trekanten.', 'Med last flytter det felles tyngdepunktet seg fram mot forakselen.', 'Uten last ligger det bak, der trekanten er smalest. Da tåler trucken minst sideveis.'] },
       { id: 'trykk', type: 'trykk', min: 5, tittel: 'Hvor er tyngdepunktet?',
         spm: 'Trucken bærer en last nær maks kapasitet, senket ned. Trykk der du tror det felles tyngdepunktet ligger.',
         sone: (x, y) => iTrekant(x, y) && x >= 235,
-        forklaring: 'Nær maks kapasitet ligger det felles tyngdepunktet langt fram i trekanten, like bak forakselen. Det er lite margin forover, så en brå oppbremsing eller tilt forover kan være nok.',
-        notat: 'Vis prikkene før du viser fasiten. Spør dem som trykket bak i trekanten hva de tenkte.' },
+        forklaring: 'Nær maks kapasitet ligger det felles tyngdepunktet langt fram i trekanten, like bak forakselen. Det er lite margin forover, så en brå oppbremsing eller tilt forover kan være nok.' },
       { id: 'tpa', type: 'tavle', min: 5, tittel: 'Tyngdepunktsavstand (TPA)', fig: 'tpa',
-        punkter: ['TPA er avstanden fra gaffelryggen til lastens tyngdepunkt. På skiltet heter den ofte D.', 'Skiltet oppgir kapasiteten ved en bestemt TPA, ofte 500 mm for trucker på 1–5 tonn.', 'Langsidehåndtering gir kortere TPA enn kortsidehåndtering.', 'Tyngdepunktet ligger ikke alltid midt i lasten. Se på godset og merkingen.'],
-        notat: 'Spør: hvor ligger tyngdepunktet i en kasse med en motor i den ene enden?' },
+        punkter: ['TPA er avstanden fra gaffelryggen til lastens tyngdepunkt. På skiltet heter den ofte D.', 'Skiltet oppgir kapasiteten ved en bestemt TPA, ofte 500 mm for trucker på 1–5 tonn.', 'Langsidehåndtering gir kortere TPA enn kortsidehåndtering.', 'Tyngdepunktet ligger ikke alltid midt i lasten. Se på godset og merkingen.'] },
       { id: 'pall', type: 'valg', min: 4, tittel: 'Langside eller kortside?', fig: 'tpa',
         spm: 'En EUR-pall (1200 × 800 mm) har jevnt fordelt last. Du kan ta den på langsiden eller kortsiden. Hva gir størst sikkerhetsmargin?',
         valg: ['Langsiden, TPA blir ca. 400 mm', 'Kortsiden, TPA blir ca. 600 mm', 'Det spiller ingen rolle, vekten er den samme'], riktig: 0,
         forklaring: 'På langsiden ligger tyngdepunktet 400 mm fra gaffelryggen i stedet for 600 mm. Kortere arm gir mindre moment forover og mer margin.' },
       { id: 'skilt', type: 'tavle', min: 6, tittel: 'Maskinskiltet og lastdiagrammet', fig: 'skilt',
-        punkter: ['Skiltet viser tillatt last ved ulike løftehøyder (H) og tyngdepunktsavstander (D).', 'Jo høyere løft og lengre TPA, jo lavere tillatt last.', 'Ligger lasten mellom to kolonner, bruker du den neste større TPA-en og løftehøyden.', 'Med tilleggsutstyr gjelder tilleggsskiltet, ikke grunnskiltet.'],
-        notat: 'Vis hvordan du finner raden og kolonnen. Ta et eksempel høyt: 1700 kg, D 550 mm, til 4000 mm. Da gjelder D 600 og H 4500: 2000 kg, så det går.' },
+        punkter: ['Skiltet viser tillatt last ved ulike løftehøyder (H) og tyngdepunktsavstander (D).', 'Jo høyere løft og lengre TPA, jo lavere tillatt last.', 'Ligger lasten mellom to kolonner, bruker du den neste større TPA-en og løftehøyden.', 'Med tilleggsutstyr gjelder tilleggsskiltet, ikke grunnskiltet.'] },
       { id: 'lesskilt', type: 'quiz', min: 8, tittel: 'Les skiltet', fig: 'skilt',
         spm: [
           { s: 'Hvor mye kan trucken løfte til 4500 mm med TPA 600 mm?', v: ['2300 kg', '2000 kg', '1750 kg', '2500 kg'], r: 1 },
@@ -510,16 +522,14 @@ svg text { font-family: var(--body); }
         ],
         forklaring: 'TPA 650 ligger mellom kolonnene. Da bruker du D 700, som gir 1350 kg ved 6000 mm. Lasten er for tung.' },
       { id: 'krefter', type: 'tavle', min: 7, tittel: 'Krefter i bevegelse', fig: 'krefter',
-        punkter: ['Sving: sentrifugalkraften virker utover i svingen. Senk farten før svingen.', 'Bremsing: lasten vil fortsette framover. Brems jevnt.', 'Bakke: kjør med lasten opp mot bakken, og rygg ned med last. Kjør aldri på tvers.', 'Høyt løftet last gjør alt dette verre. Kjør med lasten senket.'],
-        notat: 'Demonstrer i simulatoren: sving med høyt løftet last, og kjøring i helling.' },
+        punkter: ['Sving: sentrifugalkraften virker utover i svingen. Senk farten før svingen.', 'Bremsing: lasten vil fortsette framover. Brems jevnt.', 'Bakke: kjør med lasten opp mot bakken, og rygg ned med last. Kjør aldri på tvers.', 'Høyt løftet last gjør alt dette verre. Kjør med lasten senket.'] },
       { id: 'hva', type: 'quiz', min: 7, tittel: 'Hva skjer?',
         spm: [
           { s: 'Du kjører en tom motvektstruck i en krapp sving med litt for høy fart. Hvor er veltefaren størst?', v: ['Forover', 'Til siden, utover i svingen', 'Bakover'], r: 1 },
           { s: 'Du skal ned en bakke med last på gaflene. Hvordan kjører du?', v: ['Forover, med lasten først', 'Rygger ned, med lasten opp mot bakken', 'På skrå over bakken'], r: 1 },
           { s: 'Du må bremse hardt med lasten løftet høyt. Hva er den største faren?', v: ['At lasten sklir av eller trucken tipper forover', 'At trucken velter bakover', 'Ingen fare så lenge lasten er sikret'], r: 0 },
         ],
-        forklaring: 'Uten last ligger tyngdepunktet bak i den smale delen av trekanten, så en tom truck velter lettest sideveis. I bakke skal lasten alltid peke oppover. Ved bremsing vil lasten fortsette framover.',
-        notat: 'La elevene diskutere to og to før de svarer.' },
+        forklaring: 'Uten last ligger tyngdepunktet bak i den smale delen av trekanten, så en tom truck velter lettest sideveis. I bakke skal lasten alltid peke oppover. Ved bremsing vil lasten fortsette framover.' },
       { id: 'utstyr', type: 'tavle', min: 4, tittel: 'Tilleggsutstyr reduserer kapasiteten', fig: 'utstyr',
         punkter: ['Utstyret har egen vekt som kommer i tillegg til lasten.', 'Utstyret bygger ut fra gaffelvognen, så lastens tyngdepunkt flyttes fram.', 'Trucken skal ha et eget skilt som viser kapasiteten med utstyret montert.', 'En sideforskyver helt ut til siden flytter også tyngdepunktet sideveis.'] },
       { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
@@ -529,8 +539,7 @@ svg text { font-family: var(--body); }
           { s: 'Når er en motvektstruck mest ustabil sideveis?', v: ['Når den kjører uten last', 'Når den har full last senket', 'Når den står stille'], r: 0 },
           { s: 'Hvorfor gir tilleggsutstyr lavere løftekapasitet?', v: ['Utstyret veier noe og flytter lastens tyngdepunkt fram', 'Hydraulikken blir svakere', 'Det gir ikke lavere kapasitet'], r: 0 },
           { s: 'Skiltet viser 2000 kg ved D 600 og 1750 kg ved D 700, begge ved 4500 mm. Lasten veier 1900 kg og har TPA 650 mm. Kan du løfte den til 4500 mm?', v: ['Ja, 1900 kg er under 2000 kg', 'Nei, du må bruke D 700, og der er grensen 1750 kg', 'Ja, hvis du løfter sakte'], r: 1 },
-        ],
-        notat: 'Elevene svarer alene. Vis resultatet per spørsmål og ta opp det som flest bommer på.' },
+        ] },
       { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
         punkter: ['Det felles tyngdepunktet må ligge inne i stabilitetstrekanten.', 'Lang TPA, høyt løft, tilt forover og tilleggsutstyr gir mindre margin.', 'Tom truck i sving er utsatt sideveis. Senk farten og kjør med lasten senket.', 'Les skiltet før du løfter. Mellom to kolonner gjelder den strengeste.'] },
     ],
@@ -542,19 +551,15 @@ svg text { font-family: var(--body); }
     emner: ['Lastebærere', 'Merking av emballasje', 'Sikring av last', 'Pallhåndtering', 'Ruller og langgods', 'Stablingsmetoder', 'Stabling og nedtaking av last', 'Lasting og lossing bil', 'Enkel signalgiving', 'Sleping av tilhengere'],
     mal: [9, 10, 11, 12, 13, 14],
     steg: [
-      { id: 'inn', type: 'velkommen', min: 3, tittel: 'Godshåndtering',
-        notat: 'Elevene går til adressen eller skanner QR-koden. Gå videre når de fleste er med.' },
+      { id: 'inn', type: 'velkommen', min: 3, tittel: 'Godshåndtering' },
       { id: 'pallfeil', type: 'valg', min: 4, tittel: 'Hva gjør du?',
         spm: 'Du skal hente en pall og ser at et av bunnbordene er knekt og at en spiker stikker ut. Hva gjør du?',
         valg: ['Bruker den, men kjører ekstra forsiktig', 'Sier fra og sørger for at pallen tas ut av bruk', 'Snur pallen så den skadde siden kommer opp', 'Setter den nederst i en stabel'], riktig: 1,
-        forklaring: 'En skadet pall kan knekke under stabling eller løft og slippe lasten. Den skal ikke brukes, men repareres eller kasseres. Lasten flyttes over på en hel pall.',
-        notat: 'Bruk spørsmålet til å starte praten om lastbærere. Har noen sett en pall knekke?' },
+        forklaring: 'En skadet pall kan knekke under stabling eller løft og slippe lasten. Den skal ikke brukes, men repareres eller kasseres. Lasten flyttes over på en hel pall.' },
       { id: 'lastbaerere', type: 'tavle', min: 7, tittel: 'Lastbærere', fig: 'pall',
-        punkter: ['Europallen er 1200 × 800 mm og merket EUR eller EPAL på klossene. Halvpallen er 800 × 600 mm.', 'Andre lastbærere: pallkarmer, pallgrinder, rullecontainere, kasser og containere.', 'Ikke bruk en skadet pall: knekte eller manglende bord, synlige spiker, skadde klosser eller manglende merking.', 'Hvor mye en pall tåler, avhenger av hvordan lasten er fordelt. Sjekk merkingen og bedriftens regler.'],
-        notat: 'Ha gjerne en ekte europall i klasserommet og vis merkingen. Spør: hvorfor er standardmål viktig? Det gjør det lettere å utnytte lasteplan og reoler.' },
+        punkter: ['Europallen er 1200 × 800 mm og merket EUR eller EPAL på klossene. Halvpallen er 800 × 600 mm.', 'Andre lastbærere: pallkarmer, pallgrinder, rullecontainere, kasser og containere.', 'Ikke bruk en skadet pall: knekte eller manglende bord, synlige spiker, skadde klosser eller manglende merking.', 'Hvor mye en pall tåler, avhenger av hvordan lasten er fordelt. Sjekk merkingen og bedriftens regler.'] },
       { id: 'symboler', type: 'tavle', min: 6, tittel: 'Merking av emballasje', fig: 'symboler',
-        punkter: ['Symbolene er internasjonale og forteller hvordan godset skal håndteres.', 'Se etter merkingen før du løfter, stabler eller setter godset fra deg.', 'Tyngdepunktsymbolet viser hvor tyngdepunktet ligger. Det påvirker TPA-en.'],
-        notat: 'Gå gjennom symbolene og la elevene gjette før du sier navnet. Merking av farlig gods er tatt i modul 1.' },
+        punkter: ['Symbolene er internasjonale og forteller hvordan godset skal håndteres.', 'Se etter merkingen før du løfter, stabler eller setter godset fra deg.', 'Tyngdepunktsymbolet viser hvor tyngdepunktet ligger. Det påvirker TPA-en.'] },
       { id: 'symbolquiz', type: 'quiz', min: 6, tittel: 'Hva betyr symbolet?',
         spm: [
           { s: 'Hva betyr symbolet?', fig: 'opp', v: ['Løft her', 'Denne side opp', 'Stables i to høyder'], r: 1 },
@@ -562,29 +567,23 @@ svg text { font-family: var(--body); }
           { s: 'Hva betyr symbolet?', fig: 'tp', v: ['Midten av pallen', 'Her skal gaflene inn', 'Tyngdepunktet'], r: 2 },
           { s: 'Hva betyr symbolet?', fig: 'ikkestable', v: ['Ikke stable', 'Maks to i høyden', 'Stables bare på pall'], r: 0 },
           { s: 'Hva betyr symbolet?', fig: 'krok', v: ['Løft med krok', 'Ikke bruk krok', 'Henges opp'], r: 1 },
-        ],
-        notat: 'Vis resultatet og ta opp symbolet flest bommet på.' },
+        ] },
       { id: 'sikring', type: 'tavle', min: 5, tittel: 'Sikring av last',
-        punkter: ['Gods på pall stabiliseres med strekkfilm, krympefilm eller bånd, så pallen blir én samlet enhet.', 'Tungt nederst, lett øverst. Lasten skal ikke stikke utenfor pallen.', 'Truckføreren har ansvaret for lasten mens den håndteres med trucken.', 'Når godset lastes på en bil, er det sjåføren som har ansvaret for at lasten er sikret for transport.'],
-        notat: 'Spør: hva skjer med en usikret pall i en brå sving? (Treghet, som i stabilitetsleksjonen.)' },
+        punkter: ['Gods på pall stabiliseres med strekkfilm, krympefilm eller bånd, så pallen blir én samlet enhet.', 'Tungt nederst, lett øverst. Lasten skal ikke stikke utenfor pallen.', 'Truckføreren har ansvaret for lasten mens den håndteres med trucken.', 'Når godset lastes på en bil, er det sjåføren som har ansvaret for at lasten er sikret for transport.'] },
       { id: 'stabling', type: 'tavle', min: 7, tittel: 'Stabling og nedtaking',
-        punkter: ['Kjør med lasten lavt og masten tiltet litt bakover.', 'Løft først når trucken står stille foran stabelen.', 'Masten skal stå loddrett når du setter fra deg eller tar ned en last, ellers kan gods og pall bli skadet.', 'Se bak deg før du rygger ut, og senk til kjørehøyde før du kjører videre.', 'Stabelen skal stå stødig: like kolli, rett over hverandre, og tungt nederst.'],
-        notat: 'Demonstrer gjerne med en lekebil eller vis en film. Neste steg er å sette stegene i riktig rekkefølge.' },
+        punkter: ['Kjør med lasten lavt og masten tiltet litt bakover.', 'Løft først når trucken står stille foran stabelen.', 'Masten skal stå loddrett når du setter fra deg eller tar ned en last, ellers kan gods og pall bli skadet.', 'Se bak deg før du rygger ut, og senk til kjørehøyde før du kjører videre.', 'Stabelen skal stå stødig: like kolli, rett over hverandre, og tungt nederst.'] },
       { id: 'settpa', type: 'rekkefolge', min: 6, tittel: 'Sett en pall på stabelen',
         spm: 'Sett stegene i riktig rekkefølge når du setter en pall oppå en stabel med motvektstruck.',
         ledd: ['Kjør fram mot stabelen med lasten lavt og masten tiltet bakover', 'Stopp foran stabelen og løft lasten litt over stabelhøyden', 'Still masten loddrett', 'Kjør sakte fram til lasten står over stabelen', 'Senk lasten på plass og senk gaflene til de går fri', 'Se bak deg og rygg rett ut', 'Senk gaflene til kjørestilling før du kjører videre'],
-        forklaring: 'Løft og senk bare når trucken står stille. Masten skal være loddrett når lasten settes ned, og du ser deg alltid bak før du rygger.',
-        notat: 'Vis hvilke steg flest bytter om på. Ofte er det å stille masten loddrett og å se seg bak.' },
+        forklaring: 'Løft og senk bare når trucken står stille. Masten skal være loddrett når lasten settes ned, og du ser deg alltid bak før du rygger.' },
       { id: 'tani', type: 'rekkefolge', min: 5, tittel: 'Ta ned en pall',
         spm: 'Sett stegene i riktig rekkefølge når du tar ned en pall fra en stabel.',
         ledd: ['Stopp foran stabelen med masten loddrett', 'Løft gaflene til høyden på gaffellommene', 'Kjør sakte inn til lasten ligger mot gaffelryggen', 'Løft lasten så vidt fri fra underlaget', 'Se bak deg og rygg rett ut', 'Senk lasten til kjørehøyde og tilt masten bakover'],
         forklaring: 'Lasten skal være helt ute av stabelen før du senker den. Senker du mens du rygger, kan du rive med deg gods fra stabelen.' },
       { id: 'ruller', type: 'tavle', min: 6, tittel: 'Ruller, langgods og containere',
-        punkter: ['Ruller transporteres normalt stående, gjerne med en rullklemme. Liggende ruller sikres mot å rulle.', 'Langgods: spre gaflene så langt det går, og legg lasten midt på. I sving svinger godset ut. Se etter folk og reoler.', 'Gaffelforlengere og annet utstyr endrer kapasiteten. Sjekk tilleggsskiltet.', 'Container: sjekk at den står støtt eller at bilen er sikret, at gulvet tåler trucken, og at det er høyde nok inne.'],
-        notat: 'Spør: hva er farlig med langgods i trange ganger?' },
+        punkter: ['Ruller transporteres normalt stående, gjerne med en rullklemme. Liggende ruller sikres mot å rulle.', 'Langgods: spre gaflene så langt det går, og legg lasten midt på. I sving svinger godset ut. Se etter folk og reoler.', 'Gaffelforlengere og annet utstyr endrer kapasiteten. Sjekk tilleggsskiltet.', 'Container: sjekk at den står støtt eller at bilen er sikret, at gulvet tåler trucken, og at det er høyde nok inne.'] },
       { id: 'bil', type: 'tavle', min: 8, tittel: 'Lasting og lossing av bil', fig: 'rampe',
-        punkter: ['Bilen skal være sikret mot å flytte seg: brems på, motor av og hjulstopper eller vognsikring.', 'Kjørebroen skal ligge riktig og være låst. Sjekk at bro og lasteplan tåler truck og last.', 'Jernbanevogner og containere: samme regler. Vognen skal være sikret mot å rulle.', 'Avtal med sjåføren. Sjåføren bestemmer hvordan lasten plasseres på bilen.'],
-        notat: 'Fortell gjerne om ulykker der bilen kjørte fra rampen mens trucken var på vei inn. Derfor: klarsignal fra sjåføren og sikret bil.' },
+        punkter: ['Bilen skal være sikret mot å flytte seg: brems på, motor av og hjulstopper eller vognsikring.', 'Kjørebroen skal ligge riktig og være låst. Sjekk at bro og lasteplan tåler truck og last.', 'Jernbanevogner og containere: samme regler. Vognen skal være sikret mot å rulle.', 'Avtal med sjåføren. Sjåføren bestemmer hvordan lasten plasseres på bilen.'] },
       { id: 'bilquiz', type: 'quiz', min: 6, tittel: 'På rampa',
         spm: [
           { s: 'Du skal laste en semitrailer ved rampa. Sjåføren sitter i bilen, og motoren går. Hva gjør du?', v: ['Begynner å laste, det går fort', 'Venter til bilen er sikret og sjåføren har gitt klarsignal', 'Laster forsiktig og følger med på bilen'], r: 1 },
@@ -593,8 +592,7 @@ svg text { font-family: var(--body); }
         ],
         forklaring: 'Bilen eller vognen skal være sikret før du kjører inn. Sjåføren har ansvaret for lastsikringen og bestemmer plasseringen på bilen.' },
       { id: 'signal', type: 'tavle', min: 6, tittel: 'Signalgiving',
-        punkter: ['Når du ikke ser selv, skal en signalperson lede deg med hånd- og armsignaler eller muntlige beskjeder.', 'Signalpersonen skal se hele manøveren uten selv å komme i fare, og skal være lett å kjenne igjen.', 'Signalene skal være tydelige, enkle og avtalt på forhånd.', 'Kan du ikke utføre et signal trygt, stopper du og ber om nye instrukser.'],
-        notat: 'Reglene står i forskrift om utførelse av arbeid §§ 22-3 til 22-7. Øv på signalene fysisk: én elev gir signaler, en annen «kjører».' },
+        punkter: ['Når du ikke ser selv, skal en signalperson lede deg med hånd- og armsignaler eller muntlige beskjeder.', 'Signalpersonen skal se hele manøveren uten selv å komme i fare, og skal være lett å kjenne igjen.', 'Signalene skal være tydelige, enkle og avtalt på forhånd.', 'Kan du ikke utføre et signal trygt, stopper du og ber om nye instrukser.'] },
       { id: 'sleping', type: 'tavle', min: 5, tittel: 'Sleping av tilhengere',
         punkter: ['Bare trucker som er beregnet for det, og bare innenfor tillatt tilhengervekt i bruksanvisningen.', 'Bruk riktig kobling, og sikre den. Ikke stå mellom truck og vogn mens trucken rygger.', 'Tilhengeren skjærer innover i svingene. Ta svingene vidt.', 'Kjør jevnt og brems i god tid. En tung tilhenger skyver på.'] },
       { id: 'exit', type: 'quiz', min: 7, tittel: 'Exit ticket',
@@ -605,12 +603,203 @@ svg text { font-family: var(--body); }
           { s: 'Hvordan transporterer du normalt en papirrull?', v: ['Liggende på gaflene', 'Stående, gjerne med rullklemme', 'Det spiller ingen rolle'], r: 1 },
           { s: 'Hva gjør du hvis du ikke kan utføre signalet du får, på en trygg måte?', v: ['Gjør det likevel, signalpersonen har ansvaret', 'Stopper og ber om nye instrukser', 'Kjører videre og forklarer etterpå'], r: 1 },
           { s: 'Hvilken vei svinger en tilhenger i forhold til trucken i en sving?', v: ['Utover', 'Innover', 'Den følger samme spor'], r: 1 },
-        ],
-        notat: 'Elevene svarer alene. Ta opp det flest bommer på.' },
+        ] },
       { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
         punkter: ['Sjekk lastbæreren og merkingen før du løfter.', 'Løft og senk bare når trucken står stille, og med masten loddrett ved stabelen.', 'Bilen skal være sikret før du kjører inn. Sjåføren bestemmer plasseringen.', 'Ser du ikke, bruk signalperson. Er du i tvil, stopp.'] },
     ],
   };
+
+  // ---------- Lærernotater ----------
+  // Per leksjon og steg: gjor = hva læreren gjør, si = fagstoff å bygge på, spor = spørsmål til klassen,
+  // feil = vanlige misforståelser, kilde = hvor stoffet står. Fasiten for aktivitetene lages automatisk.
+  const NOTATER = {
+    'm22-6': {
+      inn: {
+        gjor: 'La elevene koble seg på mens du presenterer timen. Gå videre når de fleste er med. Elever som kommer sent, havner rett på steget dere er på.',
+        si: ['Mål for timen: forstå hvorfor en truck velter, og lese skiltet før du løfter.', 'Leksjon 6 i modul 2.2 er satt av til 2 timer i opplæringsplanen og er et sentralt tema på den skriftlige prøven.', 'Velter du, skal du bli sittende og holde deg fast. Hopper du ut, kan du bli knust under trucken.'],
+        spor: ['Har noen sett eller hørt om en truck som har veltet? Hva skjedde?'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 6. Forskrift om utførelse av arbeid § 19-4 (veltesikring).',
+      },
+      gjett: {
+        gjor: 'La alle svare før du viser fordelingen. Ikke røp svaret, det kommer i simulatoren.',
+        si: ['Tilt forover flytter lastens tyngdepunkt fram, og høyt løft gjør at små bevegelser gir store utslag.', 'Om trucken velter, avhenger av lastens vekt, TPA, løftehøyden og truckens kapasitet. Det er dette resten av timen handler om.'],
+        spor: ['Hvorfor svarte du det du gjorde?', 'Hva ville du ha sjekket før du løftet?'],
+        feil: ['«Trucken har motvekt, så den velter ikke forover.» Motvekten holder bare igjen opp til en grense.', '«Bare tunge laster er farlige.» Lang TPA og høyt løft kan være nok.'],
+      },
+      sim1: {
+        gjor: 'Velg motvektstruck (T4) og legg på en last. Løft høyt og tilt forover, og vis hvordan det felles tyngdepunktet og resultanten flytter seg mot forakselen. Vis deretter en sving med løftet last.',
+        si: ['Det felles tyngdepunktet er punktet der vekten av truck og last virker til sammen.', 'Så lenge det ligger innenfor støtteflaten, står trucken. Krysser det kanten, velter den.', 'Trucken velter rundt den kanten tyngdepunktet krysser: forover rundt forakselen, eller til siden rundt linja fra forhjulet til festet for bakakselen.'],
+        spor: ['Hva holder trucken nede bak?', 'Hva skjer med marginen når lasten løftes høyere?'],
+        kilde: 'Truckstabilitet-simulatoren på seiknes-ui.github.io/simmulator/truck.',
+      },
+      vippe: {
+        gjor: 'Start med 1500 kg og TPA 500. Øk lasten til trucken vipper (rundt 3200 kg). Sett lasten til 2500 kg og øk TPA-en til den vipper.',
+        si: ['Moment = vekt × arm. Trucken holder igjen med sitt moment om forakselen, og lasten vipper med sitt.', 'I figuren: 4000 kg × 0,75 m = 3000 kgm. Lasten: vekt × (0,45 m + TPA).', 'Dobler du armen, halveres lasten trucken kan holde i balanse.', 'Kapasiteten på skiltet ligger under balansepunktet. Marginen er der fordi trucken også skal tåle bremsing, ujevnt underlag og lignende. Den er ikke til for å løfte mer.'],
+        spor: ['Hva kan føreren selv påvirke? (TPA, tilt og hvor lasten ligger på gaflene.)', 'Hvorfor er motvekten plassert så langt bak som mulig?'],
+        feil: ['At kapasiteten gjelder uansett hvor lasten ligger på gaflene. Den gjelder bare ved TPA-en på skiltet.'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 6: vektstangprinsippet, tyngdepunkt og løftekapasitet.',
+      },
+      regn: {
+        gjor: 'La elevene jobbe i par med kalkulator på telefonen. Gå gjennom utregningen på tavla etterpå.',
+        si: ['Arm ved TPA 500: 0,45 + 0,50 = 0,95 m. 3000 / 0,95 ≈ 3158 kg.', 'Arm ved TPA 1000: 0,45 + 1,00 = 1,45 m. 3000 / 1,45 ≈ 2069 kg.', 'TPA-en dobles, men armen øker bare fra 0,95 til 1,45 m, fordi avstanden fra forakselen til gaffelryggen kommer i tillegg. Grensen faller derfor med omtrent en tredjedel, ikke med halvparten.'],
+        feil: ['Å regne med bare TPA-en som arm og glemme avstanden fra forakselen til gaffelryggen.', 'Å dele på 500 i stedet for 0,5. Regn i meter.'],
+      },
+      trekant: {
+        gjor: 'Klikk gjennom tilstandene: uten last, middels last, last nær maks og sving uten last.',
+        si: ['Bakakselen på en motvektstruck er festet i midten og kan pendle. Støtteflaten blir derfor en trekant mellom forhjulene og festepunktet bak.', 'En trehjuls motvektstruck har også en trekantet støtteflate.', 'Med last flytter det felles tyngdepunktet seg fram mot forakselen, der trekanten er bredest. Sideveis tåler trucken da mer.', 'Uten last ligger tyngdepunktet bak i den smale delen. En tom truck i sving er derfor utsatt for å velte sideveis.', 'Løftet last hever tyngdepunktet. Da skal det mindre sidekraft til før det havner utenfor trekanten.'],
+        spor: ['Hvorfor bruker produsentene pendelaksel? (Alle hjulene har kontakt med underlaget på ujevnt gulv.)'],
+        feil: ['At støtteflaten er rektangelet mellom alle fire hjulene, som på en bil.'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 6: truckens understøtteflate. Truck ABC s. 191–196.',
+      },
+      trykk: {
+        gjor: 'Vis prikkene før du viser fasiten. Spør dem som trykket bak i trekanten hva de tenkte.',
+        si: ['Det felles tyngdepunktet ligger på linja mellom truckens og lastens tyngdepunkt, nærmest den tyngste av dem.', 'Nær maks kapasitet ligger det like bak forakselen. Det er lite margin forover.'],
+        spor: ['Hva skjer med prikken hvis føreren bremser hardt nå?'],
+      },
+      tpa: {
+        gjor: 'Vis figuren og ta et eksempel med en kasse der tyngdepunktet ikke ligger i midten.',
+        si: ['TPA (tyngdepunktsavstand, D på skiltet) måles fra gaffelryggen til lastens tyngdepunkt.', 'Er lasten jevnt fordelt, er TPA halve lengden av lasten langs gaflene.', 'Kapasiteten oppgis ved en standard TPA, ofte 500 mm for trucker på 1–5 tonn. Lengre TPA gir lavere tillatt last.', 'Ligger tyngdepunktet ikke i midten, er det ofte merket med tyngdepunktsymbolet på emballasjen.'],
+        spor: ['Hvor ligger tyngdepunktet i en kasse med en motor i den ene enden?', 'Hvordan får du kortere TPA? (Skyv lasten helt inn mot gaffelryggen, og ta den på langsiden.)'],
+        feil: ['At lasten ikke trenger å ligge inntil gaffelryggen.'],
+      },
+      pall: {
+        gjor: 'La elevene svare, vis fordelingen og forklar med figuren.',
+        si: ['Langsiden mot gaffelryggen gir TPA 400 mm (halve 800). Kortsiden gir 600 mm (halve 1200).', 'I praksis tas pallen ofte på kortsiden, for eksempel i reoler. Da er TPA 600 mm, og det må du ta hensyn til når du leser skiltet.'],
+      },
+      skilt: {
+        gjor: 'Vis hvordan du finner raden og kolonnen. Ta eksemplet høyt: 1700 kg, D 550 mm, til 4000 mm. Da gjelder D 600 og H 4500: 2000 kg, så det går.',
+        si: ['Arbeidsutstyr som løfter last, skal være merket med største arbeidsbelastning, eventuelt for hver løfteposisjon. På truck er det maskinskiltet med lastdiagrammet.', 'Grunnskiltet gjelder trucken uten tilleggsutstyr.', 'Ligger høyden eller TPA-en mellom to verdier, bruker du den neste større. Den gir lavest tillatt last.', 'Skiltet viser også truckens egenvekt og eventuelt batterivekt.'],
+        feil: ['Å bruke verdien som ligger nærmest i stedet for den neste større.', 'Å bruke den nominelle kapasiteten uansett løftehøyde.'],
+        kilde: 'Forskrift om utførelse av arbeid § 18-2 (merking). Opplæringsplan modul 2.2, leksjon 6: truckens merking/skilt og lastdiagram.',
+      },
+      lesskilt: {
+        gjor: 'Elevene jobber alene. Vis resultatet og gå gjennom spørsmål 3 på tavla.',
+        feil: ['På spørsmål 3 velger mange D 600 fordi 650 ligger like nær 600 som 700. Regelen er den neste større.'],
+      },
+      krefter: {
+        gjor: 'Demonstrer i simulatoren: sving med løftet last, oppbremsing og kjøring i helling.',
+        si: ['Sentrifugalkraften øker med kvadratet av farten: dobbel fart gir fire ganger så stor kraft. Senk farten før svingen, ikke i den.', 'Bremser du, vil trucken og lasten fortsette framover. Med høyt løftet last kan det felles tyngdepunktet havne foran forakselen.', 'I bakke skal lasten peke oppover: kjør forover opp og rygg ned. Uten last skal gaflene peke nedover.', 'Kjør aldri på tvers av en helling. Trekanten er smal sideveis.', 'Ujevnt underlag gir rykk og sidekrefter. Tilpass farten.'],
+        spor: ['Hvorfor er det tryggere å bremse før svingen enn i den?'],
+        kilde: 'Forskrift om utførelse av arbeid § 18-4 (stabilitet under alle forhold, hensyn til underlaget). Truck ABC s. 202–212.',
+      },
+      hva: {
+        gjor: 'La elevene diskutere to og to før de svarer.',
+        feil: ['At en tom truck er tryggest. Sideveis er det omvendt.'],
+      },
+      utstyr: {
+        gjor: 'Vis figuren, og ta gjerne med et bilde av et ekte tilleggsskilt.',
+        si: ['Tilleggsutstyr som sideforskyver, klemaggregat, gaffelforlengere og rotator har egen vekt og bygger ut fra gaffelvognen.', 'Begge deler gir lavere tillatt last. Trucken skal ha et eget skilt som viser kapasiteten med utstyret montert.', 'Tas utstyret av, gjelder grunnskiltet igjen.'],
+        spor: ['Hvilket tilleggsutstyr har dere sett i bruk?'],
+        kilde: 'Opplæringsplan modul 2.2: tilleggsutstyr. Truck ABC s. 189–190.',
+      },
+      exit: {
+        gjor: 'Elevene svarer alene. Vis resultatet og ta opp det flest bommer på før dere avslutter.',
+      },
+      slutt: {
+        gjor: 'Bruk resultatet fra exit ticket til å repetere det som var vanskeligst. Minn om at elevene kan øve på egen hånd i Kursstien og i teoritreneren.',
+      },
+    },
+    'm22-7': {
+      inn: {
+        gjor: 'La elevene koble seg på mens du presenterer timen.',
+        si: ['Mål for timen: håndtere gods trygt hele veien fra lastbæreren til lastebilen.', 'Leksjon 7 i modul 2.2 er satt av til 2 timer. Den dekker målsettingene 9–14 i opplæringsplanen.'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 7 og målsettingene 9–14.',
+      },
+      pallfeil: {
+        gjor: 'Bruk spørsmålet til å starte praten om lastbærere.',
+        si: ['En pall skal ikke brukes hvis bord er knekt eller mangler, spiker eller skruer synes, klosser er skadet eller mangler, eller merkingen mangler.', 'Skadde paller skal repareres av en godkjent reparatør eller kasseres.'],
+        spor: ['Hvem i bedriften sier du fra til?', 'Har noen sett en pall knekke?'],
+        kilde: 'Truck ABC s. 218.',
+      },
+      lastbaerere: {
+        gjor: 'Ha gjerne en ekte europall i klasserommet og vis merkingen.',
+        si: ['Europall: 1200 × 800 mm, merket EUR eller EPAL. Halvpall: 800 × 600 mm.', 'Standardmål gjør det lettere å utnytte lasteplan, reoler og containere.', 'Paller kan være toveis (gaffellommer på to sider) eller fireveis.', 'Hvor mye en pall tåler, avhenger av hvordan lasten er fordelt og om pallen står på gulvet eller i reol. Kildene oppgir ulike tall, så bruk merkingen og bedriftens regler.', 'Godkjente paller kan leveres i panteordninger.'],
+        spor: ['Hvorfor er standardmål viktig?'],
+        kilde: 'NDLA: «Europall» (oppdatert 2025). Truck ABC s. 217–220.',
+      },
+      symboler: {
+        gjor: 'Gå gjennom symbolene og la elevene gjette før du sier navnet.',
+        si: ['Symbolene for håndtering av emballasje er standardisert internasjonalt (ISO 780).', 'Stablegrensen oppgir hvor mye som maks kan stables oppå kollien.', 'Farlig gods har egne faresedler i farger. Det ble tatt i modul 1.'],
+        kilde: 'ISO 780. Truck ABC s. 223 viser symbolene uten navn.',
+      },
+      symbolquiz: {
+        gjor: 'Vis resultatet og ta opp symbolet flest bommet på.',
+        feil: ['Tyngdepunktsymbolet blir ofte tatt for et merke som viser hvor gaflene skal inn.'],
+      },
+      sikring: {
+        si: ['Utstyr: strekkfilm, krympefilm, stålbånd, plastbånd, kantbeskyttere og pallkarmer.', 'Usikret last kan forskyve seg ved bremsing og i sving. Det er de samme kreftene som i stabilitetsleksjonen.', 'På bil gjelder egne regler for lastsikring i forskrift om bruk av kjøretøy. Sjåføren har ansvaret.'],
+        spor: ['Hva skjer med en usikret pall i en brå sving?'],
+        kilde: 'NDLA: «Stabilisering av gods på pall» og «Regler for lastsikring på bil». Truck ABC s. 221.',
+      },
+      stabling: {
+        gjor: 'Demonstrer med en modell eller vis en film før rekkefølgeoppgaven.',
+        si: ['Under kjøring tiltes masten bakover, så lasten ligger stødig mot gaffelryggen.', 'Ved stabelen løfter du til riktig høyde mens trucken står stille. Masten skal stå loddrett når du senker.', 'Tilter du bakover mens gaflene er inne i pallen, kan pallen og godset under bli skadet.', 'Senk aldri lasten mens du rygger, og se deg bak før du rygger.', 'Blokkstabling, dypstabling og pallreoler: følg skiltet for maks last i reolen, og sett tungt nederst.'],
+        kilde: 'Opplæringsplan modul 2.2, leksjon 7: stablingsmetoder, stabling og nedtaking. Truck ABC s. 231–243.',
+      },
+      settpa: {
+        gjor: 'Vis hvilke steg flest bytter om på.',
+        feil: ['Å stille masten loddrett for sent, først når lasten er over stabelen.', 'Å glemme å se seg bak før man rygger.'],
+      },
+      tani: {
+        gjor: 'Vis resultatet og sammenlign med rekkefølgen for å sette en pall på stabelen.',
+        feil: ['Å senke lasten før den er helt ute av stabelen.'],
+      },
+      ruller: {
+        si: ['Papirruller håndteres normalt stående med rullklemme. Liggende ruller sikres med kiler.', 'Langgods: spre gaflene så langt det går, legg lasten midt på og kjør sakte. Godset svinger ut langt utenfor trucken.', 'Gaffelforlengere flytter lasten lenger ut og gir lavere kapasitet. Sjekk tilleggsskiltet.', 'Container: sjekk frihøyden og belysningen inne, og at gulvet tåler truck og last.'],
+        spor: ['Hva er farlig med langgods i trange ganger?'],
+        kilde: 'Truck ABC s. 227–230.',
+      },
+      bil: {
+        gjor: 'Vis figuren og gå gjennom sjekkpunktene i rekkefølge.',
+        si: ['Kjører bilen fra rampa mens trucken er på vei inn, kan trucken falle ned mellom rampa og bilen.', 'Sjekk at bilen står stille med brems på, at hjulstopper eller vognsikring er på plass, og at sjåføren har gitt klarsignal.', 'Kjørebroen skal ligge stabilt, være låst og tåle truck og last. Kjør rett over den.', 'Gulvet i hengeren eller vognen må være helt og tåle trucken.', 'Jernbanevogner skal være sikret mot å rulle. I containere må du sjekke frihøyde og gulv.', 'Sjåføren har ansvaret for lastsikringen og bestemmer hvor lasten skal stå på bilen.'],
+        spor: ['Hva gjør du hvis sjåføren ikke er å se?'],
+        kilde: 'Opplæringsplan modul 2.2, målsetting 12. Truck ABC s. 244–246. NDLA: «Regler for lastsikring på bil».',
+      },
+      bilquiz: {
+        gjor: 'Vis resultatet og knytt svarene til sjekkpunktene fra forrige steg.',
+      },
+      signal: {
+        gjor: 'Øv fysisk: én elev gir signaler, en annen «kjører» mellom stoler.',
+        si: ['Når situasjonen krever det, skal hånd- og armsignaler eller muntlige beskjeder brukes for å lede den som utfører en risikofylt manøver (§ 22-3).', 'Signalene skal være nøyaktige og enkle, med store bevegelser, og lette å forstå (§ 22-5).', 'Signalpersonen skal kunne se hele manøveren uten selv å komme i fare, og skal bare ha den oppgaven (§ 22-6).', 'Signalpersonen skal være lett å kjenne igjen, for eksempel med vest eller hjelm i sterk farge (§ 22-7).', 'Kan føreren ikke utføre en ordre trygt, skal manøveren avbrytes og føreren be om nye instrukser (§ 22-6 bokstav e).'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 22-3 til 22-7.',
+      },
+      sleping: {
+        si: ['Trucken må være beregnet for sleping. Største tilhengervekt står i bruksanvisningen.', 'Bruk riktig koblingsutstyr og sikre det. Ingen skal stå mellom truck og vogn mens trucken rygger inn mot den.', 'Tilhengeren tar en kortere vei enn trucken og skjærer innover i svingen. Ta svingene vidt.', 'En tung tilhenger gir lengre bremsestrekning. Kjør jevnt og brems i god tid.'],
+        kilde: 'Opplæringsplan modul 2.2, målsetting 13. Truck ABC s. 247–248 har bare bilder.',
+      },
+      exit: {
+        gjor: 'Elevene svarer alene. Ta opp det flest bommer på.',
+      },
+      slutt: {
+        gjor: 'Repeter det som var vanskeligst i exit ticket. Neste leksjon i stien er bruks- og sikkerhetsbestemmelser.',
+      },
+    },
+  };
+  for (const l of [STAB, GODS]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
+
+  // Fasit for aktivitetene, slik læreren ser den i notatene.
+  function fasitTekst(st) {
+    if (st.type === 'valg') return st.riktig == null ? ['Avstemning uten fasit.'] : [st.valg[st.riktig]];
+    if (st.type === 'tall') return st.felt.map(f => `${f.l} Ca. ${nf(Math.round(f.svar / 10) * 10)} ${f.enhet} (±${Math.round(f.tol * 100)} %).`);
+    if (st.type === 'trykk') return ['Det grønne feltet: langt fram i trekanten, like bak forakselen.'];
+    if (st.type === 'quiz') return st.spm.map((q, i) => `${i + 1}. ${q.v[q.r]}`);
+    if (st.type === 'rekkefolge') return st.ledd.map((l, i) => `${i + 1}. ${l}`);
+    return [];
+  }
+  function notatHTML(st, leks) {
+    const n = st.notat || {}, liste = a => `<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    let h = `<p class="small muted">${st.min} min${AKTIV.includes(st.type) ? ' · aktivitet' : ''}</p>`;
+    if (n.gjor) h += `<h3>Gjør</h3><p>${esc(n.gjor)}</p>`;
+    if (n.si && n.si.length) h += `<h3>Fagstoff å bygge på</h3>${liste(n.si)}`;
+    if (n.spor && n.spor.length) h += `<h3>Spør klassen</h3>${liste(n.spor)}`;
+    if (n.feil && n.feil.length) h += `<h3>Vanlige misforståelser</h3>${liste(n.feil)}`;
+    const fasit = fasitTekst(st);
+    if (fasit.length) h += `<h3>Fasit</h3>${liste(fasit)}${st.forklaring ? `<p class="small">${esc(st.forklaring)}</p>` : ''}`;
+    if (n.kilde) h += `<h3>Kilder</h3><p class="small">${esc(n.kilde)}</p>`;
+    if (!st.notat && !fasit.length) h += '<p class="muted">Ingen notat for dette steget.</p>';
+    if (st.type === 'velkommen' && leks.emner) h += `<h3>Emner fra planen i leksjonen</h3><p class="small">${leks.emner.map(esc).join(' · ')}</p>`;
+    return h;
+  }
 
   // Hele stien. Bare leksjoner med steg kan startes.
   const STI = [
@@ -736,7 +925,7 @@ svg text { font-family: var(--body); }
   $('btn-logout').onclick = () => { AUTH = null; store('taktlinja-laerer', null); renderLogin(); };
 
   // ---------- Tavla ----------
-  const T = { leks: null, i: 0, vis: false, kode: '', rom: null, elever: [], notat: false, fig: { m: 1500, tpa: 500, tilstand: 'uten' } };
+  const T = { leks: null, i: 0, vis: false, kode: '', rom: null, elever: [], notat: false, fjern: {}, fig: { m: 1500, tpa: 500, tilstand: 'uten' } };
 
   function startTavle(id) {
     if (!AUTH) { $('login-msg').textContent = 'Logg inn som lærer først.'; $('in-laerer').focus(); return; }
@@ -751,7 +940,21 @@ svg text { font-family: var(--body); }
     $('tv-kode').textContent = T.kode;
     T.rom = rom(T.kode, T.peer, {
       token: AUTH.token,
-      onPeers: ps => { T.elever = ps.filter(p => p.presence.role !== 'leder'); oppdaterSvar(); },
+      onPeers: ps => {
+        T.elever = ps.filter(p => p.presence.role !== 'leder');
+        // Notatvisningen på lærerens telefon er også «leder» (krever lærertoken) og kan styre tavla.
+        const fjern = ps.filter(p => p.presence.role === 'leder' && p.presence.fjern);
+        $('tv-fjern').hidden = !fjern.length;
+        for (const p of fjern) {
+          const c = p.presence.c;
+          if (!c || !(c.n > (T.fjern[p.peer] || 0)) || Date.now() - (c.t || 0) > 20000) continue;
+          T.fjern[p.peer] = c.n;
+          const s = Math.max(0, Math.min(T.leks.steg.length - 1, c.s | 0));
+          if (s !== T.i) { T.i = s; T.vis = !!c.v; tavleSteg(); }
+          else if (!!c.v !== T.vis) { T.vis = !!c.v; $('tv-vis').textContent = T.vis ? 'Skjul svaret' : 'Vis svaret'; sendTavle(); }
+        }
+        oppdaterSvar();
+      },
       onConn: v => { $('tv-conn').textContent = v ? 'Tilkoblet' : 'Ingen forbindelse'; $('tv-conn').className = 'pill' + (v ? ' ok' : ''); },
       onFeil: st => {
         if (st === 409) { sstore('kurs-tavle', null); T.rom = null; startTavle(id); }
@@ -787,8 +990,7 @@ svg text { font-family: var(--body); }
     $('tv-tid').textContent = `Steg ${T.i + 1} av ${T.leks.steg.length} · ca. ${igjen} min igjen`;
     const n = $('tv-notat');
     n.hidden = !T.notat;
-    n.innerHTML = `<h3>Lærernotat</h3><p>${esc(st.notat || 'Ingen notat for dette steget.')}</p><p class="small muted">${st.min} min</p>` +
-      (T.leks.emner ? `<h3>Emner fra planen i leksjonen</h3><p class="small">${T.leks.emner.map(esc).join(' · ')}</p>` : '');
+    n.innerHTML = `<h2 style="font-size:20px">Lærernotat</h2>` + notatHTML(st, T.leks);
     tegnScene();
     sendTavle();
   }
@@ -948,6 +1150,81 @@ svg text { font-family: var(--body); }
   });
   $('sti').onclick = e => { const b = e.target.closest('[data-leks]'); if (b) startTavle(b.dataset.leks); };
 
+  // ---------- Notater på lærerens egen enhet ----------
+  // Følger tavla i samme rom. Knappene sender en kommando (c) med løpenummer, og tavla utfører den.
+  const N = { rom: null, kode: '', peer: '', leks: null, s: 0, v: false, n: 0, c: null, elever: [], tavle: false };
+  function startNotat(kode) {
+    if (!AUTH) { $('notat-msg').textContent = 'Logg inn først.'; return; }
+    if (!/^\d{4}$/.test(kode)) { $('notat-msg').textContent = 'Koden fra tavla har fire sifre.'; return; }
+    $('notat-msg').textContent = '';
+    const lagret = sfetch('kurs-notat');
+    Object.assign(N, { kode, peer: lagret && lagret.kode === kode ? lagret.peer : rid(), leks: null, tavle: false, c: null });
+    sstore('kurs-notat', { kode, peer: N.peer });
+    $('v-start').hidden = true; $('v-notat').hidden = false;
+    $('n-who').innerHTML = `<b>Lærernotater</b> · kode ${esc(kode)} · <a href="#" id="n-ut">Avslutt</a>`;
+    $('n-ut').onclick = ev => { ev.preventDefault(); sluttNotat(); };
+    N.rom = rom(kode, N.peer, {
+      token: AUTH.token,
+      onPeers: ps => {
+        const b = ps.find(p => p.presence.role === 'leder' && !p.presence.fjern);
+        N.elever = ps.filter(p => p.presence.role !== 'leder');
+        N.tavle = !!b;
+        if (b && LEKSJONER[b.presence.l]) {
+          N.leks = LEKSJONER[b.presence.l];
+          const s = b.presence.s | 0, v = !!b.presence.v;
+          // Tavla har utført kommandoen (eller den er for gammel): slutt å sende den.
+          if (N.c && ((N.c.s === s && !!N.c.v === v) || Date.now() - N.c.t > 20000)) { N.c = null; sendNotat(); }
+          // Mens en kommando venter, gjelder telefonens eget steg.
+          if (!N.c) { N.s = s; N.v = v; }
+        }
+        tegnNotat();
+      },
+      onConn: v => { $('n-conn').textContent = v ? 'Tilkoblet' : 'Ingen forbindelse'; $('n-conn').className = 'pill' + (v ? ' ok' : ''); },
+      onFeil: st => { $('n-body').innerHTML = `<div class="card"><p>${st === 401 ? 'Innloggingen har gått ut. Logg inn på nytt.' : st === 409 ? 'Koden brukes av en annen lærer.' : 'Forbindelsen ble stoppet.'}</p></div>`; },
+    });
+    sendNotat();
+    tegnNotat();
+  }
+  function sendNotat() { if (N.rom) N.rom.sett(N.c ? { role: 'leder', fjern: 1, c: N.c } : { role: 'leder', fjern: 1 }); }
+  function kommando(s, v) {
+    if (!N.leks) return;
+    N.n = Math.max(N.n + 1, Date.now());
+    N.c = { n: N.n, s, v: v ? 1 : 0, t: Date.now() };
+    N.s = s; N.v = !!v;
+    sendNotat(); tegnNotat();
+  }
+  function sluttNotat() {
+    if (N.rom) N.rom.forlat();
+    N.rom = null; sstore('kurs-notat', null);
+    $('v-notat').hidden = true; $('v-start').hidden = false;
+  }
+  function tegnNotat() {
+    const b = $('n-body');
+    if (!N.tavle || !N.leks) {
+      b.innerHTML = `<div class="card vent"><div class="ikon">📋</div><p><b>Venter på tavla.</b></p><p class="muted">Start leksjonen på tavla med kode ${esc(N.kode)}. Notatene dukker opp her.</p></div>`;
+      $('n-prev').disabled = $('n-next').disabled = $('n-vis').disabled = true;
+      return;
+    }
+    const st = N.leks.steg[N.s], akt = AKTIV.includes(st.type), neste = N.leks.steg[N.s + 1];
+    let h = `<div class="card"><p class="small muted" style="margin:0 0 4px">${esc(N.leks.tittel)} · steg ${N.s + 1} av ${N.leks.steg.length}</p><h2>${esc(st.tittel)}</h2>`;
+    if (akt) {
+      const n = N.elever.filter(p => gyldig(st, svarFra(p, st.id))).length;
+      h += `<p><span class="pill${n && n === N.elever.length ? ' ok' : ''}">${n} av ${N.elever.length} har svart</span> ${N.v ? '<span class="pill">Svaret vises</span>' : ''}</p>`;
+    } else h += `<p><span class="pill">${N.elever.length} ${N.elever.length === 1 ? 'elev' : 'elever'} i rommet</span></p>`;
+    h += notatHTML(st, N.leks);
+    if (neste) h += `<div class="nneste">Neste: <b>${esc(neste.tittel)}</b> (${neste.min} min)</div>`;
+    b.innerHTML = h + '</div>';
+    $('n-prev').disabled = N.s === 0;
+    $('n-next').disabled = N.s === N.leks.steg.length - 1;
+    $('n-vis').disabled = !akt;
+    $('n-vis').textContent = N.v ? 'Skjul svaret' : 'Vis svaret';
+  }
+  $('n-prev').onclick = () => { kommando(N.s - 1, false); window.scrollTo(0, 0); };
+  $('n-next').onclick = () => { kommando(N.s + 1, false); window.scrollTo(0, 0); };
+  $('n-vis').onclick = () => kommando(N.s, !N.v);
+  $('btn-notat').onclick = () => startNotat($('in-notatkode').value.replace(/\D/g, ''));
+  $('in-notatkode').onkeydown = e => { if (e.key === 'Enter') $('btn-notat').click(); };
+
   // ---------- Eleven ----------
   // E.live: følger tavla. Ellers øver eleven alene og ser fasit med en gang.
   const E = { live: false, kode: '', navn: '', peer: '', rom: null, leks: null, i: 0, vis: false, a: {}, utkast: {}, sist: '', conn: null };
@@ -971,7 +1248,7 @@ svg text { font-family: var(--body); }
     E.rom = rom(E.kode, E.peer, {
       intervall: 1500,
       onPeers: ps => {
-        const l = ps.find(p => p.presence.role === 'leder');
+        const l = ps.find(p => p.presence.role === 'leder' && !p.presence.fjern);
         if (!l) { if (E.leks) { E.leks = null; elevSteg(); } return; }
         const leks = LEKSJONER[l.presence.l], i = l.presence.s | 0, vis = !!l.presence.v;
         if (!leks) return;
@@ -1158,8 +1435,9 @@ svg text { font-family: var(--body); }
   const m = h.match(/^elev(\d{4})?$/);
   if (m) { if (m[1]) $('in-kode').value = m[1]; ($('in-kode').value ? $('in-navn') : $('in-kode')).focus(); }
   // Fortsetter der eleven eller tavla var hvis siden lastes på nytt.
-  const ge = sfetch('kurs-elev'), gt = sfetch('kurs-tavle');
+  const ge = sfetch('kurs-elev'), gt = sfetch('kurs-tavle'), gn = sfetch('kurs-notat');
   if (gt && AUTH && LEKSJONER[gt.leks]) startTavle(gt.leks);
+  else if (gn && AUTH && gn.kode) startNotat(gn.kode);
   else if (ge && ge.live && ge.kode && ge.navn) { Object.assign(E, { live: true, kode: ge.kode, navn: ge.navn, peer: ge.peer || rid(), a: ge.a || {} }); startElev(); }
   addEventListener('pagehide', () => { if (E.rom) E.rom.sett({ n: E.navn, a: E.a }); });
 })();
