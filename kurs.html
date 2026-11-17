@@ -1,0 +1,999 @@
+<title>Kursstien</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Kursstien: læreren styrer leksjonen fra tavla, elevene svarer på telefonen. Samme verkstedstil som Taktlinja. */
+:root {
+  --bg: #E8EBE7; --surface: #F7F8F5; --ink: #1B201E; --muted: #5A6560; --line: #C6CDC8;
+  --accent: #F2B300; --on-accent: #1B201E; --ok: #2B9A58; --warn: #D89A00; --bad: #D0392A;
+  --a1: #2F6FD0; --a2: #D6402F; --a3: #3C9A4A; --a4: #8A4FB8;
+  --truck: #D6402F; --load: #C08A4E; --steel: #4A524E; --tyre: #2B302E;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+    --accent: #F5BF1F; --on-accent: #131715; --ok: #3FBF72; --warn: #F0B429; --bad: #F05A47;
+    --a1: #4A86E0; --a2: #E0533F; --a3: #4FB25E; --a4: #A26BD0;
+    --truck: #E0533F; --load: #D29E62; --steel: #A9B3AE;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+  --accent: #F5BF1F; --on-accent: #131715; --ok: #3FBF72; --warn: #F0B429; --bad: #F05A47;
+  --a1: #4A86E0; --a2: #E0533F; --a3: #4FB25E; --a4: #A26BD0;
+  --truck: #E0533F; --load: #D29E62; --steel: #A9B3AE;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px)); }
+.wrap { max-width: 1200px; margin: 0 auto; }
+h1 { font-family: var(--display); font-weight: 800; font-size: 40px; letter-spacing: .01em; text-transform: uppercase; margin: 0; line-height: 1; }
+h1 span { color: var(--accent); }
+h2 { font-family: var(--display); font-weight: 800; font-size: 28px; text-transform: uppercase; letter-spacing: .02em; margin: 0 0 6px; line-height: 1.05; }
+h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin: 16px 0 6px; font-weight: 600; }
+p { margin: 0 0 10px; }
+.lead { color: var(--muted); max-width: 64ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-bottom: 14px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+input, select, button { font: inherit; }
+input { padding: 10px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); min-width: 0; }
+button { cursor: pointer; padding: 10px 16px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; touch-action: manipulation; }
+button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.msg { color: var(--bad); margin: 8px 0 0; min-height: 1.2em; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--bg); color: var(--muted); }
+.pill.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+svg text { font-family: var(--body); }
+
+/* Startsiden */
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.roles .card { display: flex; flex-direction: column; gap: 10px; }
+.roles .card .row { margin-top: auto; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 13px; font-weight: 600; }
+
+/* Stien */
+.sti { display: grid; gap: 18px; }
+.modul h3 { margin-top: 0; }
+.leks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 10px; }
+.lk { display: grid; gap: 4px; text-align: left; padding: 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); font-weight: 400; }
+.lk b { font-weight: 700; }
+.lk .nr { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.lk.klar { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); }
+.lk:not(.klar) { opacity: .65; cursor: default; }
+
+/* Tavla */
+.tavle { position: fixed; inset: 0; z-index: 10; background: var(--bg); display: grid; grid-template-rows: auto 1fr auto; }
+.tv-head { display: flex; align-items: center; gap: 14px; padding: 10px 18px; border-bottom: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
+.tv-head .kode { font-family: var(--mono); font-size: 22px; font-weight: 500; letter-spacing: .12em; }
+.tv-head .sp { flex: 1; }
+.tv-main { display: grid; grid-template-columns: 1fr auto; min-height: 0; }
+.tv-stage { padding: 22px 32px; overflow: auto; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.tv-stage h2 { font-size: clamp(30px, 3.4vw, 52px); }
+.tv-stage .ingress { font-size: clamp(17px, 1.5vw, 24px); max-width: 60ch; }
+.tv-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.tv-grid.wide { grid-template-columns: 1fr; }
+.punkter { margin: 0; padding-left: 1.2em; font-size: clamp(17px, 1.45vw, 23px); display: grid; gap: 10px; }
+.notat { width: min(380px, 34vw); border-left: 1px solid var(--line); background: var(--surface); padding: 16px; overflow: auto; font-size: 14px; }
+.notat h3 { margin-top: 0; }
+.tv-foot { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
+.tv-foot .prog { flex: 1; display: flex; gap: 3px; min-width: 120px; }
+.tv-foot .prog i { flex: 1; height: 6px; border-radius: 2px; background: var(--line); }
+.tv-foot .prog i.done { background: var(--muted); }
+.tv-foot .prog i.cur { background: var(--accent); }
+.tv-foot .prog i.akt { outline: 1px solid var(--a1); outline-offset: 1px; }
+.fig { width: 100%; height: auto; display: block; }
+.figbox { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.ctl { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 12px; align-items: center; margin-top: 10px; font-size: 15px; }
+.ctl input[type=range] { width: 100%; padding: 0; accent-color: var(--accent); }
+.ctl output { font-family: var(--mono); min-width: 7ch; text-align: right; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.seg button { padding: 6px 12px; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.status { font-weight: 700; font-size: 18px; }
+.status.ok { color: var(--ok); } .status.warn { color: var(--warn); } .status.bad { color: var(--bad); }
+.svarteller { font-size: clamp(20px, 2vw, 30px); font-weight: 700; }
+.svarteller span { font-family: var(--mono); }
+.spm-stor { font-size: clamp(22px, 2.2vw, 34px); font-weight: 600; max-width: 46ch; line-height: 1.3; }
+.bars { display: grid; gap: 10px; max-width: 900px; }
+.bar { display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 10px; align-items: center; font-size: clamp(16px, 1.4vw, 21px); }
+.bar .b { position: relative; padding: 8px 12px; border-radius: 4px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+.bar .b i { position: absolute; inset: 0 auto 0 0; background: color-mix(in srgb, var(--a1) 28%, transparent); }
+.bar .b span { position: relative; }
+.bar.rett .b { border-color: var(--ok); }
+.bar.rett .b i { background: color-mix(in srgb, var(--ok) 32%, transparent); }
+.bar .n { font-family: var(--mono); text-align: right; }
+.forklar { border-left: 4px solid var(--ok); padding: 8px 14px; background: var(--surface); border-radius: 0 6px 6px 0; font-size: clamp(16px, 1.35vw, 21px); max-width: 70ch; }
+.forklar.poll { border-color: var(--a1); }
+.tallsvar { display: flex; flex-wrap: wrap; gap: 6px; }
+.tallsvar span { font-family: var(--mono); padding: 3px 8px; border-radius: 4px; background: var(--surface); border: 1px solid var(--line); }
+.tallsvar span.rett { border-color: var(--ok); color: var(--ok); }
+.quizres { display: grid; gap: 8px; max-width: 900px; }
+.quizres .q { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) 80px; gap: 10px; align-items: center; font-size: clamp(15px, 1.25vw, 19px); }
+.quizres .q b { font-family: var(--mono); }
+.quizres .q .pc { font-family: var(--mono); text-align: right; font-weight: 600; }
+.join { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
+.join .qr { background: #fff; padding: 12px; border-radius: 6px; width: 232px; height: 232px; }
+.join .bigcode { font-family: var(--mono); font-size: clamp(60px, 9vw, 130px); letter-spacing: .14em; line-height: 1; }
+.join .url { font-family: var(--mono); font-size: clamp(16px, 1.6vw, 24px); word-break: break-all; }
+.navn { display: flex; flex-wrap: wrap; gap: 6px; }
+.navn span { padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 15px; }
+.navn span.ok { border-color: var(--ok); }
+.sim { width: 100%; height: min(70vh, 760px); border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.skilt { font-family: var(--mono); background: #D9DDDA; color: #1B201E; border-radius: 6px; padding: 12px 14px; border: 2px solid #8A928E; max-width: 520px; }
+.skilt .hd { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; border-bottom: 1px solid #8A928E; padding-bottom: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.skilt table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.skilt th, .skilt td { border: 1px solid #8A928E; padding: 4px 6px; text-align: right; }
+.skilt th { font-weight: 500; background: #C9CECB; }
+.skilt caption { caption-side: bottom; font-size: 11px; text-align: left; padding-top: 6px; color: #3F4743; }
+
+/* Eleven */
+.elev { max-width: 560px; margin: 0 auto; }
+.ehead { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--muted); }
+.ehead b { color: var(--ink); }
+.vent { text-align: center; padding: 36px 16px; }
+.vent .ikon { font-size: 44px; line-height: 1; margin-bottom: 10px; }
+.opts { display: grid; gap: 10px; margin: 12px 0; }
+.opt { text-align: left; padding: 14px 16px; font-weight: 500; font-size: 16px; border-width: 2px; }
+.opt[aria-pressed="true"] { border-color: var(--a1); background: color-mix(in srgb, var(--a1) 14%, var(--surface)); }
+.opt.rett { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, var(--surface)); }
+.opt.feil { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--surface)); }
+.tallfelt { display: grid; gap: 12px; margin: 12px 0; }
+.tallfelt .inrow { display: flex; gap: 8px; align-items: center; }
+.tallfelt input { font-family: var(--mono); font-size: 20px; width: 100%; }
+.tallfelt .enh { color: var(--muted); }
+.fb { padding: 10px 12px; border-radius: 6px; margin: 12px 0; font-weight: 600; }
+.fb.ok { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
+.fb.bad { background: color-mix(in srgb, var(--bad) 13%, transparent); color: var(--bad); }
+.fb.info { background: color-mix(in srgb, var(--a1) 14%, transparent); color: var(--a1); }
+.tapfig { touch-action: manipulation; cursor: crosshair; }
+.qnav { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.qnav span { width: 28px; height: 6px; border-radius: 2px; background: var(--line); }
+.qnav span.done { background: var(--a1); }
+.qnav span.cur { background: var(--accent); }
+.les { font-size: 16px; }
+.les ul { padding-left: 1.2em; display: grid; gap: 6px; }
+
+@media (max-width: 900px) {
+  .tv-grid { grid-template-columns: 1fr; }
+  .tv-main { grid-template-columns: 1fr; }
+  .notat { width: auto; border-left: 0; border-top: 1px solid var(--line); }
+  .join { grid-template-columns: 1fr; }
+  .tv-stage { padding: 16px; }
+}
+</style>
+
+<div class="wrap">
+
+<!-- Startside: stien gjennom kurset og valg av rolle -->
+<section id="v-start">
+  <div class="top">
+    <div>
+      <h1>Kurs<span>stien</span></h1>
+      <p class="lead" style="margin:8px 0 0">Truckførerkurset leksjon for leksjon etter Arbeidstilsynets opplæringsplaner. Læreren viser på tavla, elevene svarer på telefonen.</p>
+    </div>
+  </div>
+  <div class="roles">
+    <div class="card">
+      <h2>Elev</h2>
+      <p class="muted">Skriv inn koden som står på tavla.</p>
+      <div class="field"><label for="in-kode">Kode</label><input id="in-kode" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="1234"></div>
+      <div class="field"><label for="in-navn">Fornavn</label><input id="in-navn" autocomplete="given-name" maxlength="20" placeholder="Fornavnet ditt"></div>
+      <p class="msg" id="elev-msg"></p>
+      <div class="row"><button class="primary" id="btn-bli-med" type="button">Bli med</button><button id="btn-ov" type="button">Øv på egen hånd</button></div>
+    </div>
+    <div class="card">
+      <h2>Lærer</h2>
+      <div id="laerer-ut">
+        <p class="muted">Logg inn med lærerkoden fra Taktlinja for å styre en leksjon på tavla.</p>
+        <div class="field"><label for="in-laerer">Lærerkode</label><input id="in-laerer" type="password" autocomplete="current-password"></div>
+        <p class="msg" id="login-msg"></p>
+        <div class="row"><button class="primary" id="btn-login" type="button">Logg inn</button></div>
+      </div>
+      <div id="laerer-inn" hidden>
+        <p>Innlogget som <b id="laerer-navn"></b>. Velg en leksjon i stien under for å starte den på tavla.</p>
+        <div class="row"><button id="btn-logout" type="button">Logg ut</button></div>
+      </div>
+    </div>
+  </div>
+  <h3>Stien gjennom kurset</h3>
+  <div class="sti" id="sti"></div>
+</section>
+
+<!-- Eleven -->
+<section id="v-elev" class="elev" hidden>
+  <div class="ehead"><span id="e-who"></span><span id="e-conn" class="pill">Kobler til …</span></div>
+  <div id="e-body"></div>
+</section>
+
+<!-- Tavla -->
+<div id="v-tavle" class="tavle" hidden>
+  <div class="tv-head">
+    <b id="tv-tittel"></b>
+    <span class="sp"></span>
+    <span class="muted small">Kode</span><span class="kode" id="tv-kode">····</span>
+    <span class="pill" id="tv-n">0 elever</span>
+    <span class="pill" id="tv-conn">Kobler til …</span>
+  </div>
+  <div class="tv-main">
+    <div class="tv-stage" id="tv-stage"></div>
+    <aside class="notat" id="tv-notat" hidden></aside>
+  </div>
+  <div class="tv-foot">
+    <button type="button" id="tv-prev" title="Forrige (←)">←</button>
+    <button type="button" class="primary" id="tv-vis" title="Vis svaret (V)">Vis svaret</button>
+    <button type="button" id="tv-next" title="Neste (→)">Neste →</button>
+    <div class="prog" id="tv-prog"></div>
+    <span class="muted small" id="tv-tid"></span>
+    <button type="button" id="tv-not" title="Lærernotat (N)">Notat</button>
+    <button type="button" id="tv-full" title="Fullskjerm (F)">⛶</button>
+    <button type="button" id="tv-slutt">Avslutt</button>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const nf = (n, d = 0) => Number(n).toLocaleString('nb-NO', { maximumFractionDigits: d, minimumFractionDigits: d });
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function fetchStore(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function sstore(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function sfetch(k) { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  const rid = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), b => (b % 36).toString(36)).join('');
+
+  // ---------- Figurer ----------
+  // Alle figurer er SVG-strenger. Koordinatene i stabilitetstrekanten brukes også til trykkoppgaven,
+  // så de må ikke endres uten at sonene i oppgavene endres med.
+  const TRI = { fl: [280, 70], fr: [280, 190], bak: [90, 130] };
+  function iTrekant(x, y) {
+    const [a, b, c] = [TRI.fl, TRI.fr, TRI.bak];
+    const s = (p, q, r) => (p[0] - r[0]) * (q[1] - r[1]) - (q[0] - r[0]) * (p[1] - r[1]);
+    const d1 = s([x, y], a, b), d2 = s([x, y], b, c), d3 = s([x, y], c, a);
+    return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+  }
+  const tp = (x, y, r = 9, farge = 'var(--ink)') =>
+    `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#fff" stroke="${farge}" stroke-width="2"/><path d="M0 ${-r}A${r} ${r} 0 0 1 ${r} 0L0 0Z M0 ${r}A${r} ${r} 0 0 1 ${-r} 0L0 0Z" fill="${farge}"/></g>`;
+
+  // Ovenfra: motvektstruck med pendelaksel. Gaflene peker mot høyre.
+  function figTrekant(o = {}) {
+    let s = `<svg class="fig${o.tap ? ' tapfig' : ''}" viewBox="0 0 400 260" role="img" aria-label="Motvektstruck sett ovenfra med stabilitetstrekanten">`;
+    s += `<rect x="300" y="96" width="84" height="10" rx="2" fill="var(--steel)"/><rect x="300" y="154" width="84" height="10" rx="2" fill="var(--steel)"/>`;
+    s += `<rect x="290" y="80" width="14" height="100" fill="var(--steel)"/>`;
+    s += `<rect x="58" y="58" width="236" height="144" rx="14" fill="color-mix(in srgb, var(--truck) 22%, var(--surface))" stroke="var(--truck)" stroke-width="2"/>`;
+    s += `<rect x="58" y="70" width="44" height="120" rx="10" fill="color-mix(in srgb, var(--truck) 45%, var(--surface))"/>`;
+    s += `<text x="80" y="134" font-size="11" text-anchor="middle" fill="var(--ink)" transform="rotate(-90 80 130)">motvekt</text>`;
+    for (const [x, y] of [[262, 52], [262, 192], [74, 52], [74, 192]]) s += `<rect x="${x}" y="${y}" width="36" height="16" rx="4" fill="var(--tyre)" stroke="var(--steel)" stroke-width="1.5"/>`;
+    s += `<line x1="92" y1="60" x2="92" y2="200" stroke="var(--steel)" stroke-width="3"/><circle cx="92" cy="130" r="5" fill="var(--steel)"/>`;
+    s += `<polygon points="${TRI.fl} ${TRI.fr} ${TRI.bak}" fill="color-mix(in srgb, var(--a1) 14%, transparent)" stroke="var(--a1)" stroke-width="2.5" stroke-dasharray="7 5"/>`;
+    if (o.sone) s += `<polygon points="235,${130 - 60 * 145 / 190} 280,70 280,190 235,${130 + 60 * 145 / 190}" fill="color-mix(in srgb, var(--ok) 35%, transparent)" stroke="var(--ok)" stroke-width="2"/>`;
+    if (o.etiketter !== false) {
+      s += `<text x="96" y="226" font-size="12" fill="var(--muted)">pendelaksel (bak)</text><text x="230" y="244" font-size="12" fill="var(--muted)">foraksel = tippekant forover</text>`;
+    }
+    if (o.truckTp) s += tp(o.truckTp[0], o.truckTp[1], 7, 'var(--muted)');
+    if (o.lastTp) s += tp(o.lastTp[0], o.lastTp[1], 7, 'var(--load)');
+    if (o.felles) {
+      const inne = iTrekant(o.felles[0], o.felles[1]);
+      s += tp(o.felles[0], o.felles[1], 11, inne ? 'var(--ok)' : 'var(--bad)');
+      if (o.pil) s += `<path d="M${o.felles[0]} ${o.felles[1] + 14} l0 ${o.pil}" stroke="var(--bad)" stroke-width="3" marker-end="url(#pil)"/>`;
+    }
+    for (const d of o.prikker || []) s += `<circle cx="${d[0]}" cy="${d[1]}" r="${o.megRad || 6}" fill="${d[2] || 'var(--a1)'}" fill-opacity=".75" stroke="#fff" stroke-width="1"/>`;
+    s += `<defs><marker id="pil" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker></defs>`;
+    return s + '</svg>';
+  }
+  // Tilstandene på tavla: truckens og lastens tyngdepunkt og det felles tyngdepunktet.
+  const TREKANT_TILSTAND = {
+    uten: { navn: 'Uten last', truckTp: [150, 130], felles: [150, 130], tekst: 'Uten last ligger tyngdepunktet bak i trekanten, der den er smalest. Sideveis er det lite margin.' },
+    med: { navn: 'Middels last', truckTp: [150, 130], lastTp: [345, 130], felles: [205, 130], tekst: 'Lasten trekker det felles tyngdepunktet fram mot forakselen. Trekanten er bredere der.' },
+    tung: { navn: 'Last nær maks', truckTp: [150, 130], lastTp: [345, 130], felles: [262, 130], tekst: 'Nær maks kapasitet ligger det felles tyngdepunktet like bak forakselen. Lite margin forover.' },
+    sving: { navn: 'Sving uten last', truckTp: [150, 130], felles: [150, 168], pil: 30, tekst: 'I sving skyver sentrifugalkraften tyngdepunktet utover. Uten last er trekanten smal der, og det felles tyngdepunktet havner fort utenfor.' },
+  };
+
+  // Sett fra siden: vektstangprinsippet med forakselen som vippepunkt. 1 m = 150 px.
+  const VIPPE = { mt: 4000, at: 0.75, front: 0.45 };
+  function vippeTall(m, tpa) {
+    const arm = VIPPE.front + tpa / 1000;
+    const mT = VIPPE.mt * VIPPE.at, mL = m * arm;
+    return { arm, mT, mL, r: mL / mT };
+  }
+  function figVippe(m, tpa) {
+    const { arm, mT, mL, r } = vippeTall(m, tpa);
+    const S = 150, px = 430, gy = 300;
+    const vinkel = r > 1 ? Math.min(14, 4 + (r - 1) * 40) : 0;
+    const lastL = (tpa / 1000) * 2 * S, lastH = 0.75 * S;
+    let g = '';
+    g += `<rect x="${px - 1.75 * S}" y="${gy - 1.25 * S}" width="${1.85 * S}" height="${0.75 * S}" rx="12" fill="color-mix(in srgb, var(--truck) 30%, var(--surface))" stroke="var(--truck)" stroke-width="2"/>`;
+    g += `<rect x="${px - 1.75 * S}" y="${gy - 1.2 * S}" width="${0.5 * S}" height="${0.7 * S}" rx="8" fill="color-mix(in srgb, var(--truck) 55%, var(--surface))"/>`;
+    g += `<path d="M${px - 1.05 * S} ${gy - 1.25 * S} l0 ${-0.6 * S} l${0.75 * S} 0 l0 ${0.6 * S}" fill="none" stroke="var(--steel)" stroke-width="5"/>`;
+    g += `<rect x="${px + 0.18 * S}" y="${gy - 1.85 * S}" width="${0.12 * S}" height="${1.8 * S}" fill="var(--steel)"/>`;
+    g += `<rect x="${px + 0.3 * S}" y="${gy - 0.5 * S}" width="${0.15 * S}" height="${0.45 * S}" fill="var(--steel)"/>`;
+    g += `<rect x="${px + 0.45 * S}" y="${gy - 0.12 * S}" width="${1.25 * S}" height="${0.07 * S}" fill="var(--steel)"/>`;
+    for (const x of [px - 1.38 * S, px]) g += `<circle cx="${x}" cy="${gy - 0.3 * S}" r="${0.3 * S}" fill="var(--tyre)" stroke="var(--steel)" stroke-width="2"/><circle cx="${x}" cy="${gy - 0.3 * S}" r="${0.1 * S}" fill="var(--steel)"/>`;
+    if (m > 0) {
+      g += `<rect x="${px + 0.45 * S}" y="${gy - 0.12 * S - lastH}" width="${lastL}" height="${lastH}" fill="color-mix(in srgb, var(--load) 45%, var(--surface))" stroke="var(--load)" stroke-width="2"/>`;
+      g += `<text x="${px + 0.45 * S + lastL / 2}" y="${gy - 0.12 * S - lastH / 2 - 16}" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">${nf(m)} kg</text>`;
+      g += tp(px + arm * S, gy - 0.12 * S - lastH / 2, 9, 'var(--load)');
+      g += `<path d="M${px + arm * S} ${gy - 0.12 * S - lastH / 2 + 14} l0 70" stroke="var(--load)" stroke-width="4" marker-end="url(#pvl)"/>`;
+    }
+    g += tp(px - VIPPE.at * S, gy - 0.95 * S, 9, 'var(--truck)');
+    g += `<path d="M${px - VIPPE.at * S} ${gy - 0.95 * S + 14} l0 70" stroke="var(--truck)" stroke-width="4" marker-end="url(#pvt)"/>`;
+    let s = `<svg class="fig" viewBox="0 0 860 400" role="img" aria-label="Vektstangprinsippet: truck og last om forakselen">`;
+    s += `<defs><marker id="pvt" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--truck)"/></marker><marker id="pvl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--load)"/></marker></defs>`;
+    s += `<line x1="20" y1="${gy}" x2="840" y2="${gy}" stroke="var(--line)" stroke-width="3"/>`;
+    s += `<g transform="rotate(${vinkel} ${px} ${gy})">${g}</g>`;
+    s += `<polygon points="${px - 12},${gy + 22} ${px + 12},${gy + 22} ${px},${gy}" fill="var(--accent)"/>`;
+    const y2 = gy + 46;
+    s += `<line x1="${px - VIPPE.at * S}" y1="${y2}" x2="${px}" y2="${y2}" stroke="var(--truck)" stroke-width="2"/><text x="${px - VIPPE.at * S / 2}" y="${y2 + 22}" text-anchor="middle" font-size="16" fill="var(--truck)">${nf(VIPPE.at, 2)} m</text>`;
+    if (m > 0) s += `<line x1="${px}" y1="${y2}" x2="${px + arm * S}" y2="${y2}" stroke="var(--load)" stroke-width="2"/><text x="${px + arm * S / 2}" y="${y2 + 22}" text-anchor="middle" font-size="16" fill="var(--load)">${nf(arm, 2)} m</text>`;
+    s += `<text x="${px}" y="${y2 + 46}" text-anchor="middle" font-size="13" fill="var(--muted)">vippepunkt (foraksel)</text>`;
+    return { svg: s + '</svg>', mT, mL, r };
+  }
+
+  // Ovenfra: samme pall tatt på langsiden og kortsiden.
+  function figTpa() {
+    const pall = (x, w, d, tpaTekst) => {
+      let s = `<rect x="${x - 6}" y="40" width="8" height="${d + 20}" fill="var(--steel)"/>`;
+      s += `<rect x="${x}" y="${50 + d / 2 - 30}" width="${d + 20}" height="9" fill="var(--steel)" opacity=".6"/><rect x="${x}" y="${50 + d / 2 + 21}" width="${d + 20}" height="9" fill="var(--steel)" opacity=".6"/>`;
+      s += `<rect x="${x + 2}" y="${50 + d / 2 - w / 2}" width="${d}" height="${w}" fill="color-mix(in srgb, var(--load) 40%, var(--surface))" stroke="var(--load)" stroke-width="2"/>`;
+      s += tp(x + 2 + d / 2, 50 + d / 2, 9, 'var(--load)');
+      s += `<line x1="${x}" y1="${70 + d / 2 + w / 2}" x2="${x + 2 + d / 2}" y2="${70 + d / 2 + w / 2}" stroke="var(--bad)" stroke-width="3" marker-end="url(#pt)" marker-start="url(#pt)"/>`;
+      s += `<text x="${x + d / 4}" y="${96 + d / 2 + w / 2}" text-anchor="middle" font-size="16" font-weight="700" fill="var(--bad)">${tpaTekst}</text>`;
+      return s;
+    };
+    let s = `<svg class="fig" viewBox="0 0 640 300" role="img" aria-label="Tyngdepunktsavstand ved langside- og kortsidehåndtering">`;
+    s += `<defs><marker id="pt" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker></defs>`;
+    s += pall(40, 120, 80, 'TPA 400');
+    s += `<text x="100" y="290" text-anchor="middle" font-size="15" fill="var(--ink)">Langsiden: kort TPA</text>`;
+    s += pall(330, 80, 120, 'TPA 600');
+    s += `<text x="410" y="290" text-anchor="middle" font-size="15" fill="var(--ink)">Kortsiden: lang TPA</text>`;
+    s += `<text x="40" y="24" font-size="12" fill="var(--muted)">Sett ovenfra. Gaffelryggen er den grå streken til venstre for pallen.</text>`;
+    return s + '</svg>';
+  }
+
+  // Maskinskilt med lastdiagram. Tallene brukes i oppgavene.
+  const SKILT = { h: [3300, 4500, 6000], d: [500, 600, 700], q: [[2500, 2200, 1900], [2300, 2000, 1750], [1800, 1550, 1350]] };
+  function figSkilt() {
+    let s = `<div class="skilt" role="img" aria-label="Maskinskilt med lastdiagram"><div class="hd"><span>MOTVEKTSTRUCK T4</span><span>Nominell kapasitet 2500 kg · D 500 mm</span><span>Egenvekt 4100 kg</span></div>`;
+    s += `<table><thead><tr><th>H (mm)</th>${SKILT.d.map(d => `<th>D ${d}</th>`).join('')}</tr></thead><tbody>`;
+    SKILT.h.forEach((h, i) => { s += `<tr><th>${nf(h)}</th>${SKILT.q[i].map(q => `<td>${nf(q)} kg</td>`).join('')}</tr>`; });
+    return s + `</tbody><caption>H = løftehøyde. D = tyngdepunktsavstand fra gaffelryggen. Gjelder uten tilleggsutstyr.</caption></table></div>`;
+  }
+
+  // Tre små situasjoner: sving, bremsing og bakke.
+  function figKrefter() {
+    let s = `<svg class="fig" viewBox="0 0 720 230" role="img" aria-label="Krefter i sving, ved bremsing og i bakke">`;
+    s += `<defs><marker id="pk" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker></defs>`;
+    s += `<path d="M30 200 Q30 60 170 60" fill="none" stroke="var(--line)" stroke-width="22" stroke-linecap="round"/>`;
+    s += `<rect x="62" y="74" width="40" height="26" rx="5" fill="var(--truck)" transform="rotate(-45 82 87)"/>`;
+    // Svingens sentrum ligger nede til høyre, så kraften virker opp mot venstre.
+    s += `<path d="M66 71 l-34 -34" stroke="var(--bad)" stroke-width="4" marker-end="url(#pk)"/>`;
+    s += `<text x="110" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">Sving</text><text x="110" y="218" text-anchor="middle" font-size="12" fill="var(--muted)">kraften virker utover</text>`;
+    s += `<line x1="260" y1="150" x2="460" y2="150" stroke="var(--line)" stroke-width="4"/>`;
+    s += `<rect x="300" y="110" width="70" height="34" rx="6" fill="var(--truck)"/><circle cx="315" cy="148" r="9" fill="var(--tyre)" stroke="var(--steel)" stroke-width="1.5"/><circle cx="355" cy="148" r="9" fill="var(--tyre)" stroke="var(--steel)" stroke-width="1.5"/>`;
+    s += `<rect x="372" y="60" width="6" height="86" fill="var(--steel)"/><rect x="380" y="86" width="44" height="40" fill="color-mix(in srgb, var(--load) 45%, var(--surface))" stroke="var(--load)" stroke-width="2"/>`;
+    s += `<path d="M430 104 l40 0" stroke="var(--bad)" stroke-width="4" marker-end="url(#pk)"/>`;
+    s += `<text x="360" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">Bremsing</text><text x="360" y="218" text-anchor="middle" font-size="12" fill="var(--muted)">lasten vil fortsette framover</text>`;
+    s += `<path d="M520 170 L700 90" stroke="var(--line)" stroke-width="4"/>`;
+    s += `<g transform="rotate(-24 610 130)"><rect x="560" y="104" width="70" height="30" rx="6" fill="var(--truck)"/><rect x="632" y="70" width="6" height="64" fill="var(--steel)"/><rect x="640" y="94" width="34" height="34" fill="color-mix(in srgb, var(--load) 45%, var(--surface))" stroke="var(--load)" stroke-width="2"/><circle cx="574" cy="138" r="8" fill="var(--tyre)" stroke="var(--steel)" stroke-width="1.5"/><circle cx="614" cy="138" r="8" fill="var(--tyre)" stroke="var(--steel)" stroke-width="1.5"/></g>`;
+    s += `<text x="610" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">Bakke</text><text x="610" y="218" text-anchor="middle" font-size="12" fill="var(--muted)">lasten skal peke oppover</text>`;
+    return s + '</svg>';
+  }
+
+  // Tilleggsutstyr: klemaggregat foran gaffelvognen flytter lastens tyngdepunkt fram.
+  function figUtstyr() {
+    let s = `<svg class="fig" viewBox="0 0 640 260" role="img" aria-label="Tilleggsutstyr flytter lastens tyngdepunkt fram">`;
+    s += `<defs><marker id="pu" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker></defs>`;
+    s += `<line x1="20" y1="220" x2="620" y2="220" stroke="var(--line)" stroke-width="3"/>`;
+    s += `<rect x="40" y="120" width="190" height="80" rx="10" fill="color-mix(in srgb, var(--truck) 30%, var(--surface))" stroke="var(--truck)" stroke-width="2"/>`;
+    s += `<circle cx="80" cy="200" r="20" fill="var(--tyre)" stroke="var(--steel)" stroke-width="2"/><circle cx="200" cy="200" r="20" fill="var(--tyre)" stroke="var(--steel)" stroke-width="2"/>`;
+    s += `<rect x="236" y="20" width="10" height="195" fill="var(--steel)"/>`;
+    s += `<rect x="250" y="80" width="40" height="120" fill="var(--a4)" opacity=".75"/><text x="270" y="72" text-anchor="middle" font-size="13" fill="var(--a4)">utstyr</text>`;
+    s += `<rect x="294" y="90" width="150" height="110" fill="color-mix(in srgb, var(--load) 40%, var(--surface))" stroke="var(--load)" stroke-width="2"/>`;
+    s += tp(369, 145, 9, 'var(--load)');
+    s += `<line x1="250" y1="236" x2="369" y2="236" stroke="var(--bad)" stroke-width="3" marker-end="url(#pu)"/><text x="310" y="254" text-anchor="middle" font-size="14" fill="var(--bad)">lengre arm</text>`;
+    s += `<text x="470" y="110" font-size="15" fill="var(--ink)">Utstyrets vekt</text><text x="470" y="130" font-size="15" fill="var(--ink)">+ lengre avstand</text><text x="470" y="150" font-size="15" font-weight="700" fill="var(--bad)">= lavere kapasitet</text>`;
+    return s + '</svg>';
+  }
+
+  const SIM_URL = 'https://seiknes-ui.github.io/simmulator/truck/';
+
+  // ---------- Kursinnhold ----------
+  // Stien følger emnelistene i opplæringsplanene for modul 1 (august 2023) og modul 2.2 (juni 2022).
+  // Stegtyper: velkommen, tavle, valg (riktig = null gir avstemning), tall, trykk, quiz, slutt.
+  // emner: hvilke punkter i planens emneliste steget dekker.
+  const STAB = {
+    id: 'm22-6', modul: 'Modul 2.2', nr: 6, tittel: 'Truckens stabilitet', timer: 2,
+    emner: ['Vektstangprinsippet', 'Truckens understøtteflate', 'Tyngdepunkt', 'Sentrifugalkraft', 'Løftekapasitet', 'Tilleggsutstyr', 'Lastsenter/TP-avstand', 'Truckens merking/skilt', 'Lastdiagram', 'Stabilitet'],
+    mal: [5, 6, 7, 8],
+    steg: [
+      { id: 'inn', type: 'velkommen', min: 3, tittel: 'Truckens stabilitet',
+        notat: 'Elevene går til adressen eller skanner QR-koden og skriver inn koden og fornavnet sitt. Gå videre når de fleste er med. Elever som kommer sent, havner rett på steget dere er på.' },
+      { id: 'gjett', type: 'valg', min: 4, tittel: 'Velter den?',
+        spm: 'En motvektstruck har 1500 kg på gaflene. Føreren løfter lasten til 4 meter og tilter masten forover. Hva tror du skjer?',
+        valg: ['Trucken står stødig', 'Trucken velter forover', 'Trucken velter til siden', 'Det kommer an på trucken og lasten'], riktig: null,
+        forklaring: 'Her er det ingen fasit ennå. Det kommer an på truckens kapasitet og hvor tyngdepunktet til lasten ligger. Men å tilte forover med høyt løftet last flytter tyngdepunktet fram mot tippekanten. Vi tester det i simulatoren.',
+        notat: 'Ikke avslør svaret. Vis fordelingen og spør et par elever hvorfor de svarte som de gjorde. Gå så til simulatoren.' },
+      { id: 'sim1', type: 'tavle', min: 5, tittel: 'Vi tester i simulatoren', fig: 'sim',
+        notat: 'Velg motvektstruck (T4) og legg på last. Løft høyt og tilt forover, og vis hvordan det felles tyngdepunktet og resultanten flytter seg mot forakselen. Spør: hva holder trucken nede bak? (Motvekten.)' },
+      { id: 'vippe', type: 'tavle', min: 8, tittel: 'Vektstangprinsippet', fig: 'vippe',
+        punkter: ['Forakselen er vippepunktet, tippekanten forover.', 'Trucken og motvekten holder igjen: vekt × avstand bak forakselen.', 'Lasten vipper framover: vekt × avstand foran forakselen.', 'Trucken står så lenge lastens moment er mindre enn truckens.'],
+        notat: 'Bruk glidebryterne. Øk lasten til trucken vipper. Sett så lasten litt under grensen og øk TPA: samme last velter når den kommer lenger ut. Spør: hva kan føreren selv påvirke? TPA, tilt, og hvordan lasten plasseres på gaflene.' },
+      { id: 'regn', type: 'tall', min: 7, tittel: 'Regn på vippa',
+        spm: 'Trucken i figuren har et stabiliserende moment på 3000 kgm om forakselen. Fra forakselen til gaffelryggen er det 0,45 m.',
+        felt: [
+          { l: 'Hvor tung last kan den holde i balanse når TPA er 500 mm?', svar: 3000 / 0.95, enhet: 'kg', tol: 0.03 },
+          { l: 'Og når TPA er 1000 mm?', svar: 3000 / 1.45, enhet: 'kg', tol: 0.03 },
+        ],
+        hint: 'Armen er 0,45 m + TPA i meter. Last = 3000 kgm / arm.',
+        forklaring: 'Armen er 0,45 + 0,50 = 0,95 m, så 3000 / 0,95 ≈ 3160 kg. Med TPA 1000 mm blir armen 1,45 m og grensen ≈ 2070 kg. Dette er balansepunktet. Kapasiteten på skiltet ligger lavere, og marginen er ikke noe du skal bruke.',
+        notat: 'La elevene jobbe i par med kalkulator på telefonen. Gå gjennom utregningen på tavla etterpå.' },
+      { id: 'trekant', type: 'tavle', min: 8, tittel: 'Støtteflaten er en trekant', fig: 'trekant',
+        punkter: ['Bakakselen er festet i midten (pendelaksel). Støtteflaten blir derfor en trekant, ikke et rektangel.', 'Det felles tyngdepunktet for truck og last må ligge inne i trekanten.', 'Med last flytter det felles tyngdepunktet seg fram mot forakselen.', 'Uten last ligger det bak, der trekanten er smalest. Da tåler trucken minst sideveis.'],
+        notat: 'Klikk gjennom tilstandene. Poenget mange overser: en tom truck i sving er mer utsatt for å velte sideveis enn en truck med last.' },
+      { id: 'trykk', type: 'trykk', min: 5, tittel: 'Hvor er tyngdepunktet?',
+        spm: 'Trucken bærer en last nær maks kapasitet, senket ned. Trykk der du tror det felles tyngdepunktet ligger.',
+        sone: (x, y) => iTrekant(x, y) && x >= 235,
+        forklaring: 'Nær maks kapasitet ligger det felles tyngdepunktet langt fram i trekanten, like bak forakselen. Det er lite margin forover, så en brå oppbremsing eller tilt forover kan være nok.',
+        notat: 'Vis prikkene før du viser fasiten. Spør dem som trykket bak i trekanten hva de tenkte.' },
+      { id: 'tpa', type: 'tavle', min: 5, tittel: 'Tyngdepunktsavstand (TPA)', fig: 'tpa',
+        punkter: ['TPA er avstanden fra gaffelryggen til lastens tyngdepunkt. På skiltet heter den ofte D.', 'Skiltet oppgir kapasiteten ved en bestemt TPA, ofte 500 mm for trucker på 1–5 tonn.', 'Langsidehåndtering gir kortere TPA enn kortsidehåndtering.', 'Tyngdepunktet ligger ikke alltid midt i lasten. Se på godset og merkingen.'],
+        notat: 'Spør: hvor ligger tyngdepunktet i en kasse med en motor i den ene enden?' },
+      { id: 'pall', type: 'valg', min: 4, tittel: 'Langside eller kortside?', fig: 'tpa',
+        spm: 'En EUR-pall (1200 × 800 mm) har jevnt fordelt last. Du kan ta den på langsiden eller kortsiden. Hva gir størst sikkerhetsmargin?',
+        valg: ['Langsiden, TPA blir ca. 400 mm', 'Kortsiden, TPA blir ca. 600 mm', 'Det spiller ingen rolle, vekten er den samme'], riktig: 0,
+        forklaring: 'På langsiden ligger tyngdepunktet 400 mm fra gaffelryggen i stedet for 600 mm. Kortere arm gir mindre moment forover og mer margin.' },
+      { id: 'skilt', type: 'tavle', min: 6, tittel: 'Maskinskiltet og lastdiagrammet', fig: 'skilt',
+        punkter: ['Skiltet viser tillatt last ved ulike løftehøyder (H) og tyngdepunktsavstander (D).', 'Jo høyere løft og lengre TPA, jo lavere tillatt last.', 'Ligger lasten mellom to kolonner, bruker du den neste større TPA-en og løftehøyden.', 'Med tilleggsutstyr gjelder tilleggsskiltet, ikke grunnskiltet.'],
+        notat: 'Vis hvordan du finner raden og kolonnen. Ta et eksempel høyt: 1700 kg, D 550 mm, til 4000 mm. Da gjelder D 600 og H 4500: 2000 kg, så det går.' },
+      { id: 'lesskilt', type: 'quiz', min: 8, tittel: 'Les skiltet', fig: 'skilt',
+        spm: [
+          { s: 'Hvor mye kan trucken løfte til 4500 mm med TPA 600 mm?', v: ['2300 kg', '2000 kg', '1750 kg', '2500 kg'], r: 1 },
+          { s: 'Lasten veier 2100 kg, har TPA 600 mm og skal opp til 4500 mm. Kan du gjøre det?', v: ['Ja', 'Nei, tillatt er 2000 kg', 'Ja, hvis du kjører forsiktig'], r: 1 },
+          { s: 'Lasten veier 1600 kg, har TPA 650 mm og skal opp til 6000 mm. Hva gjelder?', v: ['1550 kg, så det går ikke', '1350 kg, så det går ikke', '1800 kg, så det går'], r: 1 },
+        ],
+        forklaring: 'TPA 650 ligger mellom kolonnene. Da bruker du D 700, som gir 1350 kg ved 6000 mm. Lasten er for tung.' },
+      { id: 'krefter', type: 'tavle', min: 7, tittel: 'Krefter i bevegelse', fig: 'krefter',
+        punkter: ['Sving: sentrifugalkraften virker utover i svingen. Senk farten før svingen.', 'Bremsing: lasten vil fortsette framover. Brems jevnt.', 'Bakke: kjør med lasten opp mot bakken, og rygg ned med last. Kjør aldri på tvers.', 'Høyt løftet last gjør alt dette verre. Kjør med lasten senket.'],
+        notat: 'Demonstrer i simulatoren: sving med høyt løftet last, og kjøring i helling.' },
+      { id: 'hva', type: 'quiz', min: 7, tittel: 'Hva skjer?',
+        spm: [
+          { s: 'Du kjører en tom motvektstruck i en krapp sving med litt for høy fart. Hvor er veltefaren størst?', v: ['Forover', 'Til siden, utover i svingen', 'Bakover'], r: 1 },
+          { s: 'Du skal ned en bakke med last på gaflene. Hvordan kjører du?', v: ['Forover, med lasten først', 'Rygger ned, med lasten opp mot bakken', 'På skrå over bakken'], r: 1 },
+          { s: 'Du må bremse hardt med lasten løftet høyt. Hva er den største faren?', v: ['At lasten sklir av eller trucken tipper forover', 'At trucken velter bakover', 'Ingen fare så lenge lasten er sikret'], r: 0 },
+        ],
+        forklaring: 'Uten last ligger tyngdepunktet bak i den smale delen av trekanten, så en tom truck velter lettest sideveis. I bakke skal lasten alltid peke oppover. Ved bremsing vil lasten fortsette framover.',
+        notat: 'La elevene diskutere to og to før de svarer.' },
+      { id: 'utstyr', type: 'tavle', min: 4, tittel: 'Tilleggsutstyr reduserer kapasiteten', fig: 'utstyr',
+        punkter: ['Utstyret har egen vekt som kommer i tillegg til lasten.', 'Utstyret bygger ut fra gaffelvognen, så lastens tyngdepunkt flyttes fram.', 'Trucken skal ha et eget skilt som viser kapasiteten med utstyret montert.', 'En sideforskyver helt ut til siden flytter også tyngdepunktet sideveis.'] },
+      { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
+        spm: [
+          { s: 'Hva er støtteflaten til en motvektstruck med pendelaksel?', v: ['Et rektangel mellom alle fire hjulene', 'En trekant mellom forhjulene og midten av bakakselen', 'En sirkel rundt trucken'], r: 1 },
+          { s: 'Hva er TPA?', v: ['Avstanden fra gaffelryggen til lastens tyngdepunkt', 'Høyden lasten løftes til', 'Avstanden mellom forakselen og bakakselen'], r: 0 },
+          { s: 'Når er en motvektstruck mest ustabil sideveis?', v: ['Når den kjører uten last', 'Når den har full last senket', 'Når den står stille'], r: 0 },
+          { s: 'Hvorfor gir tilleggsutstyr lavere løftekapasitet?', v: ['Utstyret veier noe og flytter lastens tyngdepunkt fram', 'Hydraulikken blir svakere', 'Det gir ikke lavere kapasitet'], r: 0 },
+          { s: 'Skiltet viser 2000 kg ved D 600 og 1750 kg ved D 700, begge ved 4500 mm. Lasten veier 1900 kg og har TPA 650 mm. Kan du løfte den til 4500 mm?', v: ['Ja, 1900 kg er under 2000 kg', 'Nei, du må bruke D 700, og der er grensen 1750 kg', 'Ja, hvis du løfter sakte'], r: 1 },
+        ],
+        notat: 'Elevene svarer alene. Vis resultatet per spørsmål og ta opp det som flest bommer på.' },
+      { id: 'slutt', type: 'slutt', min: 3, tittel: 'Oppsummering',
+        punkter: ['Det felles tyngdepunktet må ligge inne i stabilitetstrekanten.', 'Lang TPA, høyt løft, tilt forover og tilleggsutstyr gir mindre margin.', 'Tom truck i sving er utsatt sideveis. Senk farten og kjør med lasten senket.', 'Les skiltet før du løfter. Mellom to kolonner gjelder den strengeste.'] },
+    ],
+  };
+
+  // Hele stien. Bare leksjoner med steg kan startes.
+  const STI = [
+    { modul: 'Modul 1', navn: 'Arbeidsmiljø, ansvar og konsekvenser', leks: [
+      { nr: 1, tittel: 'Innledning: hvorfor sikkerhetsopplæring', timer: 1 },
+      { nr: 2, tittel: 'Lover og forskrifter', timer: 1 },
+      { nr: 3, tittel: 'Arbeidsmiljø, ansvar og konsekvenser', timer: 1 },
+      { nr: 4, tittel: 'Ytre miljø', timer: 1 },
+      { nr: 5, tittel: 'Sikkerhetsbestemmelser for bruk av arbeidsutstyr', timer: 2 },
+      { nr: 6, tittel: 'Farlig gods: merking og håndtering', timer: 1 },
+    ] },
+    { modul: 'Modul 2.2', navn: 'Løfte- og stablevogner for gods (truck)', leks: [
+      { nr: 1, tittel: 'Innledning og krav til truckfører', timer: 1 },
+      { nr: 2, tittel: 'Trucktyper og tilleggsutstyr', timer: 2 },
+      { nr: 3, tittel: 'Truckulykker', timer: 1 },
+      { nr: 4, tittel: 'Truckens konstruksjon og virkemåte', timer: 2 },
+      { nr: 5, tittel: 'Kontroll og rapportering', timer: 2 },
+      STAB,
+      { nr: 7, tittel: 'Godshåndtering', timer: 2 },
+      { nr: 9, tittel: 'Bruks- og sikkerhetsbestemmelser', timer: 1 },
+      { nr: 10, tittel: 'Skriftlig teoretisk prøve', timer: 1 },
+    ] },
+  ];
+  const LEKSJONER = Object.fromEntries(STI.flatMap(m => m.leks).filter(l => l.steg).map(l => [l.id, l]));
+  const AKTIV = ['valg', 'tall', 'trykk', 'quiz'];
+
+  function renderSti() {
+    $('sti').innerHTML = STI.map(m => `<div class="modul"><h3>${esc(m.modul)} · ${esc(m.navn)}</h3><div class="leks">${m.leks.map(l => {
+      const klar = !!l.steg;
+      return `<button type="button" class="lk${klar ? ' klar' : ''}" ${klar ? `data-leks="${l.id}"` : 'disabled'}><span class="nr">Leksjon ${l.nr} · ${l.timer} t</span><b>${esc(l.tittel)}</b><span class="small muted">${klar ? `${l.steg.length} steg, ${l.steg.filter(s => AKTIV.includes(s.type)).length} aktiviteter` : 'Kommer'}</span></button>`;
+    }).join('')}</div></div>`).join('');
+  }
+
+  // ---------- Svar og retting ----------
+  // Elevens svar: valg = indeks, tall = [tall, ...], trykk = [x, y], quiz = [indeks, ...].
+  const tallOk = (f, v) => typeof v === 'number' && isFinite(v) && Math.abs(v - f.svar) <= Math.abs(f.svar) * f.tol;
+  function erRiktig(st, v) {
+    if (v == null) return null;
+    if (st.type === 'valg') return st.riktig == null ? null : v === st.riktig;
+    if (st.type === 'tall') return Array.isArray(v) && st.felt.every((f, i) => tallOk(f, v[i]));
+    if (st.type === 'trykk') return Array.isArray(v) && st.sone(v[0], v[1]);
+    if (st.type === 'quiz') return Array.isArray(v) && st.spm.every((q, i) => v[i] === q.r);
+    return null;
+  }
+  function gyldig(st, v) {
+    if (st.type === 'valg') return Number.isInteger(v) && v >= 0 && v < st.valg.length;
+    if (st.type === 'tall') return Array.isArray(v) && v.length === st.felt.length && v.every(x => typeof x === 'number' && isFinite(x));
+    if (st.type === 'trykk') return Array.isArray(v) && v.length === 2 && v.every(x => typeof x === 'number' && x >= 0 && x <= 400);
+    if (st.type === 'quiz') return Array.isArray(v) && v.length === st.spm.length && v.every((x, i) => Number.isInteger(x) && x >= 0 && x < st.spm[i].v.length);
+    return false;
+  }
+  const lesTall = s => { const n = parseFloat(String(s).replace(/\s/g, '').replace(',', '.')); return isFinite(n) ? n : null; };
+
+  // ---------- Rom over HTTP (samme API som Taktlinja) ----------
+  // Hver enhet sender sin status og leser de andres. Tavla er «leder» og krever lærertoken.
+  function rom(kode, peer, opts) {
+    let pres = {}, sent = '', lastSent = 0, lastReq = 0, busy = false, stopped = false, fails = 0, conn = null, kickT = null;
+    const ms = opts.intervall || 1000;
+    async function tick() {
+      if (stopped || busy) return;
+      busy = true; lastReq = Date.now();
+      const j = JSON.stringify(pres), send = j !== sent || Date.now() - lastSent > 5000;
+      try {
+        const headers = { 'content-type': 'application/json' };
+        if (opts.token) headers['x-laerer-token'] = opts.token;
+        const r = await fetch('/api/rom/' + kode, { method: 'POST', headers, body: JSON.stringify({ peer, presence: send ? pres : null }) });
+        if (r.status === 409 || r.status === 401 || r.status === 429) { stopped = true; clearInterval(timer); opts.onFeil && opts.onFeil(r.status); return; }
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        if (send) { sent = j; lastSent = Date.now(); }
+        fails = 0; setConn(true);
+        opts.onPeers((Array.isArray(d.peers) ? d.peers : []).filter(p => p && p.peer !== peer && p.presence && typeof p.presence === 'object'));
+      } catch (e) {
+        if (++fails >= 3) setConn(false);
+      } finally { busy = false; }
+    }
+    function setConn(v) { if (v !== conn) { conn = v; opts.onConn && opts.onConn(v); } }
+    const timer = setInterval(() => { if (Date.now() - lastReq >= ms) tick(); }, 250);
+    tick();
+    return {
+      sett(p) { pres = p; if (!kickT) kickT = setTimeout(() => { kickT = null; tick(); }, Math.max(0, 400 - (Date.now() - lastReq))); },
+      forlat() {
+        stopped = true; clearInterval(timer); clearTimeout(kickT);
+        fetch('/api/rom/' + kode, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ peer, leave: true }), keepalive: true }).catch(() => {});
+      },
+    };
+  }
+
+  // ---------- Lærerinnlogging (samme som Taktlinja) ----------
+  let AUTH = (() => { const a = fetchStore('taktlinja-laerer'); return a && a.token && a.exp > Date.now() ? a : null; })();
+  function renderLogin() {
+    $('laerer-ut').hidden = !!AUTH; $('laerer-inn').hidden = !AUTH;
+    if (AUTH) $('laerer-navn').textContent = AUTH.navn || 'lærer';
+  }
+  async function login() {
+    const kode = $('in-laerer').value.trim(), msg = $('login-msg');
+    if (!kode) { msg.textContent = 'Skriv inn lærerkoden.'; return; }
+    msg.textContent = 'Logger inn …';
+    try {
+      const r = await fetch('/api/laerer/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kode }) });
+      if (!r.ok) { msg.textContent = r.status === 401 ? 'Feil lærerkode.' : r.status === 429 ? 'For mange forsøk. Vent litt og prøv igjen.' : 'Kunne ikke logge inn.'; return; }
+      const d = await r.json();
+      AUTH = { token: d.token, navn: d.navn, exp: d.exp };
+      store('taktlinja-laerer', AUTH);
+      $('in-laerer').value = ''; msg.textContent = '';
+    } catch (e) { msg.textContent = 'Kunne ikke logge inn. Sjekk nettforbindelsen.'; }
+    renderLogin();
+  }
+  $('btn-login').onclick = login;
+  $('in-laerer').onkeydown = e => { if (e.key === 'Enter') login(); };
+  $('btn-logout').onclick = () => { AUTH = null; store('taktlinja-laerer', null); renderLogin(); };
+
+  // ---------- Tavla ----------
+  const T = { leks: null, i: 0, vis: false, kode: '', rom: null, elever: [], notat: false, fig: { m: 1500, tpa: 500, tilstand: 'uten' } };
+
+  function startTavle(id) {
+    if (!AUTH) { $('login-msg').textContent = 'Logg inn som lærer først.'; $('in-laerer').focus(); return; }
+    const lagret = sfetch('kurs-tavle');
+    T.leks = LEKSJONER[id];
+    T.kode = lagret && lagret.leks === id ? lagret.kode : String(1000 + Math.floor(Math.random() * 9000));
+    T.i = lagret && lagret.leks === id ? Math.min(lagret.i, T.leks.steg.length - 1) : 0;
+    T.vis = false; T.elever = [];
+    T.peer = (lagret && lagret.peer) || rid();
+    $('v-start').hidden = true; $('v-tavle').hidden = false;
+    $('tv-tittel').textContent = `${T.leks.modul} · Leksjon ${T.leks.nr} · ${T.leks.tittel}`;
+    $('tv-kode').textContent = T.kode;
+    T.rom = rom(T.kode, T.peer, {
+      token: AUTH.token,
+      onPeers: ps => { T.elever = ps.filter(p => p.presence.role !== 'leder'); oppdaterSvar(); },
+      onConn: v => { $('tv-conn').textContent = v ? 'Tilkoblet' : 'Ingen forbindelse'; $('tv-conn').className = 'pill' + (v ? ' ok' : ''); },
+      onFeil: st => {
+        if (st === 409) { sstore('kurs-tavle', null); T.rom = null; startTavle(id); }
+        else if (st === 401) { alert('Innloggingen har gått ut. Logg inn på nytt.'); sluttTavle(); AUTH = null; store('taktlinja-laerer', null); renderLogin(); }
+      },
+    });
+    tavleSteg();
+  }
+  function sendTavle() {
+    sstore('kurs-tavle', { leks: T.leks.id, kode: T.kode, i: T.i, peer: T.peer });
+    T.rom && T.rom.sett({ role: 'leder', l: T.leks.id, s: T.i, v: T.vis ? 1 : 0 });
+  }
+  function sluttTavle() {
+    if (T.rom) T.rom.forlat();
+    T.rom = null; sstore('kurs-tavle', null);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    $('v-tavle').hidden = true; $('v-start').hidden = false;
+  }
+  function gaTil(i) {
+    T.i = Math.max(0, Math.min(T.leks.steg.length - 1, i)); T.vis = false;
+    tavleSteg();
+  }
+  const svarFra = (p, id) => p.presence.a && Object.prototype.hasOwnProperty.call(p.presence.a, id) ? p.presence.a[id] : undefined;
+
+  function tavleSteg() {
+    const st = T.leks.steg[T.i], akt = AKTIV.includes(st.type);
+    $('tv-vis').hidden = !akt;
+    $('tv-vis').textContent = T.vis ? 'Skjul svaret' : 'Vis svaret';
+    $('tv-prev').disabled = T.i === 0;
+    $('tv-next').disabled = T.i === T.leks.steg.length - 1;
+    $('tv-prog').innerHTML = T.leks.steg.map((s, i) => `<i class="${i < T.i ? 'done' : i === T.i ? 'cur' : ''}${AKTIV.includes(s.type) ? ' akt' : ''}" title="${esc(s.tittel)}"></i>`).join('');
+    const igjen = T.leks.steg.slice(T.i).reduce((a, s) => a + s.min, 0);
+    $('tv-tid').textContent = `Steg ${T.i + 1} av ${T.leks.steg.length} · ca. ${igjen} min igjen`;
+    const n = $('tv-notat');
+    n.hidden = !T.notat;
+    n.innerHTML = `<h3>Lærernotat</h3><p>${esc(st.notat || 'Ingen notat for dette steget.')}</p><p class="small muted">${st.min} min</p>` +
+      (T.leks.emner ? `<h3>Emner fra planen i leksjonen</h3><p class="small">${T.leks.emner.map(esc).join(' · ')}</p>` : '');
+    tegnScene();
+    sendTavle();
+  }
+
+  // Tegner hele scenen for steget. Svar fra elevene oppdateres separat i oppdaterSvar().
+  function tegnScene() {
+    const st = T.leks.steg[T.i], el = $('tv-stage');
+    let h = `<h2>${esc(st.tittel)}</h2>`;
+    if (st.type === 'velkommen') {
+      const url = location.origin + location.pathname + '#elev';
+      h += `<div class="join"><div class="qr" id="tv-qr"></div><div><p class="ingress">Gå til</p><p class="url">${esc(url)}</p><p class="ingress" style="margin-top:16px">og skriv inn koden</p><div class="bigcode">${esc(T.kode)}</div></div></div>`;
+      h += `<h3>Med i rommet</h3><div class="navn" id="tv-navn"></div>`;
+      el.innerHTML = h;
+      try { if (window.QRCode) new QRCode($('tv-qr'), { text: url + T.kode, width: 208, height: 208, correctLevel: QRCode.CorrectLevel.M }); else $('tv-qr').hidden = true; } catch (e) { $('tv-qr').hidden = true; }
+    } else if (st.type === 'tavle' || st.type === 'slutt') {
+      if (st.fig === 'sim') {
+        h += `<iframe class="sim" src="${SIM_URL}" title="Truckstabilitet-simulatoren"></iframe>`;
+      } else {
+        const fh = figTavle(st), ph = st.punkter ? `<ul class="punkter">${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '';
+        h += fh && ph ? `<div class="tv-grid"><div>${fh}</div>${ph}</div>` : fh || ph;
+      }
+      if (st.type === 'slutt') h += `<h3>Exit ticket</h3><div id="tv-svar"></div>`;
+      el.innerHTML = h;
+      kobleFigur(st);
+    } else {
+      if (st.spm && typeof st.spm === 'string') h += `<p class="spm-stor">${esc(st.spm)}</p>`;
+      if (st.type === 'trykk') h += `<div class="tv-grid"><div class="figbox" id="tv-trykkfig"></div><div id="tv-svar"></div></div>`;
+      else if (st.fig) h += `<div class="tv-grid"><div>${figStatisk(st.fig)}</div><div id="tv-svar"></div></div>`;
+      else h += `<div id="tv-svar"></div>`;
+      el.innerHTML = h;
+    }
+    oppdaterSvar();
+  }
+
+  function figStatisk(f) {
+    return f === 'skilt' ? figSkilt() : f === 'tpa' ? `<div class="figbox">${figTpa()}</div>` : f === 'trekant' ? `<div class="figbox">${figTrekant()}</div>` : '';
+  }
+  function figTavle(st, pre = 'tv') {
+    if (st.fig === 'vippe') {
+      return `<div class="figbox"><div id="${pre}-vippe"></div><div class="ctl"><label for="${pre}-sl-m">Last</label><input type="range" id="${pre}-sl-m" min="0" max="4000" step="100" value="${T.fig.m}"><output id="${pre}-o-m"></output><label for="${pre}-sl-d">TPA</label><input type="range" id="${pre}-sl-d" min="400" max="1200" step="50" value="${T.fig.tpa}"><output id="${pre}-o-d"></output></div><p class="status" id="${pre}-vstatus"></p></div>`;
+    }
+    if (st.fig === 'trekant') {
+      return `<div class="figbox"><div id="${pre}-trekant"></div><div class="seg" id="${pre}-tilstand">${Object.entries(TREKANT_TILSTAND).map(([k, v]) => `<button type="button" data-t="${k}" aria-pressed="${T.fig.tilstand === k}">${esc(v.navn)}</button>`).join('')}</div><p id="${pre}-ttekst" style="margin-top:10px"></p></div>`;
+    }
+    if (st.fig === 'tpa') return `<div class="figbox">${figTpa()}</div>`;
+    if (st.fig === 'skilt') return figSkilt();
+    if (st.fig === 'krefter') return `<div class="figbox">${figKrefter()}</div>`;
+    if (st.fig === 'utstyr') return `<div class="figbox">${figUtstyr()}</div>`;
+    return '';
+  }
+  function kobleFigur(st, pre = 'tv') {
+    const P = id => $(pre + '-' + id);
+    if (st.fig === 'vippe') {
+      const tegn = () => {
+        const v = figVippe(T.fig.m, T.fig.tpa);
+        P('vippe').innerHTML = v.svg;
+        P('o-m').textContent = nf(T.fig.m) + ' kg';
+        P('o-d').textContent = nf(T.fig.tpa) + ' mm';
+        const s = P('vstatus');
+        s.className = 'status ' + (v.r > 1 ? 'bad' : v.r > 0.85 ? 'warn' : 'ok');
+        s.textContent = `Truck ${nf(v.mT)} kgm · last ${nf(v.mL)} kgm · ` + (v.r > 1 ? 'trucken velter forover' : v.r > 0.85 ? 'nær grensen' : 'stødig');
+      };
+      P('sl-m').oninput = e => { T.fig.m = +e.target.value; tegn(); };
+      P('sl-d').oninput = e => { T.fig.tpa = +e.target.value; tegn(); };
+      tegn();
+    }
+    if (st.fig === 'trekant') {
+      const tegn = () => {
+        const t = TREKANT_TILSTAND[T.fig.tilstand];
+        P('trekant').innerHTML = figTrekant(t);
+        P('ttekst').textContent = t.tekst;
+        P('tilstand').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === T.fig.tilstand)));
+      };
+      P('tilstand').onclick = e => { const b = e.target.closest('[data-t]'); if (b) { T.fig.tilstand = b.dataset.t; tegn(); } };
+      tegn();
+    }
+  }
+
+  // Oppdaterer navnelista, telleren og resultatene uten å tegne figurene på nytt.
+  function oppdaterSvar() {
+    if (!T.leks || $('v-tavle').hidden) return;
+    const st = T.leks.steg[T.i];
+    $('tv-n').textContent = `${T.elever.length} ${T.elever.length === 1 ? 'elev' : 'elever'}`;
+    const navn = $('tv-navn');
+    if (navn) navn.innerHTML = T.elever.length ? T.elever.map(p => `<span>${esc(p.presence.n || 'Elev')}</span>`).join('') : '<span class="muted">Ingen ennå</span>';
+    const box = $('tv-svar');
+    if (st.type === 'slutt') {
+      const ex = T.leks.steg.find(s => s.id === 'exit');
+      if (box && ex) box.innerHTML = quizResultat(ex, T.elever.map(p => svarFra(p, ex.id)).filter(v => gyldig(ex, v)), true);
+      return;
+    }
+    if (!AKTIV.includes(st.type)) return;
+    const svar = T.elever.map(p => svarFra(p, st.id)).filter(v => gyldig(st, v));
+    const teller = `<p class="svarteller"><span>${svar.length}</span> av <span>${T.elever.length}</span> har svart</p>`;
+    if (st.type === 'trykk') {
+      const prikker = svar.map(v => [v[0], v[1], T.vis ? (st.sone(v[0], v[1]) ? 'var(--ok)' : 'var(--bad)') : 'var(--a1)']);
+      $('tv-trykkfig').innerHTML = figTrekant({ prikker, sone: T.vis, etiketter: true });
+    }
+    if (!box) return;
+    if (!T.vis) {
+      box.innerHTML = teller + `<p class="muted">Trykk «Vis svaret» (V) når alle har svart.</p>` +
+        (st.type === 'quiz' ? `<ol class="punkter small" style="font-size:18px">${st.spm.map(q => `<li>${esc(q.s)}</li>`).join('')}</ol>` : '');
+      return;
+    }
+    let h = teller;
+    if (st.type === 'valg') {
+      const n = st.valg.map((_, i) => svar.filter(v => v === i).length), maks = Math.max(1, ...n);
+      h += `<div class="bars">${st.valg.map((v, i) => `<div class="bar${st.riktig === i ? ' rett' : ''}"><div class="b"><i style="width:${n[i] / maks * 100}%"></i><span>${st.riktig === i ? '✓ ' : ''}${esc(v)}</span></div><div class="n">${n[i]}</div></div>`).join('')}</div>`;
+    } else if (st.type === 'tall') {
+      st.felt.forEach((f, k) => {
+        const vals = svar.map(v => v[k]).sort((a, b) => a - b);
+        const ok = vals.filter(v => tallOk(f, v)).length;
+        h += `<h3>${esc(f.l)}</h3><p><b>${ok}</b> av ${vals.length} innenfor ±${Math.round(f.tol * 100)} %. Fasit: <b>ca. ${nf(Math.round(f.svar / 10) * 10)} ${esc(f.enhet)}</b></p>`;
+        h += `<div class="tallsvar">${vals.map(v => `<span class="${tallOk(f, v) ? 'rett' : ''}">${nf(v)}</span>`).join('')}</div>`;
+      });
+    } else if (st.type === 'trykk') {
+      const ok = svar.filter(v => st.sone(v[0], v[1])).length;
+      h += `<p class="svarteller"><span>${ok}</span> av <span>${svar.length}</span> traff det grønne feltet</p>`;
+    } else if (st.type === 'quiz') {
+      h += quizResultat(st, svar, false);
+    }
+    if (st.forklaring) h += `<div class="forklar${st.type === 'valg' && st.riktig == null ? ' poll' : ''}">${esc(st.forklaring)}</div>`;
+    box.innerHTML = h;
+  }
+  function quizResultat(st, svar, kort) {
+    if (!svar.length) return '<p class="muted">Ingen svar ennå.</p>';
+    return `<div class="quizres">${st.spm.map((q, i) => {
+      const ok = svar.filter(v => v[i] === q.r).length, pc = Math.round(ok / svar.length * 100);
+      const farge = pc >= 80 ? 'var(--ok)' : pc >= 50 ? 'var(--warn)' : 'var(--bad)';
+      return `<div class="q"><b>${i + 1}</b><span>${esc(q.s)}${kort ? '' : `<br><span class="small muted">Riktig: ${esc(q.v[q.r])}</span>`}</span><span class="pc" style="color:${farge}">${pc} %</span></div>`;
+    }).join('')}</div>`;
+  }
+
+  $('tv-prev').onclick = () => gaTil(T.i - 1);
+  $('tv-next').onclick = () => gaTil(T.i + 1);
+  $('tv-vis').onclick = () => { T.vis = !T.vis; $('tv-vis').textContent = T.vis ? 'Skjul svaret' : 'Vis svaret'; oppdaterSvar(); sendTavle(); };
+  $('tv-not').onclick = () => { T.notat = !T.notat; tavleSteg(); };
+  $('tv-full').onclick = () => { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else document.documentElement.requestFullscreen().catch(() => {}); };
+  $('tv-slutt').onclick = () => { if (confirm('Avslutte leksjonen? Elevene mister forbindelsen til tavla.')) sluttTavle(); };
+  document.addEventListener('keydown', e => {
+    if ($('v-tavle').hidden || e.target.closest('input')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); gaTil(T.i + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); gaTil(T.i - 1); }
+    else if (e.key === 'v' || e.key === 'V') { if (!$('tv-vis').hidden) $('tv-vis').click(); }
+    else if (e.key === 'n' || e.key === 'N') $('tv-not').click();
+    else if (e.key === 'f' || e.key === 'F') $('tv-full').click();
+  });
+  $('sti').onclick = e => { const b = e.target.closest('[data-leks]'); if (b) startTavle(b.dataset.leks); };
+
+  // ---------- Eleven ----------
+  // E.live: følger tavla. Ellers øver eleven alene og ser fasit med en gang.
+  const E = { live: false, kode: '', navn: '', peer: '', rom: null, leks: null, i: 0, vis: false, a: {}, utkast: {}, sist: '', conn: null };
+
+  function lagreElev() { sstore('kurs-elev', { kode: E.kode, navn: E.navn, peer: E.peer, a: E.a, live: E.live, i: E.i, leks: E.leks && E.leks.id }); }
+  function blimed() {
+    const kode = $('in-kode').value.replace(/\D/g, ''), navn = $('in-navn').value.trim().replace(/\s+/g, ' ').slice(0, 20), msg = $('elev-msg');
+    if (!/^\d{4}$/.test(kode)) { msg.textContent = 'Koden har fire sifre.'; return; }
+    if (!navn) { msg.textContent = 'Skriv fornavnet ditt.'; return; }
+    msg.textContent = '';
+    store('kurs-navn', navn);
+    const forrige = sfetch('kurs-elev');
+    Object.assign(E, { live: true, kode, navn, peer: forrige && forrige.kode === kode ? forrige.peer : rid(), a: forrige && forrige.kode === kode ? forrige.a || {} : {}, leks: null, i: 0, vis: false, utkast: {}, sist: '' });
+    startElev();
+  }
+  function startElev() {
+    $('v-start').hidden = true; $('v-elev').hidden = false;
+    $('e-who').innerHTML = E.live ? `<b>${esc(E.navn)}</b> · kode ${esc(E.kode)}` : `<b>Øv på egen hånd</b> · <a href="#" id="e-ut">Avslutt</a>`;
+    if (!E.live) { $('e-conn').hidden = true; $('e-ut').onclick = ev => { ev.preventDefault(); sluttElev(); }; elevSteg(); return; }
+    $('e-conn').hidden = false;
+    E.rom = rom(E.kode, E.peer, {
+      intervall: 1500,
+      onPeers: ps => {
+        const l = ps.find(p => p.presence.role === 'leder');
+        if (!l) { if (E.leks) { E.leks = null; elevSteg(); } return; }
+        const leks = LEKSJONER[l.presence.l], i = l.presence.s | 0, vis = !!l.presence.v;
+        if (!leks) return;
+        const nokkel = leks.id + ':' + i + ':' + vis;
+        if (nokkel === E.sist) return;
+        const nyttSteg = !E.leks || E.leks.id !== leks.id || E.i !== i;
+        Object.assign(E, { leks, i: Math.min(i, leks.steg.length - 1), vis, sist: nokkel });
+        lagreElev();
+        if (nyttSteg || !document.activeElement || !document.activeElement.closest('#e-body input')) elevSteg();
+        else visFasitElev();
+      },
+      onConn: v => { E.conn = v; $('e-conn').textContent = v ? 'Tilkoblet' : 'Ingen forbindelse'; $('e-conn').className = 'pill' + (v ? ' ok' : ''); },
+      onFeil: st => { $('e-body').innerHTML = `<div class="card vent"><p>${st === 429 ? 'Rommet er fullt.' : 'Forbindelsen ble stoppet.'}</p><button type="button" id="e-tilbake">Tilbake</button></div>`; $('e-tilbake').onclick = sluttElev; },
+    });
+    sendElev();
+    elevSteg();
+  }
+  function sendElev() { if (E.rom) E.rom.sett({ n: E.navn, a: E.a }); lagreElev(); }
+  function sluttElev() {
+    if (E.rom) E.rom.forlat();
+    E.rom = null; E.leks = null; sstore('kurs-elev', null);
+    $('v-elev').hidden = true; $('v-start').hidden = false;
+  }
+
+  // Øvingsmodus: eleven blar gjennom leksjonen selv og ser fasit etter hvert svar.
+  function ovSelv() {
+    Object.assign(E, { live: false, leks: STAB, i: 0, vis: false, a: (fetchStore('kurs-ov') || {})[STAB.id] || {}, utkast: {} });
+    startElev();
+  }
+
+  function elevSteg() {
+    const b = $('e-body');
+    if (!E.leks) { b.innerHTML = `<div class="card vent"><div class="ikon">⏳</div><p><b>Du er med.</b></p><p class="muted">Venter på at læreren starter leksjonen.</p></div>`; return; }
+    const st = E.leks.steg[E.i], akt = AKTIV.includes(st.type);
+    let h = '';
+    if (!E.live) h += `<div class="qnav">${E.leks.steg.map((s, i) => `<span class="${i < E.i ? 'done' : i === E.i ? 'cur' : ''}"></span>`).join('')}</div>`;
+    h += `<div class="card"><p class="small muted" style="margin:0 0 4px">${esc(E.leks.tittel)} · steg ${E.i + 1} av ${E.leks.steg.length}</p><h2>${esc(st.tittel)}</h2>`;
+    if (!akt) {
+      if (E.live && st.type !== 'slutt') h += `<div class="vent"><div class="ikon">👀</div><p>Følg med på tavla.</p></div>`;
+      if (st.punkter && (!E.live || st.type === 'slutt')) h += `<div class="les"><ul>${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>`;
+      if (!E.live && st.fig && st.fig !== 'sim') h += figElevLes(st.fig);
+      if (!E.live && st.fig === 'sim') h += `<p><a href="${SIM_URL}" target="_blank" rel="noopener">Åpne simulatoren</a> og prøv selv.</p>`;
+      if (st.type === 'velkommen') h += `<p class="muted">${E.live ? 'Når læreren går videre, kommer oppgavene her.' : 'Gå gjennom leksjonen i ditt eget tempo.'}</p>`;
+    } else {
+      h += aktivitetElev(st);
+    }
+    if (!E.live) h += `<div class="row" style="margin-top:14px"><button type="button" id="e-forrige" ${E.i === 0 ? 'disabled' : ''}>← Forrige</button><button type="button" class="primary" id="e-neste" ${E.i === E.leks.steg.length - 1 ? 'disabled' : ''}>Neste →</button></div>`;
+    b.innerHTML = h + '</div>';
+    if (!E.live && (st.fig === 'vippe' || st.fig === 'trekant')) kobleFigur(st, 'e');
+    kobleElev(st);
+  }
+  function figElevLes(f) {
+    if (f === 'vippe' || f === 'trekant') return figTavle({ fig: f }, 'e');
+    return figStatisk(f) || (f === 'krefter' ? `<div class="figbox">${figKrefter()}</div>` : f === 'utstyr' ? `<div class="figbox">${figUtstyr()}</div>` : '');
+  }
+  // Viser fasit når tavla har vist svaret, eller med en gang når eleven øver alene og har svart.
+  const fasitSynlig = st => E.live ? E.vis : E.a[st.id] !== undefined;
+
+  function aktivitetElev(st) {
+    const v = E.a[st.id], fasit = fasitSynlig(st);
+    let h = '';
+    if (typeof st.spm === 'string') h += `<p>${esc(st.spm)}</p>`;
+    if (st.fig && st.type !== 'trykk') h += figElevLes(st.fig);
+    if (st.type === 'valg') {
+      h += `<div class="opts">${st.valg.map((t, i) => {
+        let k = '';
+        if (fasit && st.riktig != null) k = i === st.riktig ? ' rett' : v === i ? ' feil' : '';
+        return `<button type="button" class="opt${k}" data-i="${i}" aria-pressed="${v === i}" ${fasit ? 'disabled' : ''}>${esc(t)}</button>`;
+      }).join('')}</div>`;
+    } else if (st.type === 'tall') {
+      const u = E.utkast[st.id] || (Array.isArray(v) ? v.map(x => String(Math.round(x * 100) / 100).replace('.', ',')) : []);
+      h += `<div class="tallfelt">${st.felt.map((f, k) => `<label class="field"><span>${esc(f.l)}</span><span class="inrow"><input inputmode="decimal" autocomplete="off" data-k="${k}" value="${esc(u[k] || '')}" ${fasit ? 'disabled' : ''}><span class="enh">${esc(f.enhet)}</span></span></label>`).join('')}</div>`;
+      if (!fasit) h += `<div class="row"><button type="button" class="primary" id="e-send">${v ? 'Send på nytt' : 'Send svar'}</button>${st.hint ? '<button type="button" id="e-hint">Hint</button>' : ''}</div><p class="small muted" id="e-hinttekst" hidden>${esc(st.hint || '')}</p>`;
+    } else if (st.type === 'trykk') {
+      h += `<div class="figbox" id="e-tap">${figTrekant({ tap: true, prikker: v ? [[v[0], v[1], fasit ? (st.sone(v[0], v[1]) ? 'var(--ok)' : 'var(--bad)') : 'var(--a1)']] : [], sone: fasit, megRad: 9 })}</div>`;
+      if (!fasit) h += `<p class="small muted">Trykk i figuren. Du kan trykke på nytt for å flytte prikken.</p>`;
+    } else if (st.type === 'quiz') {
+      const u = E.utkast[st.id] || (Array.isArray(v) ? v.slice() : []);
+      h += st.spm.map((q, qi) => `<div style="margin-top:14px"><p><b>${qi + 1}.</b> ${esc(q.s)}</p><div class="opts">${q.v.map((t, i) => {
+        let k = '';
+        if (fasit && Array.isArray(v)) k = i === q.r ? ' rett' : v[qi] === i ? ' feil' : '';
+        return `<button type="button" class="opt${k}" data-q="${qi}" data-i="${i}" aria-pressed="${u[qi] === i}" ${fasit ? 'disabled' : ''}>${esc(t)}</button>`;
+      }).join('')}</div></div>`).join('');
+      if (!fasit) h += `<div class="row"><button type="button" class="primary" id="e-send" ${u.filter(x => x != null).length === st.spm.length ? '' : 'disabled'}>${v ? 'Send på nytt' : 'Send svar'}</button><span class="small muted">${u.filter(x => x != null).length} av ${st.spm.length} besvart</span></div>`;
+    }
+    h += `<div id="e-fb">${tilbakemelding(st)}</div>`;
+    return h;
+  }
+  function tilbakemelding(st) {
+    const v = E.a[st.id], fasit = fasitSynlig(st);
+    if (!fasit) return v !== undefined ? `<div class="fb info">Svaret er sendt. Du kan endre det til læreren viser svaret.</div>` : '';
+    let h = '';
+    const ok = erRiktig(st, v);
+    if (v === undefined) h += `<div class="fb info">Du svarte ikke på denne.</div>`;
+    else if (ok === true) h += `<div class="fb ok">Riktig!</div>`;
+    else if (ok === false) {
+      if (st.type === 'quiz') h += `<div class="fb bad">${st.spm.filter((q, i) => v[i] === q.r).length} av ${st.spm.length} riktige.</div>`;
+      else if (st.type === 'tall') h += `<div class="fb bad">Ikke helt. Fasit: ${st.felt.map(f => `ca. ${nf(Math.round(f.svar / 10) * 10)} ${f.enhet}`).join(' og ')}.</div>`;
+      else h += `<div class="fb bad">Ikke riktig.</div>`;
+    }
+    if (st.forklaring) h += `<p>${esc(st.forklaring)}</p>`;
+    return h;
+  }
+  function visFasitElev() {
+    // Oppdaterer bare tilbakemeldingen når eleven skriver i et tallfelt, så tastaturet ikke lukkes.
+    const st = E.leks && E.leks.steg[E.i];
+    if (st && $('e-fb')) $('e-fb').innerHTML = tilbakemelding(st);
+  }
+  function svar(st, v) {
+    E.a[st.id] = v;
+    if (E.live) sendElev();
+    else { const o = fetchStore('kurs-ov') || {}; o[E.leks.id] = E.a; store('kurs-ov', o); }
+  }
+  function kobleElev(st) {
+    if (!E.live) {
+      $('e-forrige').onclick = () => { E.i--; elevSteg(); window.scrollTo(0, 0); };
+      $('e-neste').onclick = () => { E.i++; elevSteg(); window.scrollTo(0, 0); };
+    }
+    if (!AKTIV.includes(st.type) || fasitSynlig(st) && E.live) return;
+    const b = $('e-body');
+    if (st.type === 'valg') {
+      b.querySelectorAll('.opt').forEach(o => o.onclick = () => { svar(st, +o.dataset.i); elevSteg(); });
+    } else if (st.type === 'tall') {
+      const inp = [...b.querySelectorAll('input[data-k]')];
+      inp.forEach(x => x.oninput = () => { E.utkast[st.id] = inp.map(i => i.value); });
+      const send = () => {
+        const v = inp.map(i => lesTall(i.value));
+        if (v.some(x => x == null)) { $('e-fb').innerHTML = '<div class="fb bad">Skriv et tall i hvert felt.</div>'; return; }
+        svar(st, v); delete E.utkast[st.id]; elevSteg();
+      };
+      if ($('e-send')) $('e-send').onclick = send;
+      inp.forEach(x => x.onkeydown = e => { if (e.key === 'Enter') send(); });
+      if ($('e-hint')) $('e-hint').onclick = () => { $('e-hinttekst').hidden = false; };
+    } else if (st.type === 'trykk') {
+      const svg = b.querySelector('#e-tap svg');
+      if (svg) svg.addEventListener('click', e => {
+        const r = svg.getBoundingClientRect();
+        const x = Math.round((e.clientX - r.left) / r.width * 400), y = Math.round((e.clientY - r.top) / r.height * 260);
+        svar(st, [Math.max(0, Math.min(400, x)), Math.max(0, Math.min(260, y))]); elevSteg();
+      });
+    } else if (st.type === 'quiz') {
+      const u = E.utkast[st.id] || (Array.isArray(E.a[st.id]) ? E.a[st.id].slice() : []);
+      b.querySelectorAll('.opt').forEach(o => o.onclick = () => { u[+o.dataset.q] = +o.dataset.i; E.utkast[st.id] = u; elevSteg(); });
+      if ($('e-send')) $('e-send').onclick = () => { if (u.filter(x => x != null).length === st.spm.length) { svar(st, u.slice()); delete E.utkast[st.id]; elevSteg(); } };
+    }
+  }
+
+  $('btn-bli-med').onclick = blimed;
+  $('in-navn').onkeydown = e => { if (e.key === 'Enter') blimed(); };
+  $('btn-ov').onclick = ovSelv;
+
+  // ---------- Oppstart ----------
+  renderSti();
+  renderLogin();
+  $('in-navn').value = fetchStore('kurs-navn') || '';
+  const h = location.hash.slice(1);
+  const m = h.match(/^elev(\d{4})?$/);
+  if (m) { if (m[1]) $('in-kode').value = m[1]; ($('in-kode').value ? $('in-navn') : $('in-kode')).focus(); }
+  // Fortsetter der eleven eller tavla var hvis siden lastes på nytt.
+  const ge = sfetch('kurs-elev'), gt = sfetch('kurs-tavle');
+  if (gt && AUTH && LEKSJONER[gt.leks]) startTavle(gt.leks);
+  else if (ge && ge.live && ge.kode && ge.navn) { Object.assign(E, { live: true, kode: ge.kode, navn: ge.navn, peer: ge.peer || rid(), a: ge.a || {} }); startElev(); }
+  addEventListener('pagehide', () => { if (E.rom) E.rom.sett({ n: E.navn, a: E.a }); });
+})();
+</script>

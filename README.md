@@ -47,7 +47,8 @@ Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt
 |---|---|
 | `index.html` | Hele appen. Skrevet som sideinnhold, slik at den også kan publiseres som Artifact på claude.ai. |
 | `kundeservice.html` | Kundeservice-simulatoren. Samme format som `index.html`. |
-| `scripts/bygg.mjs` | Lager `dist/index.html` og `dist/kundeservice.html` med fullt dokumentskall for Azure (`npm run build`). |
+| `kurs.html` | Kursstien for truckførerkurset. Samme format som `index.html`. |
+| `scripts/bygg.mjs` | Lager sidene i `dist/` med fullt dokumentskall for Azure (`npm run build`). |
 | `api/` | Azure Functions (Node 20): lærerinnlogging, lagring i Cosmos DB og live-rom. |
 | `staticwebapp.config.json` | Konfigurasjon for Azure Static Web Apps. |
 
@@ -61,6 +62,18 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
   - `runder` (`/laererId`): rundeloggen.
   - `rom` (`/kode`, TTL 60 s): live-status under runder.
 - **Live-runder**: hver enhet sender sin status til `POST /api/rom/{lagkode}` omtrent hvert sekund og får tilbake statusen til alle i laget. Bare en innlogget lærer kan være tavle, og bare én lærer kan bruke samme lagkode om gangen.
+
+## Kursstien
+
+`kurs.html` er truckførerkurset som en sti med én stasjon per leksjon i Arbeidstilsynets opplæringsplaner (modul 1, august 2023, og modul 2.2, juni 2022). Læreren viser på tavla, og elevene svarer på telefonen.
+
+- **Tavla**: læreren logger inn med samme kode som på Taktlinja, velger en leksjon og får en kode på fire sifre og en QR-kode. Piltastene blar, V viser svaret, N viser lærernotatet og F gir fullskjerm.
+- **Eleven**: går til `kurs.html#elev`, skriver inn koden og fornavnet og følger tavla. Oppgavene låses når læreren viser svaret. «Øv på egen hånd» går gjennom leksjonen uten lærer og viser fasit etter hvert svar.
+- **Steg**: `tavle` (figur og stikkord), `valg` (flervalg, eller avstemning uten fasit), `tall` (utregning med toleranse), `trykk` (eleven trykker i en figur) og `quiz` (flere spørsmål). Tavla viser antall svar og, når svaret vises, fordelingen.
+- **Live**: bruker `POST /api/rom/{kode}` som Taktlinja. Tavla er `leder`. Hver elev sender fornavn og svar, og tavla regner ut resultatene. Ingenting lagres etter timen, og rommet slettes av TTL-en.
+- **Innhold**: leksjonene ligger som data i siden (`STI` og leksjonsobjektene, først `STAB`). Hver leksjon oppgir hvilke emner fra planen den dekker. Bare leksjoner med `steg` kan startes, de andre vises som «Kommer».
+
+Første leksjon er modul 2.2 leksjon 6, Truckens stabilitet (2 × 45 min). Den bruker truckstabilitet-simulatoren på seiknes-ui.github.io i en iframe.
 
 ## Kvalitetsdelen
 
