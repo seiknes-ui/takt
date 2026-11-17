@@ -1,0 +1,319 @@
+<title>Kvalitet</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Kvalitetsdelen: oversikt over anonyme hendelser fra simuleringsverktøyene. Samme verkstedstil som Taktlinja. */
+:root {
+  --bg: #E8EBE7; --surface: #F7F8F5; --ink: #1B201E; --muted: #5A6560; --line: #C6CDC8;
+  --accent: #F2B300; --on-accent: #1B201E; --ok: #2B9A58; --warn: #D89A00; --bad: #D0392A;
+  --a1: #2F6FD0; --a2: #D6402F; --a3: #3C9A4A; --a4: #8A4FB8; --a5: #C08A4E; --a6: #2E8A86;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+    --accent: #F5BF1F; --on-accent: #131715; --ok: #3FBF72; --warn: #F0B429; --bad: #F05A47;
+    --a1: #4A86E0; --a2: #E0533F; --a3: #4FB25E; --a4: #A26BD0; --a5: #D29E62; --a6: #3BA6A1;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+  --accent: #F5BF1F; --on-accent: #131715; --ok: #3FBF72; --warn: #F0B429; --bad: #F05A47;
+  --a1: #4A86E0; --a2: #E0533F; --a3: #4FB25E; --a4: #A26BD0; --a5: #D29E62; --a6: #3BA6A1;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.5;
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+.wrap { max-width: 1200px; margin: 0 auto; }
+h1 { font-family: var(--display); font-weight: 800; font-size: 40px; letter-spacing: .01em; text-transform: uppercase; margin: 0; line-height: 1; }
+h1 span { color: var(--accent); }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; margin: 0 0 4px; }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 6px; font-weight: 600; }
+.lead { color: var(--muted); max-width: 70ch; margin: 8px 0 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-bottom: 14px; min-width: 0; }
+.card > p.sub { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input, select, button { font: inherit; }
+input, select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); }
+button { cursor: pointer; padding: 8px 14px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; }
+button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.msg { color: var(--bad); margin: 8px 0 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.tile { background: var(--bg); border-radius: 4px; padding: 10px 12px; }
+.tile b { display: block; font-family: var(--mono); font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 12px; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; white-space: nowrap; }
+td.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+th.n { text-align: right; }
+.pct { display: inline-flex; align-items: center; gap: 6px; }
+.pct i { display: inline-block; height: 8px; border-radius: 2px; background: var(--bad); }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 120px; border-bottom: 1px solid var(--line); margin-top: 8px; }
+.bars div { flex: 1; display: flex; flex-direction: column-reverse; min-width: 3px; }
+.bars span { display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.empty { color: var(--muted); font-style: italic; }
+[hidden] { display: none !important; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Kvalitet<span>.</span></h1>
+    <p class="lead">Anonyme data fra simuleringsverktøyene: hvilke spørsmål elevene svarer feil på, hvilket galt svar de velger, og hvordan simulatorene brukes. Ingen navn eller personopplysninger lagres, og bare dato, ikke klokkeslett.</p>
+  </header>
+
+  <section class="card" id="login">
+    <h2>Logg inn</h2>
+    <p class="sub">Bruk samme lærerkode som i Taktlinja.</p>
+    <form class="row" id="loginForm">
+      <input id="kode" type="password" autocomplete="current-password" placeholder="Lærerkode" aria-label="Lærerkode" required>
+      <button class="primary" type="submit">Logg inn</button>
+    </form>
+    <p class="msg" id="loginMsg" hidden></p>
+  </section>
+
+  <div id="app" hidden>
+    <div class="card row">
+      <label>Periode
+        <select id="dager"><option value="7">Siste 7 dager</option><option value="30" selected>Siste 30 dager</option><option value="90">Siste 90 dager</option><option value="365">Siste år</option></select>
+      </label>
+      <button id="oppdater">Oppdater</button>
+      <button id="csv">Last ned CSV</button>
+      <span class="muted small" id="status"></span>
+      <button id="loggut" style="margin-left:auto">Logg ut</button>
+    </div>
+
+    <section class="card">
+      <h2>Bruk</h2>
+      <div class="tiles" id="tiles"></div>
+      <div class="bars" id="bars" aria-label="Hendelser per dag"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="card">
+      <h2>Teoriprøve: vanskeligste spørsmål</h2>
+      <p class="sub">Spørsmål med minst <b id="minSvar">5</b> svar, sortert etter andel feil. «Vanligste feilsvar» viser hvilken misforståelse som sitter.</p>
+      <div class="row small">
+        <label>Modul <select id="fModul"><option value="">Begge</option><option value="m1">1.1</option><option value="m2">2.2</option></select></label>
+        <label>Kilde <select id="fKilde"><option value="">Øving og prøve</option><option value="øving">Bare øving</option><option value="prøve">Bare prøve</option></select></label>
+        <label>Minst svar <select id="fMin"><option>3</option><option selected>5</option><option>10</option><option>20</option></select></label>
+      </div>
+      <div class="tbl"><table id="tSpm"></table></div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>Teoriprøve: resultater</h2>
+        <p class="sub">Fordeling av prøveresultater (andel riktige, avrundet til nærmeste 10 %).</p>
+        <div class="tbl"><table id="tProve"></table></div>
+      </section>
+      <section class="card">
+        <h2>Maskinskilt</h2>
+        <p class="sub">Andel feil per oppgavetype og per tilleggsutstyr.</p>
+        <div class="tbl"><table id="tSkilt"></table></div>
+        <h3>Per tilleggsutstyr</h3>
+        <div class="tbl"><table id="tSkiltUtstyr"></table></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Truckstabilitet</h2>
+      <div class="grid2">
+        <div><h3>Velting: hva fikk trucken til å velte?</h3><div class="tbl"><table id="tVelt"></table></div></div>
+        <div><h3>Situasjoner som prøves</h3><div class="tbl"><table id="tScen"></table></div>
+          <h3>Trucktyper og utstyr</h3><div class="tbl"><table id="tType"></table></div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Andre verktøy</h2>
+      <p class="sub">Hendelser fra verktøy som ikke har egen visning ennå.</p>
+      <div class="tbl"><table id="tAndre"></table></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const API = '/api/';
+const TOK = 'kvalitet-token';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const nf = n => n.toLocaleString('nb-NO');
+const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+const FARGER = ['--a1', '--a2', '--a3', '--a4', '--a5', '--a6'];
+
+const NAVN = {
+  verktoy: { teori: 'Teoriprøve truck', truck: 'Truckstabilitet', hms: 'HMS', fraktvekt: 'Fraktvekt-labben', trekk: 'Trekkort', aksel: 'Akselast-lab', kkvm: 'KKVM', takt: 'Taktlinja', kundeservice: 'Kundeservice', speditoren: 'Speditøren' },
+  skilt: { tExact: 'Les av standardtabellen', tBetween: 'Mellom kolonnene', tBox: 'Kan kassen løftes?', tNom: 'Nominell kapasitet', tAtt: 'Les av tilleggsskiltet', tAttBox: 'Kasse med utstyr', tWhich: 'Hvilken kapasitet gjelder?', tAttBetween: 'Mellom kolonnene med utstyr', tLoss: 'Kapasitetstap med utstyr', tAttMax: 'Største vekt med utstyr', tWorst: 'Hvilket utstyr gir lavest kapasitet?', tRemove: 'Utstyret demontert' },
+  utstyr: { aSide: 'Påbygd sideforskyver', aPos: 'Gaffelposisjonerer', aRot: 'Rotator', aClamp: 'Balleklemme', aExt: 'Gaffelforlengere', side: 'Påbygd sideforskyver', pos: 'Gaffelposisjonerer', rot: 'Rotator', clamp: 'Balleklemme', ext: 'Gaffelforlengere', cw: 'Ekstra motvekt', cab: 'Lukket førerhus', batt: 'Lettere batteri', twin: 'Tvillinghjul', none: 'Ingen (vanlige gafler)' },
+  truck: { t1: 'T1 Plukktruck', t2: 'T2 Skyvemast', t3: 'T3 Svinggaffel', t4: 'T4 Motvekt', sl: 'Sidelaster', th: 'Teleskoptruck' },
+  scen: { base: 'Grunnstilling', brake: 'Brå brems med hevet last', turn: 'Sving med hevet last', empty: 'Tom truck i krapp sving', down: 'Ned rampe med last', sideslope: 'Hevet last i sidehelning' }
+};
+const navn = (gruppe, k) => (NAVN[gruppe] && NAVN[gruppe][k]) || k || '–';
+
+let token = null, data = null;
+try { token = sessionStorage.getItem(TOK); } catch (e) {}
+
+async function api(metode, sti, body) {
+  const headers = { 'content-type': 'application/json' };
+  if (token) headers['x-laerer-token'] = token;
+  const r = await fetch(API + sti, { method: metode, headers, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.feil || 'Feil ' + r.status), { status: r.status });
+  return j;
+}
+
+function visLogin(msg) {
+  token = null;
+  try { sessionStorage.removeItem(TOK); } catch (e) {}
+  $('app').hidden = true; $('login').hidden = false;
+  $('loginMsg').hidden = !msg; $('loginMsg').textContent = msg || '';
+  $('kode').focus();
+}
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  try {
+    const r = await api('POST', 'laerer/login', { kode: $('kode').value });
+    token = r.token;
+    try { sessionStorage.setItem(TOK, token); } catch (err) {}
+    $('kode').value = '';
+    hent();
+  } catch (err) { visLogin(err.message); }
+});
+$('loggut').onclick = () => visLogin('');
+$('oppdater').onclick = hent;
+$('dager').onchange = hent;
+['fModul', 'fKilde', 'fMin'].forEach(id => $(id).onchange = () => data && visSpm());
+
+async function hent() {
+  $('login').hidden = true; $('app').hidden = false;
+  $('status').textContent = 'Henter …';
+  try {
+    data = await api('GET', 'kvalitet/oversikt?dager=' + $('dager').value);
+    $('status').textContent = 'Fra ' + data.fra + ' · hentet ' + new Date().toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+    vis();
+  } catch (err) {
+    if (err.status === 401) visLogin('Innloggingen er utløpt. Logg inn på nytt.');
+    else $('status').textContent = 'Kunne ikke hente data: ' + err.message;
+  }
+}
+
+const G = (v, h) => data.grupper.filter(g => g.v === v && (!h || g.h === h));
+const sum = list => list.reduce((s, g) => s + g.n, 0);
+function tabell(id, hode, rader, tom) {
+  $(id).innerHTML = rader.length
+    ? `<thead><tr>${hode.map(h => `<th${h.n ? ' class="n"' : ''}>${esc(h.t || h)}</th>`).join('')}</tr></thead><tbody>${rader.join('')}</tbody>`
+    : `<tbody><tr><td class="empty">${esc(tom || 'Ingen data i perioden.')}</td></tr></tbody>`;
+}
+const feilCelle = (f, n) => { const p = pct(f, n); return `<td class="n"><span class="pct"><i style="width:${Math.max(2, p * 0.6)}px"></i>${p} %</span></td>`; };
+
+function vis() {
+  visBruk(); visSpm(); visProve(); visSkilt(); visTruck(); visAndre();
+}
+
+function visBruk() {
+  const perV = {};
+  data.perDag.forEach(d => perV[d.v] = (perV[d.v] || 0) + d.n);
+  const verktoy = Object.keys(perV).sort((a, b) => perV[b] - perV[a]);
+  $('tiles').innerHTML = verktoy.length
+    ? verktoy.map(v => `<div class="tile"><b>${nf(perV[v])}</b><span>${esc(navn('verktoy', v))}</span></div>`).join('')
+    : '<p class="empty">Ingen hendelser ennå. Data kommer når elevene bruker verktøyene.</p>';
+  // Søyler per dag, stablet per verktøy
+  const dager = [];
+  for (let i = data.dager - 1; i >= 0; i--) dager.push(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10));
+  const per = {};
+  data.perDag.forEach(d => { (per[d.dato] = per[d.dato] || {})[d.v] = d.n; });
+  const maks = Math.max(1, ...dager.map(d => Object.values(per[d] || {}).reduce((s, n) => s + n, 0)));
+  const farge = v => `var(${FARGER[verktoy.indexOf(v) % FARGER.length]})`;
+  $('bars').innerHTML = dager.map(d => `<div title="${d}: ${nf(Object.values(per[d] || {}).reduce((s, n) => s + n, 0))}">${verktoy.map(v => (per[d] || {})[v] ? `<span style="height:${(per[d][v] / maks) * 118}px;background:${farge(v)}"></span>` : '').join('')}</div>`).join('');
+  $('legend').innerHTML = verktoy.map(v => `<span><i style="background:${farge(v)}"></i>${esc(navn('verktoy', v))}</span>`).join('');
+}
+
+function visSpm() {
+  const modul = $('fModul').value, kilde = $('fKilde').value, min = +$('fMin').value;
+  $('minSvar').textContent = min;
+  const spm = {};
+  for (const g of data.grupper) {
+    if (g.v !== 'teori' || (g.h !== 'feil' && g.h !== 'riktig')) continue;
+    const [ml, kl] = (g.m || '').split(' ');
+    if (modul && !ml.startsWith(modul)) continue;
+    if (kilde && kl !== kilde) continue;
+    const s = spm[g.k] = spm[g.k] || { t: g.t, ml, n: 0, feil: 0, svar: {} };
+    s.n += g.n;
+    if (g.h === 'feil') { s.feil += g.n; s.svar[g.a] = (s.svar[g.a] || 0) + g.n; }
+  }
+  const liste = Object.values(spm).filter(s => s.n >= min).sort((a, b) => b.feil / b.n - a.feil / a.n || b.n - a.n).slice(0, 40);
+  tabell('tSpm', ['Spørsmål', 'Leksjon', { t: 'Svar', n: 1 }, { t: 'Feil', n: 1 }, 'Vanligste feilsvar'], liste.map(s => {
+    const topp = Object.entries(s.svar).sort((a, b) => b[1] - a[1]).slice(0, 2);
+    return `<tr><td>${esc(s.t)}</td><td class="muted">${esc(s.ml.replace('m1.', '1.1 · L').replace('m2.', '2.2 · L'))}</td><td class="n">${nf(s.n)}</td>${feilCelle(s.feil, s.n)}<td class="small">${topp.map(([a, n]) => `${esc(a)} <span class="muted">(${n})</span>`).join('<br>') || '–'}</td></tr>`;
+  }), 'Ingen spørsmål med nok svar i perioden.');
+}
+
+function visProve() {
+  const p = {};
+  G('teori', 'prove').forEach(g => { const m = p[g.k] = p[g.k] || {}; m[g.a] = (m[g.a] || 0) + g.n; });
+  const rader = [];
+  for (const [mod, f] of Object.entries(p)) {
+    const n = Object.values(f).reduce((s, x) => s + x, 0);
+    const snitt = Object.entries(f).reduce((s, [a, x]) => s + (+a) * x, 0) / n;
+    const bestatt = Object.entries(f).filter(([a]) => +a >= 70).reduce((s, [, x]) => s + x, 0);
+    rader.push(`<tr><td>${mod === 'm1' ? 'Modul 1.1' : mod === 'm2' ? 'Modul 2.2' : esc(mod)}</td><td class="n">${nf(n)}</td><td class="n">${Math.round(snitt)} %</td><td class="n">${pct(bestatt, n)} %</td><td class="small muted">${Object.keys(f).sort((a, b) => a - b).map(a => `${a} %: ${f[a]}`).join(' · ')}</td></tr>`);
+  }
+  tabell('tProve', ['Modul', { t: 'Prøver', n: 1 }, { t: 'Snitt', n: 1 }, { t: '≥ 70 %', n: 1 }, 'Fordeling'], rader);
+}
+
+function visSkilt() {
+  const agg = (felt) => {
+    const o = {};
+    G('teori', 'skilt').forEach(g => { const k = g[felt]; const x = o[k] = o[k] || { n: 0, f: 0 }; x.n += g.n; if (g.a === 'feil') x.f += g.n; });
+    return Object.entries(o).sort((a, b) => b[1].f / b[1].n - a[1].f / a[1].n);
+  };
+  tabell('tSkilt', ['Oppgavetype', { t: 'Svar', n: 1 }, { t: 'Feil', n: 1 }], agg('k').map(([k, x]) => `<tr><td>${esc(navn('skilt', k))}</td><td class="n">${nf(x.n)}</td>${feilCelle(x.f, x.n)}</tr>`));
+  tabell('tSkiltUtstyr', ['Utstyr på skiltet', { t: 'Svar', n: 1 }, { t: 'Feil', n: 1 }], agg('m').map(([k, x]) => `<tr><td>${esc(navn('utstyr', k))}</td><td class="n">${nf(x.n)}</td>${feilCelle(x.f, x.n)}</tr>`));
+}
+
+function visTruck() {
+  const velt = {};
+  G('truck', 'velt').forEach(g => { const key = g.k + '|' + g.m; const x = velt[key] = velt[key] || { k: g.k, m: g.m, n: 0, kant: {} }; x.n += g.n; x.kant[g.a] = (x.kant[g.a] || 0) + g.n; });
+  tabell('tVelt', ['Truck', 'Årsak', { t: 'Velt', n: 1 }, 'Tippekant'], Object.values(velt).sort((a, b) => b.n - a.n).slice(0, 25).map(x =>
+    `<tr><td>${esc(navn('truck', x.k))}</td><td>${esc((x.m || '').replace(/\+/g, ' + '))}</td><td class="n">${nf(x.n)}</td><td class="small">${Object.entries(x.kant).sort((a, b) => b[1] - a[1]).map(([a, n]) => `${esc(a)} <span class="muted">(${n})</span>`).join('<br>')}</td></tr>`));
+  const telle = (h, felt) => { const o = {}; G('truck', h).forEach(g => o[g[felt]] = (o[g[felt]] || 0) + g.n); return Object.entries(o).sort((a, b) => b[1] - a[1]); };
+  tabell('tScen', ['Situasjon', { t: 'Ganger', n: 1 }], telle('scenario', 'k').map(([k, n]) => `<tr><td>${esc(navn('scen', k))}</td><td class="n">${nf(n)}</td></tr>`));
+  tabell('tType', ['Valg', { t: 'Ganger', n: 1 }], [
+    ...telle('type', 'k').map(([k, n]) => `<tr><td>${esc(navn('truck', k))}</td><td class="n">${nf(n)}</td></tr>`),
+    ...telle('utstyr', 'k').map(([k, n]) => `<tr><td>Utstyr: ${esc(navn('utstyr', k))}</td><td class="n">${nf(n)}</td></tr>`)
+  ]);
+}
+
+function visAndre() {
+  const andre = data.grupper.filter(g => g.v !== 'teori' && g.v !== 'truck').sort((a, b) => b.n - a.n).slice(0, 60);
+  tabell('tAndre', ['Verktøy', 'Hendelse', 'Nøkkel', 'Verdi', { t: 'Antall', n: 1 }], andre.map(g =>
+    `<tr><td>${esc(navn('verktoy', g.v))}</td><td>${esc(g.h)}</td><td>${esc(g.t || g.k)}</td><td>${esc(g.a)}${g.m ? ` <span class="muted">${esc(g.m)}</span>` : ''}</td><td class="n">${nf(g.n)}</td></tr>`), 'Ingen andre verktøy har sendt data ennå.');
+}
+
+// CSV med alle grupperte rader i perioden, for videre arbeid i Excel
+$('csv').onclick = () => {
+  if (!data) return;
+  const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+  const linjer = [['verktoy', 'hendelse', 'nokkel', 'tekst', 'verdi', 'ekstra', 'antall'].join(';'), ...data.grupper.map(g => [g.v, g.h, g.k, g.t, g.a, g.m, g.n].map(q).join(';'))];
+  const url = URL.createObjectURL(new Blob(['﻿' + linjer.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'kvalitet-' + data.fra + '.csv' });
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+if (token) hent(); else visLogin('');
+</script>

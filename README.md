@@ -62,6 +62,16 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
   - `rom` (`/kode`, TTL 60 s): live-status under runder.
 - **Live-runder**: hver enhet sender sin status til `POST /api/rom/{lagkode}` omtrent hvert sekund og får tilbake statusen til alle i laget. Bare en innlogget lærer kan være tavle, og bare én lærer kan bruke samme lagkode om gangen.
 
+## Kvalitetsdelen
+
+`kvalitet.html` er en felles kvalitetsoversikt for simuleringsverktøyene på seiknes-ui.github.io. Den bruker samme database og lærerinnlogging som Taktlinja.
+
+- **Innsamling**: verktøyene laster `https://seiknes-ui.github.io/simmulator/kvalitet/kvalitet.js` og kaller `Kvalitet.logg(verktøy, hendelse, { k, t, a, m })`. Hendelsene sendes samlet med `sendBeacon` som `text/plain` til `POST /api/kvalitet`, så det trengs ingen CORS-oppsett. Feiler sendingen, virker verktøyet som før.
+- **Personvern**: det lagres ingen navn, ingen IP-adresse og bare dato, ikke klokkeslett. Bare kjente verktøy (`VERKTOY` i `api/src/functions/kvalitet.js`) og felt godtas, tekst kuttes, og hver IP kan sende høyst 400 hendelser per 10 minutter. Dataene slettes automatisk etter 400 dager.
+- **Lagring**: containeren `kvalitet` (partisjonsnøkkel `/v`) i databasen `takt`, innenfor den delte gratisgjennomstrømningen.
+- **Oversikt**: `GET /api/kvalitet/oversikt?dager=30` krever lærertoken og gir tellinger gruppert per verktøy, hendelse, nøkkel og svar. Siden viser vanskeligste spørsmål med vanligste feilsvar, prøveresultater, maskinskilt-oppgaver, velting og bruk av simulatorene, og kan laste ned CSV.
+- **Nytt verktøy**: legg navnet i `VERKTOY`, last `kvalitet.js` i verktøyet og kall `Kvalitet.logg`. Hendelsene vises under «Andre verktøy» til det får egen visning.
+
 ## Oppsett i Azure
 
 1. **Cosmos DB**: åpne kontoen i Azure-portalen, gå til **Keys** og kopier **Primary connection string**.
