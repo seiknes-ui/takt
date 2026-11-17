@@ -522,12 +522,12 @@ svg text { font-family: var(--body); }
     mal: [5, 6, 7, 8],
     steg: [
       { id: 'inn', type: 'velkommen', min: 3, tittel: 'Truckens stabilitet' },
-      { id: 'gjett', type: 'valg', min: 4, tittel: 'Velter den?',
+      { id: 'gjett', type: 'valg', min: 3, tittel: 'Velter den?',
         spm: 'En motvektstruck har 1500 kg på gaflene. Føreren løfter lasten til 4 meter og tilter masten forover. Hva tror du skjer?',
         valg: ['Trucken står stødig', 'Trucken velter forover', 'Trucken velter til siden', 'Det kommer an på trucken og lasten'], riktig: null,
         forklaring: 'Her er det ingen fasit ennå. Det kommer an på truckens kapasitet og hvor tyngdepunktet til lasten ligger. Men å tilte forover med høyt løftet last flytter tyngdepunktet fram mot tippekanten. Vi tester det i simulatoren.' },
-      { id: 'sim1', type: 'tavle', min: 5, tittel: 'Vi tester i simulatoren', fig: 'sim' },
-      { id: 'vippe', type: 'tavle', min: 8, tittel: 'Vektstangprinsippet', fig: 'vippe',
+      { id: 'sim1', type: 'tavle', min: 3, tittel: 'Vi tester i simulatoren', fig: 'sim' },
+      { id: 'vippe', type: 'tavle', min: 7, tittel: 'Vektstangprinsippet', fig: 'vippe',
         punkter: ['Forakselen er vippepunktet, tippekanten forover.', 'Trucken og motvekten holder igjen: vekt × avstand bak forakselen.', 'Lasten vipper framover: vekt × avstand foran forakselen.', 'Trucken står så lenge lastens moment er mindre enn truckens.'] },
       { id: 'regn', type: 'tall', min: 7, tittel: 'Regn på vippa',
         spm: 'Trucken i figuren har et stabiliserende moment på 3000 kgm om forakselen. Fra forakselen til gaffelryggen er det 0,45 m.',
@@ -537,19 +537,19 @@ svg text { font-family: var(--body); }
         ],
         hint: 'Armen er 0,45 m + TPA i meter. Last = 3000 kgm / arm.',
         forklaring: 'Armen er 0,45 + 0,50 = 0,95 m, så 3000 / 0,95 ≈ 3160 kg. Med TPA 1000 mm blir armen 1,45 m og grensen ≈ 2070 kg. Dette er balansepunktet. Kapasiteten på skiltet ligger lavere, og marginen er ikke noe du skal bruke.' },
-      { id: 'trekant', type: 'tavle', min: 8, tittel: 'Støtteflaten er en trekant', fig: 'trekant',
+      { id: 'trekant', type: 'tavle', min: 7, tittel: 'Støtteflaten er en trekant', fig: 'trekant',
         punkter: ['Bakakselen er festet i midten (pendelaksel). Støtteflaten blir derfor en trekant, ikke et rektangel.', 'Det felles tyngdepunktet for truck og last må ligge inne i trekanten.', 'Med last flytter det felles tyngdepunktet seg fram mot forakselen.', 'Uten last ligger det bak, der trekanten er smalest. Da tåler trucken minst sideveis.'] },
       { id: 'trykk', type: 'trykk', min: 5, tittel: 'Hvor er tyngdepunktet?',
         spm: 'Trucken bærer en last nær maks kapasitet, senket ned. Trykk der du tror det felles tyngdepunktet ligger.',
         sone: (x, y) => iTrekant(x, y) && x >= 235,
         forklaring: 'Nær maks kapasitet ligger det felles tyngdepunktet langt fram i trekanten, like bak forakselen. Det er lite margin forover, så en brå oppbremsing eller tilt forover kan være nok.' },
-      { id: 'tpa', type: 'tavle', min: 5, tittel: 'Tyngdepunktsavstand (TPA)', fig: 'tpa',
+      { id: 'tpa', type: 'tavle', min: 4, tittel: 'Tyngdepunktsavstand (TPA)', fig: 'tpa',
         punkter: ['TPA er avstanden fra gaffelryggen til lastens tyngdepunkt. På skiltet heter den ofte D.', 'Skiltet oppgir kapasiteten ved en bestemt TPA, ofte 500 mm for trucker på 1–5 tonn.', 'Langsidehåndtering gir kortere TPA enn kortsidehåndtering.', 'Tyngdepunktet ligger ikke alltid midt i lasten. Se på godset og merkingen.'] },
       { id: 'pall', type: 'valg', min: 4, tittel: 'Langside eller kortside?', fig: 'tpa',
         spm: 'En EUR-pall (1200 × 800 mm) har jevnt fordelt last. Du kan ta den på langsiden eller kortsiden. Hva gir størst sikkerhetsmargin?',
         valg: ['Langsiden, TPA blir ca. 400 mm', 'Kortsiden, TPA blir ca. 600 mm', 'Det spiller ingen rolle, vekten er den samme'], riktig: 0,
         forklaring: 'På langsiden ligger tyngdepunktet 400 mm fra gaffelryggen i stedet for 600 mm. Kortere arm gir mindre moment forover og mer margin.' },
-      { id: 'skilt', type: 'tavle', min: 6, tittel: 'Maskinskiltet og lastdiagrammet', fig: 'skilt',
+      { id: 'skilt', type: 'tavle', min: 5, tittel: 'Maskinskiltet og lastdiagrammet', fig: 'skilt',
         punkter: ['Skiltet viser tillatt last ved ulike løftehøyder (H) og tyngdepunktsavstander (D).', 'Jo høyere løft og lengre TPA, jo lavere tillatt last.', 'Ligger lasten mellom to kolonner, bruker du den neste større TPA-en og løftehøyden.', 'Med tilleggsutstyr gjelder tilleggsskiltet, ikke grunnskiltet.'] },
       { id: 'lesskilt', type: 'quiz', min: 8, tittel: 'Les skiltet', fig: 'skilt',
         spm: [
@@ -558,8 +558,10 @@ svg text { font-family: var(--body); }
           { s: 'Lasten veier 1600 kg, har TPA 650 mm og skal opp til 6000 mm. Hva gjelder?', v: ['1550 kg, så det går ikke', '1350 kg, så det går ikke', '1800 kg, så det går'], r: 1 },
         ],
         forklaring: 'TPA 650 ligger mellom kolonnene. Da bruker du D 700, som gir 1350 kg ved 6000 mm. Lasten er for tung.' },
-      { id: 'krefter', type: 'tavle', min: 7, tittel: 'Krefter i bevegelse', fig: 'krefter',
+      { id: 'krefter', type: 'tavle', min: 5, tittel: 'Krefter i bevegelse', fig: 'krefter',
         punkter: ['Sving: sentrifugalkraften virker utover i svingen. Senk farten før svingen.', 'Bremsing: lasten vil fortsette framover. Brems jevnt.', 'Bakke: kjør med lasten opp mot bakken, og rygg ned med last. Kjør aldri på tvers.', 'Høyt løftet last gjør alt dette verre. Kjør med lasten senket.'] },
+      { id: 'film', type: 'tavle', min: 10, tittel: 'Film: Stabilitet', film: { kap: 'Modul 2.2 kapittel 6', fil: 'Mod 2.2 video/Kap 6.Stabilitet.m4v', tid: '9:37' },
+        punkter: ['Se etter vektstangprinsippet og stabilitetstrekanten.', 'Hva får trucken til å velte forover? Og til siden?', 'Hva gjør føreren for å unngå velt?'] },
       { id: 'hva', type: 'quiz', min: 7, tittel: 'Hva skjer?',
         spm: [
           { s: 'Du kjører en tom motvektstruck i en krapp sving med litt for høy fart. Hvor er veltefaren størst?', v: ['Forover', 'Til siden, utover i svingen', 'Bakover'], r: 1 },
@@ -567,7 +569,7 @@ svg text { font-family: var(--body); }
           { s: 'Du må bremse hardt med lasten løftet høyt. Hva er den største faren?', v: ['At lasten sklir av eller trucken tipper forover', 'At trucken velter bakover', 'Ingen fare så lenge lasten er sikret'], r: 0 },
         ],
         forklaring: 'Uten last ligger tyngdepunktet bak i den smale delen av trekanten, så en tom truck velter lettest sideveis. I bakke skal lasten alltid peke oppover. Ved bremsing vil lasten fortsette framover.' },
-      { id: 'utstyr', type: 'tavle', min: 4, tittel: 'Tilleggsutstyr reduserer kapasiteten', fig: 'utstyr',
+      { id: 'utstyr', type: 'tavle', min: 3, tittel: 'Tilleggsutstyr reduserer kapasiteten', fig: 'utstyr',
         punkter: ['Utstyret har egen vekt som kommer i tillegg til lasten.', 'Utstyret bygger ut fra gaffelvognen, så lastens tyngdepunkt flyttes fram.', 'Trucken skal ha et eget skilt som viser kapasiteten med utstyret montert.', 'En sideforskyver helt ut til siden flytter også tyngdepunktet sideveis.'] },
       { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
         spm: [
@@ -593,9 +595,9 @@ svg text { font-family: var(--body); }
         spm: 'Du skal hente en pall og ser at et av bunnbordene er knekt og at en spiker stikker ut. Hva gjør du?',
         valg: ['Bruker den, men kjører ekstra forsiktig', 'Sier fra og sørger for at pallen tas ut av bruk', 'Snur pallen så den skadde siden kommer opp', 'Setter den nederst i en stabel'], riktig: 1,
         forklaring: 'En skadet pall kan knekke under stabling eller løft og slippe lasten. Den skal ikke brukes, men repareres eller kasseres. Lasten flyttes over på en hel pall.' },
-      { id: 'lastbaerere', type: 'tavle', min: 7, tittel: 'Lastbærere', fig: 'pall',
+      { id: 'lastbaerere', type: 'tavle', min: 6, tittel: 'Lastbærere', fig: 'pall',
         punkter: ['Europallen er 1200 × 800 mm og merket EUR eller EPAL på klossene. Halvpallen er 800 × 600 mm.', 'Andre lastbærere: pallkarmer, pallgrinder, rullecontainere, kasser og containere.', 'Ikke bruk en skadet pall: knekte eller manglende bord, synlige spiker, skadde klosser eller manglende merking.', 'Hvor mye en pall tåler, avhenger av hvordan lasten er fordelt. Sjekk merkingen og bedriftens regler.'] },
-      { id: 'symboler', type: 'tavle', min: 6, tittel: 'Merking av emballasje', fig: 'symboler',
+      { id: 'symboler', type: 'tavle', min: 5, tittel: 'Merking av emballasje', fig: 'symboler',
         punkter: ['Symbolene er internasjonale og forteller hvordan godset skal håndteres.', 'Se etter merkingen før du løfter, stabler eller setter godset fra deg.', 'Tyngdepunktsymbolet viser hvor tyngdepunktet ligger. Det påvirker TPA-en.'] },
       { id: 'symbolquiz', type: 'quiz', min: 6, tittel: 'Hva betyr symbolet?',
         spm: [
@@ -605,10 +607,12 @@ svg text { font-family: var(--body); }
           { s: 'Hva betyr symbolet?', fig: 'ikkestable', v: ['Ikke stable', 'Maks to i høyden', 'Stables bare på pall'], r: 0 },
           { s: 'Hva betyr symbolet?', fig: 'krok', v: ['Løft med krok', 'Ikke bruk krok', 'Henges opp'], r: 1 },
         ] },
-      { id: 'sikring', type: 'tavle', min: 5, tittel: 'Sikring av last',
+      { id: 'sikring', type: 'tavle', min: 4, tittel: 'Sikring av last',
         punkter: ['Gods på pall stabiliseres med strekkfilm, krympefilm eller bånd, så pallen blir én samlet enhet.', 'Tungt nederst, lett øverst. Lasten skal ikke stikke utenfor pallen.', 'Truckføreren har ansvaret for lasten mens den håndteres med trucken.', 'Når godset lastes på en bil, er det sjåføren som har ansvaret for at lasten er sikret for transport.'] },
-      { id: 'stabling', type: 'tavle', min: 7, tittel: 'Stabling og nedtaking',
+      { id: 'stabling', type: 'tavle', min: 5, tittel: 'Stabling og nedtaking',
         punkter: ['Kjør med lasten lavt og masten tiltet litt bakover.', 'Løft først når trucken står stille foran stabelen.', 'Masten skal stå loddrett når du setter fra deg eller tar ned en last, ellers kan gods og pall bli skadet.', 'Se bak deg før du rygger ut, og senk til kjørehøyde før du kjører videre.', 'Stabelen skal stå stødig: like kolli, rett over hverandre, og tungt nederst.'] },
+      { id: 'film', type: 'tavle', min: 9, tittel: 'Film: Godshåndtering', film: { kap: 'Modul 2.2 kapittel 7', fil: 'Mod 2.2 video/Kap 7. Godshåndtering.m4v', tid: '8:54' },
+        punkter: ['Hvordan stables og tas lasten ned?', 'Hvordan står masten når lasten settes fra seg?', 'Hva sjekkes før lasting av bil?'] },
       { id: 'settpa', type: 'rekkefolge', min: 6, tittel: 'Sett en pall på stabelen',
         spm: 'Sett stegene i riktig rekkefølge når du setter en pall oppå en stabel med motvektstruck.',
         ledd: ['Kjør fram mot stabelen med lasten lavt og masten tiltet bakover', 'Stopp foran stabelen og løft lasten litt over stabelhøyden', 'Still masten loddrett', 'Kjør sakte fram til lasten står over stabelen', 'Senk lasten på plass og senk gaflene til de går fri', 'Se bak deg og rygg rett ut', 'Senk gaflene til kjørestilling før du kjører videre'],
@@ -617,9 +621,9 @@ svg text { font-family: var(--body); }
         spm: 'Sett stegene i riktig rekkefølge når du tar ned en pall fra en stabel.',
         ledd: ['Stopp foran stabelen med masten loddrett', 'Løft gaflene til høyden på gaffellommene', 'Kjør sakte inn til lasten ligger mot gaffelryggen', 'Løft lasten så vidt fri fra underlaget', 'Se bak deg og rygg rett ut', 'Senk lasten til kjørehøyde og tilt masten bakover'],
         forklaring: 'Lasten skal være helt ute av stabelen før du senker den. Senker du mens du rygger, kan du rive med deg gods fra stabelen.' },
-      { id: 'ruller', type: 'tavle', min: 6, tittel: 'Ruller, langgods og containere',
+      { id: 'ruller', type: 'tavle', min: 5, tittel: 'Ruller, langgods og containere',
         punkter: ['Ruller transporteres normalt stående, gjerne med en rullklemme. Liggende ruller sikres mot å rulle.', 'Langgods: spre gaflene så langt det går, og legg lasten midt på. I sving svinger godset ut. Se etter folk og reoler.', 'Gaffelforlengere og annet utstyr endrer kapasiteten. Sjekk tilleggsskiltet.', 'Container: sjekk at den står støtt eller at bilen er sikret, at gulvet tåler trucken, og at det er høyde nok inne.'] },
-      { id: 'bil', type: 'tavle', min: 8, tittel: 'Lasting og lossing av bil', fig: 'rampe',
+      { id: 'bil', type: 'tavle', min: 7, tittel: 'Lasting og lossing av bil', fig: 'rampe',
         punkter: ['Bilen skal være sikret mot å flytte seg: brems på, motor av og hjulstopper eller vognsikring.', 'Kjørebroen skal ligge riktig og være låst. Sjekk at bro og lasteplan tåler truck og last.', 'Jernbanevogner og containere: samme regler. Vognen skal være sikret mot å rulle.', 'Avtal med sjåføren. Sjåføren bestemmer hvordan lasten plasseres på bilen.'] },
       { id: 'bilquiz', type: 'quiz', min: 6, tittel: 'På rampa',
         spm: [
@@ -628,9 +632,9 @@ svg text { font-family: var(--body); }
           { s: 'Du skal kjøre inn i en jernbanevogn. Hva sjekker du først?', v: ['At vognen er sikret mot å rulle og at broen ligger riktig', 'At vognen er tom', 'At døren er helt åpen'], r: 0 },
         ],
         forklaring: 'Bilen eller vognen skal være sikret før du kjører inn. Sjåføren har ansvaret for lastsikringen og bestemmer plasseringen på bilen.' },
-      { id: 'signal', type: 'tavle', min: 6, tittel: 'Signalgiving',
+      { id: 'signal', type: 'tavle', min: 5, tittel: 'Signalgiving',
         punkter: ['Når du ikke ser selv, skal en signalperson lede deg med hånd- og armsignaler eller muntlige beskjeder.', 'Signalpersonen skal se hele manøveren uten selv å komme i fare, og skal være lett å kjenne igjen.', 'Signalene skal være tydelige, enkle og avtalt på forhånd.', 'Kan du ikke utføre et signal trygt, stopper du og ber om nye instrukser.'] },
-      { id: 'sleping', type: 'tavle', min: 5, tittel: 'Sleping av tilhengere',
+      { id: 'sleping', type: 'tavle', min: 4, tittel: 'Sleping av tilhengere',
         punkter: ['Bare trucker som er beregnet for det, og bare innenfor tillatt tilhengervekt i bruksanvisningen.', 'Bruk riktig kobling, og sikre den. Ikke stå mellom truck og vogn mens trucken rygger.', 'Tilhengeren skjærer innover i svingene. Ta svingene vidt.', 'Kjør jevnt og brems i god tid. En tung tilhenger skyver på.'] },
       { id: 'exit', type: 'quiz', min: 7, tittel: 'Exit ticket',
         spm: [
@@ -657,9 +661,11 @@ svg text { font-family: var(--body); }
         spm: 'Hvorfor tror du det kreves egen opplæring for å kjøre truck?',
         valg: ['Truck er vanskelig å kjøre', 'Truck er involvert i mange alvorlige ulykker', 'Forsikringsselskapet krever det', 'Arbeidsgiver vil spare penger'], riktig: null,
         forklaring: 'Truck kan gi alvorlige skader på føreren og andre. Derfor krever forskrift om utførelse av arbeid sertifisert sikkerhetsopplæring for truck med fast førerplass.' },
-      { id: 'krav', type: 'tavle', min: 7, tittel: 'Krav til truckføreren',
+      { id: 'film', type: 'tavle', min: 3, tittel: 'Film: Krav til truckføreren', film: { kap: 'Modul 2.2 kapittel 1', fil: 'Mod 2.2 video/Kap 1. Innledning med krav til truckfører.m4v', tid: '2:28' },
+        punkter: ['Hvilke krav stilles til deg som fører?', 'Hva er forskjellen på sertifisert og dokumentert opplæring?'] },
+      { id: 'krav', type: 'tavle', min: 6, tittel: 'Krav til truckføreren',
         punkter: ['Truck med fast førerplass (T2–T8) krever sertifisert sikkerhetsopplæring. T1 krever dokumentert opplæring.', 'I tillegg skal du få opplæring på den trucken du skal bruke.', 'Du må være 18 år for å kjøre truck i arbeid. Elever i videregående kan få opplæring fra 16 år under skolens veiledning.', 'Du må være fysisk og psykisk skikket, med godt syn, god hørsel og god vurderingsevne.', 'Etter bestått teori og praksis får du kompetansebevis for trucktypene du har opplæring på.'] },
-      { id: 'ansvar', type: 'tavle', min: 8, tittel: 'Lover, forskrifter og ansvar',
+      { id: 'ansvar', type: 'tavle', min: 7, tittel: 'Lover, forskrifter og ansvar',
         punkter: ['Arbeidsmiljøloven: arbeidsgiver har hovedansvaret (§ 2-1) og skal sørge for opplæring og instruks (§ 3-2).', 'Arbeidstaker skal bruke verneutstyr, melde fra om feil og avbryte arbeid ved fare (§ 2-3).', 'Bryter du reglene, kan du straffes (§ 19-2).', 'Internkontrollforskriften krever systematisk HMS-arbeid.', 'Forskriftene om utførelse av arbeid, organisering, arbeidsplasser og administrative ordninger regulerer opplæring, bruk og kontroll.', 'Maskinforskriften stiller krav til trucken, og vegtrafikkreglene gjelder på offentlig vei.'] },
       { id: 'ansvarquiz', type: 'quiz', min: 6, tittel: 'Hvem har plikten?',
         spm: [
@@ -671,7 +677,7 @@ svg text { font-family: var(--body); }
           { s: 'Lage skriftlig instruks for arbeid med særlig fare', v: HVEM, r: 0 },
         ],
         forklaring: 'Arbeidsgiver har hovedansvaret og skal sørge for opplæring, instruks og kontroll (§§ 2-1 og 3-2). Arbeidstaker skal bruke verneutstyr, melde fra om feil og avbryte farlig arbeid (§ 2-3).' },
-      { id: 'komponenter', type: 'quiz', min: 8, tittel: 'Truckens deler', fig: 'komponenter',
+      { id: 'komponenter', type: 'quiz', min: 7, tittel: 'Truckens deler', fig: 'komponenter',
         spm: [
           { s: 'Hva er del nummer 3?', v: ['Mast', 'Løftekjede', 'Tiltsylinder'], r: 0 },
           { s: 'Hva er del nummer 5?', v: ['Løftesylinder', 'Tiltsylinder', 'Styrestag'], r: 1 },
@@ -707,6 +713,8 @@ svg text { font-family: var(--body); }
         spm: 'Hvilken type truckulykke tror du er blant de vanligste?',
         valg: ['Påkjørsel, særlig ved rygging', 'Trucken velter', 'Last som faller ned', 'Klemskader'], riktig: 0,
         forklaring: 'Påkjørsler, særlig ved rygging, er blant de vanligste truckulykkene. Derfor skal du alltid se deg bak, og gående og trucker skal holdes fra hverandre.' },
+      { id: 'film', type: 'tavle', min: 3, tittel: 'Film: Ulykker', film: { kap: 'Modul 2.2 kapittel 3', fil: 'Mod 2.2 video/Kap 3. Ulykker.m4v', tid: '2:14' },
+        punkter: ['Hvilke ulykker ser du?', 'Hva var årsakene?'] },
       { id: 'arsak', type: 'tavle', min: 5, tittel: 'Hvorfor skjer ulykker?',
         punkter: ['En ulykke har nesten alltid flere årsaker.', 'Menneske: fart, uoppmerksomhet, holdninger og manglende opplæring.', 'Teknikk: feil på trucken eller utstyr som ikke er kontrollert.', 'Organisasjon og miljø: tidspress, trange lokaler, dårlig lys, og gående og trucker i samme område.'] },
       { id: 'case', type: 'quiz', min: 5, tittel: 'Ulykken i lageret',
@@ -723,11 +731,11 @@ svg text { font-family: var(--body); }
         punkter: ['Du kan selv bli skadet, og mange får psykiske belastninger etter en alvorlig ulykke.', 'Bryter du reglene, kan du straffes med bøter, og i alvorlige tilfeller med fengsel.', 'Arbeidsgiver kan nekte deg å kjøre truck hvis du kjører uforsvarlig.', 'For bedriften: sykefravær, kostnader og gransking.'] },
       { id: 'forsikring', type: 'tavle', min: 4, tittel: 'Forsikring',
         punkter: ['Arbeidsgiver skal ha yrkesskadeforsikring. Den dekker skade på deg uten hensyn til skyld.', 'Truck som brukes på offentlig vei, skal være trafikkforsikret.', 'Bedriftens forsikringer har vilkår med sikkerhetsregler. Brytes de, kan erstatningen bli mindre.'] },
-      { id: 'forebygg', type: 'tavle', min: 5, tittel: 'Forebygg ulykker',
+      { id: 'forebygg', type: 'tavle', min: 4, tittel: 'Forebygg ulykker',
         punkter: ['Risikovurdering og sikker jobbanalyse før arbeid med fare.', 'Kjøreregler og merkede kjøreveier og gangveier.', 'Daglig kontroll, og feil rettes før trucken brukes.', 'Utstyr som ryggealarm, blått varsellys og kamera.', 'Holdninger: en ulykke skjer ikke, den forårsakes.'] },
       { id: 'rapport', type: 'tavle', min: 4, tittel: 'Rapportering av uhell',
         punkter: ['Meld fra til leder om alle uhell, også skader på utstyr, reoler og gods.', 'Arbeidsgiver skal registrere alle personskader.', 'Ved dødsfall eller alvorlig skade skal arbeidsgiver straks varsle Arbeidstilsynet og politiet.', 'Rapporter nestenulykker også.'] },
-      { id: 'nyhet', type: 'tavle', min: 6, tittel: 'Fra virkeligheten',
+      { id: 'nyhet', type: 'tavle', min: 4, tittel: 'Fra virkeligheten',
         punkter: ['Hva skjedde?', 'Hvilke årsaker ser du: menneske, teknikk, organisasjon?', 'Hva kunne ha hindret ulykken?', 'Hvem måtte varsles?'] },
       { id: 'exit', type: 'quiz', min: 4, tittel: 'Exit ticket',
         spm: [
@@ -748,12 +756,14 @@ svg text { font-family: var(--body); }
     mal: [2],
     steg: [
       { id: 'inn', type: 'velkommen', min: 2, tittel: 'Kontroll og rapportering' },
-      { id: 'mandag', type: 'valg', min: 4, tittel: 'Mandag morgen',
+      { id: 'mandag', type: 'valg', min: 3, tittel: 'Mandag morgen',
         spm: 'Trucken var i orden da den ble parkert på fredag. Nå er det mandag morgen, og du skal kjøre. Hvem skal sjekke at den er i orden?',
         valg: ['Verkstedet', 'Du, med daglig kontroll før du kjører', 'Arbeidsgiveren, én gang i uka', 'Ingen, den var jo i orden på fredag'], riktig: 1,
         forklaring: 'Føreren gjør daglig kontroll før bruk. Det kan ha skjedd noe siden sist: en lekkasje, en skade fra en annen fører eller et flatt dekk.' },
-      { id: 'tre', type: 'tavle', min: 7, tittel: 'Tre typer kontroll', fig: 'kontroller',
+      { id: 'tre', type: 'tavle', min: 6, tittel: 'Tre typer kontroll', fig: 'kontroller',
         punkter: ['Daglig kontroll gjør du som fører før du kjører.', 'Periodisk kontroll og vedlikehold gjøres etter faste intervaller av folk med opplæring.', 'Sakkyndig kontroll gjøres av en sertifisert sakkyndig virksomhet, minst hver 12. måned.', 'Arbeidsgiveren har ansvaret for at alle tre blir gjort.'] },
+      { id: 'film', type: 'tavle', min: 2, tittel: 'Film: Kontroll og rapportering', film: { kap: 'Modul 2.2 kapittel 5', fil: 'Mod 2.2 video/Kap 5. Kontroll og rapportering.m4v', tid: '1:03' },
+        punkter: ['Hva sjekkes i filmen?', 'Hva gjør føreren når noe er galt?'] },
       { id: 'daglig', type: 'tavle', min: 7, tittel: 'Daglig kontroll',
         punkter: ['Gå rundt trucken: ytre skader, dekk og felger, og lekkasjer under trucken.', 'Væsker og energi: olje og kjølevæske på forbrenningsmotor, batteri og lading på elektrisk truck, gassflaske og kobling på gasstruck.', 'Løftesystemet: mast, kjeder, gaffelvogn og gaffelarmer, uten sprekker, skjevheter eller slakke kjeder.', 'Fra førersetet: instrumenter, horn, lys og varsellamper, setebelte eller annen fastholding.', 'Funksjonstest: styring, bremser og parkeringsbrems, løft, senk og tilt, og hydraulikken uten lekkasjer.', 'Registrer kontrollen i Daglig kontroll-appen. Det du ikke har sjekket, vet du ikke.'] },
       { id: 'rekke', type: 'rekkefolge', min: 4, tittel: 'Daglig kontroll i rekkefølge',
@@ -812,10 +822,12 @@ svg text { font-family: var(--body); }
         spm: 'Du skal kjøre trucken 200 meter langs en offentlig vei til lageret ved siden av. Hva må være på plass?',
         valg: ['Bare kompetansebeviset for truck', 'Riktig førerkort, og trucken og lasten må følge trafikkreglene', 'Ingenting, det er så kort', 'Varsellys på taket'], riktig: 1,
         forklaring: 'På offentlig vei gjelder vegtrafikkloven. Du trenger førerkort som passer for trucken og lastens totalvekt, og lasten må være sikret og innenfor tillatt bredde. Kompetansebeviset gjelder bruken av trucken, ikke kjøring på vei.' },
-      { id: 'veitavle', type: 'tavle', min: 3, tittel: 'Trucken på offentlig vei',
+      { id: 'veitavle', type: 'tavle', min: 2, tittel: 'Trucken på offentlig vei',
         punkter: ['Vegtrafikkloven gjelder: kjør hensynsfullt og vær aktpågivende (§ 3).', 'Du trenger førerkort som passer for trucken og lastens totalvekt.', 'Lasten skal være sikret og innenfor tillatt bredde. Utstikkende gafler skal merkes.', 'Bedriftens egne regler kan gjelde i tillegg.'] },
-      { id: 'kjoring', type: 'tavle', min: 5, tittel: 'Kjøring på arbeidsplassen',
+      { id: 'kjoring', type: 'tavle', min: 4, tittel: 'Kjøring på arbeidsplassen',
         punkter: ['Tilpass farten etter sikt, underlag, last og folk rundt deg.', 'Kjør med lasten senket. Hindrer lasten sikten, rygger du eller bruker en medhjelper.', 'Hold avstand, gjerne tre trucklengder til trucken foran.', 'Kjøreveier og gangveier skal være skilt fra hverandre der det er mulig. Respekter merkingen.', 'Ingen passasjerer, og ingen skal gå under løftet last.', 'Heis: sjekk at heisen tåler truck, last og fører. Kjør inn med lasten først.'] },
+      { id: 'film', type: 'tavle', min: 4, tittel: 'Film: Bruks- og sikkerhetsbestemmelser', film: { kap: 'Modul 2.2 kapittel 8', fil: 'Mod 2.2 video/Kap 8. - Bruk- og sikkerhetsbestemmelser.m4v', tid: '3:30' },
+        punkter: ['Hvilke farlige situasjoner ser du?', 'Hva gjør føreren riktig?'] },
       { id: 'kjorquiz', type: 'quiz', min: 4, tittel: 'Hva gjør du?',
         spm: [
           { s: 'Lasten er så høy at du ikke ser framover. Hva gjør du?', v: ['Kjører sakte og tuter', 'Rygger, eller bruker en medhjelper', 'Løfter lasten så du ser under den'], r: 1 },
@@ -831,7 +843,7 @@ svg text { font-family: var(--body); }
         forklaring: 'Gafler som står oppe eller stikker opp, er en snublefare og kan skade folk. Nøkkelen tas ut så ingen uten opplæring kan bruke trucken.' },
       { id: 'brann', type: 'tavle', min: 3, tittel: 'Brann- og eksplosjonsfare',
         punkter: ['I områder merket som eksplosjonsfarlige (Ex) skal bare Ex-godkjente trucker brukes.', 'En vanlig truck kan lage gnister og varme som tenner gass, damp eller støv.', 'Vit hvor nærmeste brannslukker er, og hvordan den brukes.', 'Sølt drivstoff og olje tørkes opp med en gang.'] },
-      { id: 'fylling', type: 'tavle', min: 7, tittel: 'Drivstoff, gass og lading',
+      { id: 'fylling', type: 'tavle', min: 6, tittel: 'Drivstoff, gass og lading',
         punkter: ['Diesel: motoren av, ingen røyking eller åpen flamme, og tørk opp søl.', 'Propan: bytt flaske på et godt ventilert sted, med motoren av og hansker på. Gassen er tyngre enn luft og samler seg i groper og kjellere.', 'Lekkasjesøk aldri med flamme. Bruk lekkasjespray eller såpevann.', 'Lading av blybatteri: ventilert ladeplass, lokket åpent og røyking forbudt. Ved lading dannes knallgass, som er svært eksplosiv.', 'Slå av laderen før du kobler fra, og fyll destillert vann etter lading. Bruk briller og hansker.', 'Litium-ion-batterier: følg produsentens regler. De skal ikke etterfylles.'] },
       { id: 'fyllquiz', type: 'quiz', min: 4, tittel: 'Gass og lading',
         spm: [
@@ -840,7 +852,7 @@ svg text { font-family: var(--body); }
           { s: 'Hva må du gjøre før du kobler laderen fra batteriet?', v: ['Slå av laderen', 'Fylle vann', 'Ingenting'], r: 0 },
           { s: 'Hvorfor er det røykeforbud på ladeplassen?', v: ['Røyk skader batteriet', 'Det dannes knallgass, som er svært eksplosiv', 'Det er bare en ordensregel'], r: 1 },
         ] },
-      { id: 'exit', type: 'quiz', min: 4, tittel: 'Exit ticket',
+      { id: 'exit', type: 'quiz', min: 3, tittel: 'Exit ticket',
         spm: [
           { s: 'Hva trenger du for å kjøre trucken på offentlig vei?', v: ['Bare kompetansebevis', 'Riktig førerkort, og du må følge trafikkreglene', 'Tillatelse fra kommunen'], r: 1 },
           { s: 'Når kan en person løftes med en vanlig truckpall?', v: ['Når det går fort', 'Aldri. Personløft skal skje med utstyr som er beregnet for det', 'Når en kollega holder øye med det'], r: 1 },
@@ -1227,6 +1239,49 @@ svg text { font-family: var(--body); }
       slutt: { gjor: 'Neste leksjon er truckens konstruksjon og virkemåte.' },
     },
   });
+  // Filmstegene: Noorsi-filmene spilles av fra lærerens PC (mappa Truck ekstra). De legges ikke ut.
+  const filmNotat = (gjor, spor) => ({ gjor: 'Spill av filmen fra PC-en. ' + gjor, spor, kilde: 'Noorsi-film, se filnavnet over. Kvalitetshåndboka pkt. 6.8: video i hver leksjon.' });
+  Object.assign(NOTATER['m22-1'], { film: filmNotat('Be elevene se etter kravene til føreren.', ['Hvilke krav overrasket dere?']) });
+  Object.assign(NOTATER['m22-3'], { film: filmNotat('Stopp gjerne etter hver ulykke og spør hva som gikk galt.', ['Hvilken ulykke var mest overraskende?']) });
+  Object.assign(NOTATER['m22-5'], { film: filmNotat('Filmen er kort. Bruk den som overgang til daglig kontroll.', ['Hva sjekket føreren først?']) });
+  Object.assign(NOTATER['m22-6'], { film: filmNotat('Filmen oppsummerer hele leksjonen. Vis den etter kreftene, før quizen.', ['Hva i filmen kjente dere igjen fra vippa og trekanten?']) });
+  Object.assign(NOTATER['m22-7'], { film: filmNotat('Vis filmen før rekkefølgeoppgavene, så elevene har sett stablingen.', ['Hva gjorde føreren før han rygget ut?']) });
+  Object.assign(NOTATER['m22-8'], { film: filmNotat('Be elevene notere farlige situasjoner de ser.', ['Hvilke av situasjonene har dere sett selv?']) });
+
+  // Tillegg fra oppgavesamlingen for modul 2.2 (Truck ekstra). Fasiten der er sjekket mot kildene;
+  // der den er feil, står det under «Vanlige misforståelser».
+  const OPPG = 'Oppgavesamling modul 2.2 (Truck ekstra).';
+  const TILLEGG = {
+    'm22-1': {
+      krav: { si: ['Kompetansebeviset trenger ikke fornyes. Mister du det, får du nytt fra bevisregisteret eller opplæringsvirksomheten.', 'Bare offentlige myndigheter kan gi dispensasjon fra forskriftene.'] },
+      ansvar: { feil: ['Oppgavesamlingen har både «Ja» og «Nei» markert på om truckføreren kan få fengselsstraff. Riktig er ja (§ 19-2).'] },
+    },
+    'm22-5': {
+      daglig: { si: ['Arbeidsgiver skal innføre rutiner for daglig kontroll. Føreren trenger ingen spesiell teknisk utdanning, men må kjenne trucken.', 'Tommelfingerregler: gaffelarmer kasseres ved rundt 10 % slitasje og løftekjeder ved rundt 2 % forlengelse. Følg produsentens anvisning.', 'Ryker en løftekjede, faller gaffelvognen. Slangebruddsventilen hjelper bare når en hydraulikkslange ryker.'] },
+      sakkyndig: { si: ['Den sakkyndige kan ikke gi dispensasjon til å kjøre med sikkerhetsfeil.', 'Arbeidsgiver oppbevarer dokumentasjonen og kontrollboka (§ 13-4).'] },
+    },
+    'm22-6': {
+      trekant: { feil: ['Oppgavesamlingen markerer «firkantet» som støtteflate for en firehjuls motvektstruck. Med pendelaksel er den en trekant, som på en trehjuls truck (Truck ABC s. 193).'] },
+      skilt: { si: ['Kapasiteten forutsetter at lasten ligger på begge gaflene. Med bare én gaffel er kapasiteten lavere.'] },
+      krefter: { si: ['Kraften som virker ved bremsing, kalles treghetskraft.'] },
+      utstyr: { si: ['Kapasiteten synker både på grunn av utstyrets vekt og fordi frontoverhenget blir større.'] },
+    },
+    'm22-7': {
+      lastbaerere: { si: ['Gaflene skal være vannrette når pallen løftes, så vekten fordeles jevnt på dem.'] },
+      stabling: { si: ['Reolstabling gir størst fleksibilitet.'] },
+      bil: { si: ['Truckføreren har ansvaret for å sjekke at kjørebroen og rampen tåler truck og last.'] },
+    },
+    'm22-8': {
+      veitavle: { si: ['Truck er et motorredskap etter kjøretøyforskriften.', 'På offentlig vei skal trucken ha lyd- og lyssignaler etter vegtrafikkreglene.'] },
+      kjoring: { si: ['Har trucken setebelte, skal det brukes. Fritak krever at arbeidsgiver har risikovurdert forholdene.'] },
+    },
+  };
+  for (const [l, steg] of Object.entries(TILLEGG)) for (const [id, t] of Object.entries(steg)) {
+    const n = NOTATER[l][id] = NOTATER[l][id] || {};
+    if (t.si) n.si = (n.si || []).concat(t.si);
+    if (t.feil) n.feil = (n.feil || []).concat(t.feil);
+    n.kilde = (n.kilde ? n.kilde + ' ' : '') + OPPG;
+  }
   for (const l of [STAB, GODS, BRUK, KONTROLL, INNLED, ULYKKER]) for (const st of l.steg) st.notat = (NOTATER[l.id] || {})[st.id] || null;
 
   // Fasit for aktivitetene, slik læreren ser den i notatene.
@@ -1241,6 +1296,7 @@ svg text { font-family: var(--body); }
   function notatHTML(st, leks) {
     const n = st.notat || {}, liste = a => `<ul>${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
     let h = `<p class="small muted">${st.min} min${AKTIV.includes(st.type) ? ' · aktivitet' : ''}</p>`;
+    if (st.film) h += `<h3>Film</h3><p>${esc(st.film.kap)} · ${esc(st.film.tid)}<br><span class="small">Fil: Truck ekstra/${esc(st.film.fil)}</span></p>`;
     if (n.gjor) h += `<h3>Gjør</h3><p>${esc(n.gjor)}</p>`;
     if (n.si && n.si.length) h += `<h3>Fagstoff å bygge på</h3>${liste(n.si)}`;
     if (n.spor && n.spor.length) h += `<h3>Spør klassen</h3>${liste(n.spor)}`;
@@ -1540,6 +1596,9 @@ svg text { font-family: var(--body); }
     oppdaterSvar();
   }
 
+  function filmKort(fl) {
+    return `<div class="figbox" style="display:grid;gap:8px;border-left:6px solid var(--accent)"><span class="small muted">Film fra Noorsi · ${esc(fl.kap)}</span><b style="font-size:clamp(22px,2.2vw,32px)">▶ ${esc(fl.tid)}</b><span class="small muted">Spilles av fra lærerens PC</span></div>`;
+  }
   function figStatisk(f) {
     const box = x => `<div class="figbox">${x}</div>`;
     return f === 'skilt' ? figSkilt() : f === 'tpa' ? box(figTpa()) : f === 'trekant' ? box(figTrekant()) :
@@ -1547,6 +1606,7 @@ svg text { font-family: var(--body); }
       f === 'komponenter' ? box(figKomponenter()) : '';
   }
   function figTavle(st, pre = 'tv') {
+    if (st.film) return filmKort(st.film);
     if (st.fig === 'vippe') {
       return `<div class="figbox"><div id="${pre}-vippe"></div><div class="ctl"><label for="${pre}-sl-m">Last</label><input type="range" id="${pre}-sl-m" min="0" max="4000" step="100" value="${T.fig.m}"><output id="${pre}-o-m"></output><label for="${pre}-sl-d">TPA</label><input type="range" id="${pre}-sl-d" min="400" max="1200" step="50" value="${T.fig.tpa}"><output id="${pre}-o-d"></output></div><p class="status" id="${pre}-vstatus"></p></div>`;
     }
