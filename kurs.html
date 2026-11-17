@@ -484,6 +484,9 @@ svg text { font-family: var(--body); }
   }
 
   const SIM_URL = 'https://seiknes-ui.github.io/simmulator/truck/';
+  // Daglig kontroll-appen (Truck-repoet). Elevene skanner QR-merket på trucken; /status viser avvik uten innlogging.
+  const DK_URL = 'https://purple-stone-0b7157e1e.7.azurestaticapps.net';
+  const knapp = (url, tekst) => `<a style="display:inline-block;padding:14px 22px;border-radius:4px;background:var(--accent);color:var(--on-accent);font-weight:700;text-decoration:none" href="${url}" target="_blank" rel="noopener">${esc(tekst)}</a>`;
 
   // ---------- Kursinnhold ----------
   // Stien følger emnelistene i opplæringsplanene for modul 1 (august 2023) og modul 2.2 (juni 2022).
@@ -632,28 +635,31 @@ svg text { font-family: var(--body); }
         forklaring: 'Føreren gjør daglig kontroll før bruk. Det kan ha skjedd noe siden sist: en lekkasje, en skade fra en annen fører eller et flatt dekk.' },
       { id: 'tre', type: 'tavle', min: 7, tittel: 'Tre typer kontroll', fig: 'kontroller',
         punkter: ['Daglig kontroll gjør du som fører før du kjører.', 'Periodisk kontroll og vedlikehold gjøres etter faste intervaller av folk med opplæring.', 'Sakkyndig kontroll gjøres av en sertifisert sakkyndig virksomhet, minst hver 12. måned.', 'Arbeidsgiveren har ansvaret for at alle tre blir gjort.'] },
-      { id: 'daglig', type: 'tavle', min: 9, tittel: 'Daglig kontroll',
-        punkter: ['Gå rundt trucken: ytre skader, dekk og felger, og lekkasjer under trucken.', 'Væsker og energi: olje og kjølevæske på forbrenningsmotor, batteri og lading på elektrisk truck, gassflaske og kobling på gasstruck.', 'Løftesystemet: mast, kjeder, gaffelvogn og gaffelarmer, uten sprekker, skjevheter eller slakke kjeder.', 'Fra førersetet: instrumenter, horn, lys og varsellamper, setebelte eller annen fastholding.', 'Funksjonstest: styring, bremser og parkeringsbrems, løft, senk og tilt, og hydraulikken uten lekkasjer.', 'Fyll ut sjekklisten. Det du ikke har sjekket, vet du ikke.'] },
-      { id: 'rekke', type: 'rekkefolge', min: 5, tittel: 'Daglig kontroll i rekkefølge',
+      { id: 'daglig', type: 'tavle', min: 7, tittel: 'Daglig kontroll',
+        punkter: ['Gå rundt trucken: ytre skader, dekk og felger, og lekkasjer under trucken.', 'Væsker og energi: olje og kjølevæske på forbrenningsmotor, batteri og lading på elektrisk truck, gassflaske og kobling på gasstruck.', 'Løftesystemet: mast, kjeder, gaffelvogn og gaffelarmer, uten sprekker, skjevheter eller slakke kjeder.', 'Fra førersetet: instrumenter, horn, lys og varsellamper, setebelte eller annen fastholding.', 'Funksjonstest: styring, bremser og parkeringsbrems, løft, senk og tilt, og hydraulikken uten lekkasjer.', 'Registrer kontrollen i Daglig kontroll-appen. Det du ikke har sjekket, vet du ikke.'] },
+      { id: 'rekke', type: 'rekkefolge', min: 4, tittel: 'Daglig kontroll i rekkefølge',
         spm: 'Sett stegene i en fornuftig rekkefølge for daglig kontroll.',
-        ledd: ['Gå rundt trucken og se etter skader, dekk og lekkasjer', 'Sjekk olje, kjølevæske eller batteri', 'Sett deg i førersetet og sjekk instrumenter, horn og lys', 'Test styring, bremser og parkeringsbrems', 'Test løft, senk og tilt', 'Fyll ut sjekklisten og meld fra om feil'],
-        forklaring: 'Først det du ser utenfra, så det du sjekker fra førersetet, så funksjonstesten. Sjekklisten fylles ut til slutt, og feil meldes med en gang.' },
-      { id: 'praksis', type: 'tavle', min: 15, tittel: 'Daglig kontroll i praksis',
-        punkter: ['Gå ut til trucken to og to.', 'Én gjør kontrollen og sier høyt hva som sjekkes. Den andre følger med på sjekklisten.', 'Bytt roller.', 'Skriv ned alt dere finner, selv det som virker lite.'] },
+        ledd: ['Gå rundt trucken og se etter skader, dekk og lekkasjer', 'Sjekk olje, kjølevæske eller batteri', 'Sett deg i førersetet og sjekk instrumenter, horn og lys', 'Test styring, bremser og parkeringsbrems', 'Test løft, senk og tilt', 'Send kontrollen i appen og meld fra om feil'],
+        forklaring: 'Først det du ser utenfra, så det du sjekker fra førersetet, så funksjonstesten. Kontrollen sendes til slutt, og feil meldes med en gang.' },
+      { id: 'praksis', type: 'tavle', min: 20, tittel: 'Daglig kontroll på trucken',
+        lenke: [DK_URL, 'Åpne Daglig kontroll'],
+        punkter: ['Gå ut til truckene to og to. Hvert par tar én truck.', 'Skann QR-koden på trucken med telefonen. Da åpnes sjekklisten for den trucken.', 'Gå til hvert kontrollpunkt og skann merket der. Får du ikke skannet, bekrefter du punktet i appen.', 'Marker OK eller Ikke OK. Ved Ikke OK skriver du hva som er galt, og tar gjerne bilde.', 'Send kontrollen. Bytt roller og ta en truck til hvis det er tid.'] },
+      { id: 'funn', type: 'tavle', min: 5, tittel: 'Hva fant dere?', fig: 'status',
+        punkter: ['Truckstatusen viser kontrollene dere sendte og avvikene dere fant.', 'Hvilke feil fant dere? Fant alle de samme?', 'Hvilke av avvikene betyr at trucken skal tas ut av bruk?'] },
       { id: 'feil', type: 'tavle', min: 6, tittel: 'Når du finner en feil',
         punkter: ['Feil som har betydning for sikkerheten: trucken tas ut av bruk straks og brukes ikke før feilen er rettet (§ 12-5).', 'Meld fra til nærmeste leder, og skriv feilen i kontrollskjemaet.', 'Merk trucken, for eksempel med «ute av drift», og ta ut nøkkelen så ingen andre bruker den.', 'Skader og uhell meldes, også de som ikke førte til personskade.'] },
-      { id: 'feilquiz', type: 'quiz', min: 6, tittel: 'Hva gjør du?',
+      { id: 'feilquiz', type: 'quiz', min: 5, tittel: 'Hva gjør du?',
         spm: [
           { s: 'Bremsen tar dårlig når du tester den. Hva gjør du?', v: ['Kjører forsiktig resten av dagen', 'Tar trucken ut av bruk og melder fra', 'Bruker parkeringsbremsen i stedet'], r: 1 },
           { s: 'Hornet virker ikke. Hva gjør du?', v: ['Ingenting, du kan rope', 'Tar trucken ut av bruk og melder fra', 'Bruker den, men kjører ikke i kryss'], r: 1 },
           { s: 'En løftekjede har et sprukket ledd. Hva gjør du?', v: ['Tar trucken ut av bruk og melder fra', 'Løfter bare lette laster', 'Smører kjedet'], r: 0 },
         ],
         forklaring: 'Bremser, horn og løftekjeder har betydning for sikkerheten. Da skal trucken ut av bruk til feilen er rettet.' },
-      { id: 'periodisk', type: 'tavle', min: 7, tittel: 'Periodisk kontroll og vedlikehold',
+      { id: 'periodisk', type: 'tavle', min: 6, tittel: 'Periodisk kontroll og vedlikehold',
         punkter: ['Arbeidsgiveren skal sørge for periodisk kontroll av utstyr som slites og kan bli farlig (§ 12-3).', 'Kontroll og vedlikehold skal bare gjøres av folk med nødvendig opplæring (§ 12-2).', 'Følg produsentens serviceintervaller i bruksanvisningen.', 'Vedlikehold gjøres med trucken stanset og energien frakoblet (§ 12-6).', 'Det skal komme tydelig fram hva som er kontrollert og av hvem. Journalen skal være tilgjengelig for verneombudet, AMU og tilsynet (§ 12-8).'] },
-      { id: 'sakkyndig', type: 'tavle', min: 9, tittel: 'Sakkyndig kontroll',
+      { id: 'sakkyndig', type: 'tavle', min: 8, tittel: 'Sakkyndig kontroll',
         punkter: ['Truck (løfte- og stablevogn for gods) skal ha sakkyndig kontroll (§ 13-1).', 'Minst hver 12. måned, og dessuten etter 6 måneder ute av bruk, etter betydelig overbelastning, etter større reparasjoner og når miljøet krever det (§ 13-2).', 'Kontrollen gjøres av en sertifisert sakkyndig virksomhet, uavhengig av bedriften.', 'Den sakkyndige sjekker slitedeler, gjør funksjonskontroll med last, kontrollerer verneinnretninger og at instruksjonene finnes.', 'Bedriften får en attest om at trucken er fullt forsvarlig å bruke. Dokumentasjonen følger trucken ved salg (§ 13-4).'] },
-      { id: 'hvilken', type: 'quiz', min: 9, tittel: 'Hvilken kontroll?',
+      { id: 'hvilken', type: 'quiz', min: 7, tittel: 'Hvilken kontroll?',
         spm: [
           { s: 'Sjekke at hornet og bremsene virker før skiftet', v: HVILKEN, r: 0 },
           { s: 'Service og smøring etter et bestemt antall driftstimer', v: HVILKEN, r: 1 },
@@ -663,7 +669,7 @@ svg text { font-family: var(--body); }
           { s: 'Det har gått tolv måneder siden siste attest', v: HVILKEN, r: 2 },
         ],
         forklaring: 'Daglig kontroll er førerens sjekk før bruk. Periodisk kontroll og vedlikehold følger serviceintervallene. Sakkyndig kontroll kreves minst hver 12. måned og i tillegg etter lang tid ute av bruk, stor overbelastning eller større reparasjoner.' },
-      { id: 'exit', type: 'quiz', min: 8, tittel: 'Exit ticket',
+      { id: 'exit', type: 'quiz', min: 6, tittel: 'Exit ticket',
         spm: [
           { s: 'Hvem gjør den daglige kontrollen?', v: ['Verkstedet', 'Føreren', 'Den sakkyndige'], r: 1 },
           { s: 'Hva skjer med en truck som har en feil som har betydning for sikkerheten?', v: ['Den kan brukes forsiktig', 'Den tas ut av bruk til feilen er rettet', 'Den brukes til feilen er meldt'], r: 1 },
@@ -969,8 +975,8 @@ svg text { font-family: var(--body); }
         kilde: 'Forskrift om utførelse av arbeid kap. 12 og 13. Forskrift om administrative ordninger §§ 8-6 og 8-7.',
       },
       daglig: {
-        gjor: 'Vis gjerne bedriftens eller skolens egen sjekkliste, og sammenlign med punktene.',
-        si: ['Sjekklisten følger bruksanvisningen. Ulike trucker har ulike punkter.', 'Se etter sprekker i gaffelarmene, særlig i knekken, og at gaflene er like lange og låst.', 'Løftekjeder: like stramme, uten rust, skadde ledd eller sprukne bolter.', 'Hydraulikk: oljelekkasjer ved sylindere, slanger og koblinger.', 'Dekk: skader, slitasje og riktig lufttrykk på luftgummihjul. Feil lufttrykk gir dårligere stabilitet.'],
+        gjor: 'Gå gjennom punktene. Fortell at kontrollpunktene i Daglig kontroll-appen er merket med QR-koder på selve trucken, og at de skal skannes ute om litt.',
+        si: ['Kontrollpunktene i appen følger truckkategorien. En el-truck har andre punkter enn en dieseltruck.', 'At hvert punkt skannes på trucken, viser at føreren faktisk har vært der og sett på det.', 'Se etter sprekker i gaffelarmene, særlig i knekken, og at gaflene er like lange og låst.', 'Løftekjeder: like stramme, uten rust, skadde ledd eller sprukne bolter.', 'Hydraulikk: oljelekkasjer ved sylindere, slanger og koblinger.', 'Dekk: skader, slitasje og riktig lufttrykk på luftgummihjul. Feil lufttrykk gir dårligere stabilitet.'],
         spor: ['Hvilke feil tror dere er vanligst?'],
         kilde: 'Truck ABC s. 151–164 (sjekkliste med 8 punkter, mest bilder). Opplæringsplan modul 2.2, leksjon 5.',
       },
@@ -979,8 +985,15 @@ svg text { font-family: var(--body); }
         feil: ['Å teste bremser og løft før man har sett etter lekkasjer og skader.'],
       },
       praksis: {
-        gjor: 'Har dere en truck tilgjengelig, gå ut og gjør daglig kontroll i par med bedriftens eller skolens sjekkliste. Har dere ikke det, bruk bilder eller film og la elevene peke ut punktene.',
-        si: ['La elevene si høyt hva de sjekker og hva de ser etter.', 'Legg gjerne inn en feil på forhånd, for eksempel en løs gaffellås eller et skilt som mangler, og se om de finner den.'],
+        gjor: 'Gå ut til truckene. Gi elevene PIN-koden til appen muntlig eller på en lapp, ikke på tavla. Elevene skanner QR-koden på trucken med telefonkameraet, eller trykker «Åpne Daglig kontroll» på telefonen og skanner i appen.',
+        si: ['Første gang ber telefonen om tilgang til kameraet. Elevene må svare ja for å skanne.', 'Får de ikke skannet et merke, kan punktet bekreftes manuelt i appen.', 'Ved Ikke OK må eleven skrive en kommentar før kontrollen kan sendes. Et bilde gjør avviket lettere å forstå for den som skal rette det.', 'La den som kontrollerer si høyt hva som sjekkes, mens den andre følger med.', 'Legg gjerne inn en feil på forhånd, for eksempel en løs gaffellås, et manglende skilt eller lavt lufttrykk, og se hvem som finner den.'],
+        spor: ['Hva ville dere gjort hvis dere fant en sikkerhetsfeil på en truck som skulle brukes nå?'],
+        kilde: 'Daglig kontroll-appen (Truck-repoet). Forskrift om utførelse av arbeid §§ 12-3 til 12-5.',
+      },
+      funn: {
+        gjor: 'Vis truckstatusen på tavla. Åpne gjerne admin-siden i appen på din egen PC og vis kontrollene med kommentarer og bilder.',
+        si: ['Gå gjennom avvikene ett for ett: har det betydning for sikkerheten? Da skal trucken ut av bruk (§ 12-5).', 'Sammenlign parene som kontrollerte samme truck. Fant alle feilen du la inn?', 'Kontrollene er dokumentasjon: hva som er sjekket, når og av hvem. Det er det § 12-8 krever av dokumentasjon.'],
+        kilde: 'Forskrift om utførelse av arbeid §§ 12-5 og 12-8.',
       },
       feil: {
         si: ['§ 12-5: arbeidsutstyr skal straks tas ut av bruk hvis det oppdages feil som har betydning for sikkerheten, og skal ikke brukes før feilen er rettet.', 'Arbeidstakeren har plikt til å melde fra om feil og mangler som kan føre til fare (arbeidsmiljøloven § 2-3).', 'Rapporter også nestenulykker. De viser hvor neste ulykke kan skje.'],
@@ -1307,9 +1320,15 @@ svg text { font-family: var(--body); }
         h += ART
           ? `<p class="ingress">Åpne simulatoren i en egen fane og del den skjermen.</p><p><a class="primary" style="display:inline-block;padding:14px 22px;border-radius:4px;background:var(--accent);color:var(--on-accent);font-weight:700;text-decoration:none" href="${SIM_URL}" target="_blank" rel="noopener">Åpne truckstabilitet-simulatoren</a></p>`
           : `<iframe class="sim" src="${SIM_URL}" title="Truckstabilitet-simulatoren"></iframe>`;
+      } else if (st.fig === 'status') {
+        // Truckstatus fra Daglig kontroll live på tavla. På claude.ai kan den ikke bygges inn, så der blir den en lenke.
+        const ph = `<ul class="punkter">${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul>`;
+        h += ART ? ph + `<p>${knapp(DK_URL + '/status', 'Åpne truckstatus')}</p>`
+          : `<div class="tv-grid"><iframe class="sim" src="${DK_URL}/status" title="Truckstatus fra Daglig kontroll"></iframe>${ph}</div>`;
       } else {
         const fh = figTavle(st), ph = st.punkter ? `<ul class="punkter">${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : '';
         h += fh && ph ? `<div class="tv-grid"><div>${fh}</div>${ph}</div>` : fh || ph;
+        if (st.lenke) h += `<p>${knapp(st.lenke[0], st.lenke[1])}</p>`;
       }
       if (st.type === 'slutt') h += `<h3>Exit ticket</h3><div id="tv-svar"></div>`;
       el.innerHTML = h;
@@ -1602,8 +1621,10 @@ svg text { font-family: var(--body); }
     if (!E.live) h += `<div class="qnav">${E.leks.steg.map((s, i) => `<span class="${i < E.i ? 'done' : i === E.i ? 'cur' : ''}"></span>`).join('')}</div>`;
     h += `<div class="card"><p class="small muted" style="margin:0 0 4px">${esc(E.leks.tittel)} · steg ${E.i + 1} av ${E.leks.steg.length}</p><h2>${esc(st.tittel)}</h2>`;
     if (!akt) {
-      if (E.live && st.type !== 'slutt') h += `<div class="vent"><div class="ikon">👀</div><p>Følg med på tavla.</p></div>`;
-      if (st.punkter && (!E.live || st.type === 'slutt')) h += `<div class="les"><ul>${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>`;
+      // Steg med lenke (for eksempel Daglig kontroll-appen) viser punktene og knappen på telefonen.
+      if (E.live && st.type !== 'slutt' && !st.lenke) h += `<div class="vent"><div class="ikon">👀</div><p>Følg med på tavla.</p></div>`;
+      if (st.punkter && (!E.live || st.type === 'slutt' || st.lenke)) h += `<div class="les"><ul>${st.punkter.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>`;
+      if (st.lenke) h += `<p style="margin-top:14px">${knapp(st.lenke[0], st.lenke[1])}</p>`;
       if (!E.live && st.fig && st.fig !== 'sim') h += figElevLes(st.fig);
       if (!E.live && st.fig === 'sim') h += `<p><a href="${SIM_URL}" target="_blank" rel="noopener">Åpne simulatoren</a> og prøv selv.</p>`;
       if (st.type === 'velkommen') h += `<p class="muted">${E.live ? 'Når læreren går videre, kommer oppgavene her.' : 'Gå gjennom leksjonen i ditt eget tempo.'}</p>`;
