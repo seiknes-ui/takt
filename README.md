@@ -69,7 +69,7 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
 - **Innsamling**: verktøyene laster `https://seiknes-ui.github.io/simmulator/kvalitet/kvalitet.js` og kaller `Kvalitet.logg(verktøy, hendelse, { k, t, a, m })`. Hendelsene sendes samlet med `sendBeacon` som `text/plain` til `POST /api/kvalitet`, så det trengs ingen CORS-oppsett. Feiler sendingen, virker verktøyet som før.
 - **Personvern**: det lagres ingen navn, ingen IP-adresse og bare dato, ikke klokkeslett. Bare kjente verktøy (`VERKTOY` i `api/src/functions/kvalitet.js`) og felt godtas, tekst kuttes, og hver IP kan sende høyst 400 hendelser per 10 minutter. Dataene slettes automatisk etter 400 dager.
 - **Lagring**: containeren `kvalitet` (partisjonsnøkkel `/v`) i databasen `takt`, innenfor den delte gratisgjennomstrømningen.
-- **Oversikt**: `GET /api/kvalitet/oversikt?dager=30` krever lærertoken og gir tellinger gruppert per verktøy, hendelse, nøkkel og svar. Siden viser vanskeligste spørsmål med vanligste feilsvar, prøveresultater, maskinskilt-oppgaver, velting og bruk av simulatorene, og kan laste ned CSV.
+- **Oversikt**: `GET /api/kvalitet/oversikt?dager=30` krever lærertoken og gir tellinger gruppert per verktøy, hendelse, nøkkel og svar. Siden viser vanskeligste spørsmål med vanligste feilsvar, prøveresultater, maskinskilt-oppgaver, velting og bruk av simulatorene, Fraktvekt-labbens vanskeligste delspørsmål med vanligste feiltype, og kan laste ned CSV.
 - **Nytt verktøy**: legg navnet i `VERKTOY`, last `kvalitet.js` i verktøyet og kall `Kvalitet.logg`. Hendelsene vises under «Andre verktøy» til det får egen visning.
 
 ## Oppsett i Azure

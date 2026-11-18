@@ -139,6 +139,21 @@ th.n { text-align: right; }
     </section>
 
     <section class="card">
+      <h2>Fraktvekt-labben</h2>
+      <p class="sub">Delspørsmål med minst <b id="fvMinTxt">5</b> svar, sortert etter andel feil. Bare første forsøk på hver oppgave telles. «Vanligste feil» er labbens tolkning av tallet eleven skrev, for eksempel «1000 × for stort» eller «tok faktisk vekt».</p>
+      <div class="row small">
+        <label>Del <select id="fvDel"><option value="">Oppgaver og oppdrag</option><option value="oppgaver">Bare oppgaver</option><option value="oppdrag">Bare oppdrag</option></select></label>
+        <label>Minst svar <select id="fvMin"><option>3</option><option selected>5</option><option>10</option><option>20</option></select></label>
+      </div>
+      <div class="tbl"><table id="tFv"></table></div>
+      <div class="grid2">
+        <div><h3>Oppgaver per nivå</h3><div class="tbl"><table id="tFvNiva"></table></div></div>
+        <div><h3>Hint og løsning i oppdraget</h3><div class="tbl"><table id="tFvHjelp"></table></div>
+          <h3>Bruk av Utforsk og egne varelinjer</h3><div class="tbl"><table id="tFvBruk"></table></div></div>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>Andre verktøy</h2>
       <p class="sub">Hendelser fra verktøy som ikke har egen visning ennå.</p>
       <div class="tbl"><table id="tAndre"></table></div>
@@ -198,6 +213,7 @@ $('loggut').onclick = () => visLogin('');
 $('oppdater').onclick = hent;
 $('dager').onchange = hent;
 ['fModul', 'fKilde', 'fMin'].forEach(id => $(id).onchange = () => data && visSpm());
+['fvDel', 'fvMin'].forEach(id => $(id).onchange = () => data && visFrakt());
 
 async function hent() {
   $('login').hidden = true; $('app').hidden = false;
@@ -222,7 +238,7 @@ function tabell(id, hode, rader, tom) {
 const feilCelle = (f, n) => { const p = pct(f, n); return `<td class="n"><span class="pct"><i style="width:${Math.max(2, p * 0.6)}px"></i>${p} %</span></td>`; };
 
 function vis() {
-  visBruk(); visSpm(); visProve(); visSkilt(); visTruck(); visAndre();
+  visBruk(); visSpm(); visProve(); visSkilt(); visTruck(); visFrakt(); visAndre();
 }
 
 function visBruk() {
@@ -299,8 +315,42 @@ function visTruck() {
   ]);
 }
 
+const FV_NIVA = { 'nivå 0': '0 · Volumenheter', 'nivå 1': '1 · Volumvekt', 'nivå 2': '2 · Lastemeter', 'nivå 3': '3 · Blandet sending', 'nivå 4': '4 · Egen varelinje' };
+function visFrakt() {
+  const del = $('fvDel').value, min = +$('fvMin').value;
+  $('fvMinTxt').textContent = min;
+  const sp = {};
+  G('fraktvekt').forEach(g => {
+    if ((g.h !== 'riktig' && g.h !== 'feil') || (del && g.m !== del)) return;
+    const s = sp[g.k] = sp[g.k] || { k: g.k, t: g.t, m: g.m, n: 0, feil: 0, svar: {} };
+    s.n += g.n;
+    if (g.h === 'feil') { s.feil += g.n; s.svar[g.a] = (s.svar[g.a] || 0) + g.n; }
+  });
+  const liste = Object.values(sp).filter(s => s.n >= min).sort((a, b) => b.feil / b.n - a.feil / a.n || b.n - a.n).slice(0, 40);
+  tabell('tFv', ['Delspørsmål', 'Del', { t: 'Svar', n: 1 }, { t: 'Feil', n: 1 }, 'Vanligste feil'], liste.map(s => {
+    const topp = Object.entries(s.svar).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    const hvor = s.m === 'oppdrag' ? 'Oppdrag ' + s.k.split('.')[0].toUpperCase() : 'Oppgaver';
+    return `<tr><td>${esc(s.t)}</td><td class="muted">${esc(hvor)}</td><td class="n">${nf(s.n)}</td>${feilCelle(s.feil, s.n)}<td class="small">${topp.map(([a, n]) => `${esc(a)} <span class="muted">(${n})</span>`).join('<br>') || '–'}</td></tr>`;
+  }), 'Ingen delspørsmål med nok svar i perioden.');
+
+  const niv = {};
+  G('fraktvekt', 'oppgave').forEach(g => { const x = niv[g.k] = niv[g.k] || { n: 0, r: 0, l: 0 }; x.n += g.n; if (g.a === 'riktig') x.r += g.n; if (g.a === 'løsning') x.l += g.n; });
+  tabell('tFvNiva', ['Nivå', { t: 'Oppgaver', n: 1 }, { t: 'Alt riktig', n: 1 }, { t: 'Så løsning først', n: 1 }], Object.keys(niv).sort().map(k =>
+    `<tr><td>${esc(FV_NIVA[k] || k)}</td><td class="n">${nf(niv[k].n)}</td><td class="n">${pct(niv[k].r, niv[k].n)} %</td><td class="n">${pct(niv[k].l, niv[k].n)} %</td></tr>`));
+
+  const hj = {};
+  G('fraktvekt', 'hjelp').forEach(g => { const x = hj[g.k] = hj[g.k] || { t: g.t, hint: 0, los: 0 }; if (g.a === 'hint') x.hint += g.n; else x.los += g.n; });
+  tabell('tFvHjelp', ['Oppgave', { t: 'Hint', n: 1 }, { t: 'Løsning', n: 1 }], Object.keys(hj).sort().map(k =>
+    `<tr><td><span class="muted">${esc(k.toUpperCase())}</span> ${esc(hj[k].t)}</td><td class="n">${nf(hj[k].hint)}</td><td class="n">${nf(hj[k].los)}</td></tr>`));
+
+  const br = {};
+  G('fraktvekt', 'bruk').forEach(g => { const key = g.k + (g.a ? ': ' + g.a : '') + (g.m ? ' (' + g.m + ')' : ''); br[key] = (br[key] || 0) + g.n; });
+  tabell('tFvBruk', ['Valg', { t: 'Ganger', n: 1 }], Object.entries(br).sort((a, b) => b[1] - a[1]).slice(0, 25).map(([k, n]) =>
+    `<tr><td>${esc(k[0].toUpperCase() + k.slice(1))}</td><td class="n">${nf(n)}</td></tr>`));
+}
+
 function visAndre() {
-  const andre = data.grupper.filter(g => g.v !== 'teori' && g.v !== 'truck').sort((a, b) => b.n - a.n).slice(0, 60);
+  const andre = data.grupper.filter(g => g.v !== 'teori' && g.v !== 'truck' && g.v !== 'fraktvekt').sort((a, b) => b.n - a.n).slice(0, 60);
   tabell('tAndre', ['Verktøy', 'Hendelse', 'Nøkkel', 'Verdi', { t: 'Antall', n: 1 }], andre.map(g =>
     `<tr><td>${esc(navn('verktoy', g.v))}</td><td>${esc(g.h)}</td><td>${esc(g.t || g.k)}</td><td>${esc(g.a)}${g.m ? ` <span class="muted">${esc(g.m)}</span>` : ''}</td><td class="n">${nf(g.n)}</td></tr>`), 'Ingen andre verktøy har sendt data ennå.');
 }
