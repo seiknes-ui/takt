@@ -170,6 +170,16 @@ th.n { text-align: right; }
     </section>
 
     <section class="card">
+      <h2>Yrkessjåfør (YSK)</h2>
+      <p class="sub">Simuleringene i simmulator/ysk, én per modul. «Startet» telles hver gang et oppdrag åpnes, «Fullført» første gang målene nås i samme økt.</p>
+      <div class="tbl"><table id="tYskOpp"></table></div>
+      <div class="grid2">
+        <div><h3>Regneoppgaver og spørsmål</h3><p class="sub">Sortert etter andel feil. Hvert svar eleven skriver inn, telles.</p><div class="tbl"><table id="tYskSvar"></table></div></div>
+        <div><h3>Hviletidsuka: brudd elevene lager</h3><p class="sub">Hvert brudd telles én gang per oppdrag og økt.</p><div class="tbl"><table id="tYskBrudd"></table></div></div>
+      </div>
+    </section>
+
+    <section class="card">
       <h2>Andre verktøy</h2>
       <p class="sub">Hendelser fra verktøy som ikke har egen visning ennå.</p>
       <div class="tbl"><table id="tAndre"></table></div>
@@ -187,7 +197,7 @@ const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
 const FARGER = ['--a1', '--a2', '--a3', '--a4', '--a5', '--a6'];
 
 const NAVN = {
-  verktoy: { teori: 'Teoriprøve truck', adr: 'ADR grunnkurs', truck: 'Truckstabilitet', hms: 'HMS', fraktvekt: 'Fraktvekt-labben', trekk: 'Trekkort', aksel: 'Akselast-lab', kkvm: 'KKVM', takt: 'Taktlinja', kundeservice: 'Kundeservice', speditoren: 'Speditøren' },
+  verktoy: { teori: 'Teoriprøve truck', adr: 'ADR grunnkurs', ysk: 'Yrkessjåfør (YSK)', truck: 'Truckstabilitet', hms: 'HMS', fraktvekt: 'Fraktvekt-labben', trekk: 'Trekkort', aksel: 'Akselast-lab', kkvm: 'KKVM', takt: 'Taktlinja', kundeservice: 'Kundeservice', speditoren: 'Speditøren' },
   skilt: { tExact: 'Les av standardtabellen', tBetween: 'Mellom kolonnene', tBox: 'Kan kassen løftes?', tNom: 'Nominell kapasitet', tAtt: 'Les av tilleggsskiltet', tAttBox: 'Kasse med utstyr', tWhich: 'Hvilken kapasitet gjelder?', tAttBetween: 'Mellom kolonnene med utstyr', tLoss: 'Kapasitetstap med utstyr', tAttMax: 'Største vekt med utstyr', tWorst: 'Hvilket utstyr gir lavest kapasitet?', tRemove: 'Utstyret demontert' },
   utstyr: { aSide: 'Påbygd sideforskyver', aPos: 'Gaffelposisjonerer', aRot: 'Rotator', aClamp: 'Balleklemme', aExt: 'Gaffelforlengere', side: 'Påbygd sideforskyver', pos: 'Gaffelposisjonerer', rot: 'Rotator', clamp: 'Balleklemme', ext: 'Gaffelforlengere', cw: 'Ekstra motvekt', cab: 'Lukket førerhus', batt: 'Lettere batteri', twin: 'Tvillinghjul', none: 'Ingen (vanlige gafler)' },
   truck: { t1: 'T1 Plukktruck', t2: 'T2 Skyvemast', t3: 'T3 Svinggaffel', t4: 'T4 Motvekt', sl: 'Sidelaster', th: 'Teleskoptruck' },
@@ -254,7 +264,7 @@ function tabell(id, hode, rader, tom) {
 const feilCelle = (f, n) => { const p = pct(f, n); return `<td class="n"><span class="pct"><i style="width:${Math.max(2, p * 0.6)}px"></i>${p} %</span></td>`; };
 
 function vis() {
-  visBruk(); visSpm(); visProve(); visSkilt(); visTruck(); visFrakt(); visAdr(); visAndre();
+  visBruk(); visSpm(); visProve(); visSkilt(); visTruck(); visFrakt(); visAdr(); visYsk(); visAndre();
 }
 
 function visBruk() {
@@ -407,8 +417,36 @@ function visAdr() {
     `<tr><td>${esc(ADR_LAB[x.l] || x.l)}</td><td class="muted">${esc(x.type || '–')}</td><td class="n">${nf(x.n)}</td>${feilCelle(x.f, x.n)}</tr>`));
 }
 
+// Yrkessjåfør (simmulator/ysk). start/fullfort: k simulering, a oppdrag-id, t tittel.
+// svar: k «simulering.oppdrag.nr», t spørsmål, a riktig/feil, m feilsvaret. brudd: k hviletidsuka, t regel, m oppdrag.
+const YSK_SIM = { hviletidsuka: 'M1 · Hviletidsuka', bremselabben: 'M2 · Bremselabben', transportkalkylen: 'G3 · Transportkalkylen', surringslabben: 'G4 · Surringslabben', blindsonen: 'M5 · Blindsonen' };
+const YSK_REKKE = Object.keys(YSK_SIM);
+function visYsk() {
+  const opp = {};
+  for (const h of ['start', 'fullfort']) G('ysk', h).forEach(g => {
+    const x = opp[g.k + '|' + g.a] = opp[g.k + '|' + g.a] || { k: g.k, a: g.a, t: g.t, start: 0, ferdig: 0 };
+    if (h === 'start') x.start += g.n; else x.ferdig += g.n;
+  });
+  tabell('tYskOpp', ['Simulering', 'Oppdrag', { t: 'Startet', n: 1 }, { t: 'Fullført', n: 1 }, { t: 'Andel', n: 1 }],
+    Object.values(opp).sort((a, b) => YSK_REKKE.indexOf(a.k) - YSK_REKKE.indexOf(b.k) || String(a.a).localeCompare(String(b.a))).map(x =>
+      `<tr><td>${esc(YSK_SIM[x.k] || x.k)}</td><td>${esc(x.t || x.a)}</td><td class="n">${nf(x.start)}</td><td class="n">${nf(x.ferdig)}</td><td class="n">${x.start ? pct(Math.min(x.ferdig, x.start), x.start) + ' %' : '–'}</td></tr>`));
+  const svar = {};
+  G('ysk', 'svar').forEach(g => {
+    const x = svar[g.k] = svar[g.k] || { k: g.k, t: g.t, n: 0, f: 0, feil: {} };
+    x.n += g.n;
+    if (g.a === 'feil') { x.f += g.n; x.feil[g.m] = (x.feil[g.m] || 0) + g.n; }
+  });
+  tabell('tYskSvar', ['Spørsmål', { t: 'Svar', n: 1 }, { t: 'Feil', n: 1 }, 'Vanligste feilsvar'], Object.values(svar).sort((a, b) => b.f / b.n - a.f / a.n || b.n - a.n).map(x => {
+    const topp = Object.entries(x.feil).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    return `<tr><td>${esc(YSK_SIM[x.k.split('.')[0]] || '')}<br><span class="small">${esc(x.t)}</span></td><td class="n">${nf(x.n)}</td>${feilCelle(x.f, x.n)}<td class="small">${topp.map(([a, n]) => `${esc(a)} <span class="muted">(${n})</span>`).join('<br>') || '–'}</td></tr>`;
+  }));
+  const brudd = {};
+  G('ysk', 'brudd').forEach(g => brudd[g.t] = (brudd[g.t] || 0) + g.n);
+  tabell('tYskBrudd', ['Brudd', { t: 'Ganger', n: 1 }], Object.entries(brudd).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<tr><td>${esc(t)}</td><td class="n">${nf(n)}</td></tr>`));
+}
+
 function visAndre() {
-  const andre = data.grupper.filter(g => g.v !== 'teori' && g.v !== 'truck' && g.v !== 'fraktvekt' && g.v !== 'adr').sort((a, b) => b.n - a.n).slice(0, 60);
+  const andre = data.grupper.filter(g => g.v !== 'teori' && g.v !== 'truck' && g.v !== 'fraktvekt' && g.v !== 'adr' && g.v !== 'ysk').sort((a, b) => b.n - a.n).slice(0, 60);
   tabell('tAndre', ['Verktøy', 'Hendelse', 'Nøkkel', 'Verdi', { t: 'Antall', n: 1 }], andre.map(g =>
     `<tr><td>${esc(navn('verktoy', g.v))}</td><td>${esc(g.h)}</td><td>${esc(g.t || g.k)}</td><td>${esc(g.a)}${g.m ? ` <span class="muted">${esc(g.m)}</span>` : ''}</td><td class="n">${nf(g.n)}</td></tr>`), 'Ingen andre verktøy har sendt data ennå.');
 }

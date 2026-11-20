@@ -11,7 +11,7 @@ const { json, feil, vakt } = require('../lib/http');
 // En hendelse er { v: verktøy, h: hendelse, k: nøkkel, t: tekst, a: svar/verdi, m: ekstra }.
 // Eksempel fra teoriprøven: { v: 'teori', h: 'feil', k: 'q1x2y3', t: 'Hva er friløft?', a: 'Hvor høyt ...', m: 'm2.2' }.
 
-const VERKTOY = ['teori', 'adr', 'hms', 'truck', 'fraktvekt', 'trekk', 'aksel', 'kkvm', 'takt', 'kundeservice', 'speditoren'];
+const VERKTOY = ['teori', 'adr', 'ysk', 'hms', 'truck', 'fraktvekt', 'trekk', 'aksel', 'kkvm', 'takt', 'kundeservice', 'speditoren'];
 const MAKS_PER_KALL = 20;
 const GRENSE = { antall: 400, ms: 10 * 60 * 1000 };
 
