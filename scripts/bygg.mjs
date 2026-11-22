@@ -3,7 +3,7 @@
 // så her legges dokumentskallet rundt: doctype, head med metadata og stil, og body.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 
-const SIDER = ['index.html', 'kundeservice.html', 'kvalitet.html'];
+const SIDER = ['index.html', 'kundeservice.html', 'kvalitet.html', 'kurs.html'];
 
 mkdirSync(new URL('../dist/', import.meta.url), { recursive: true });
 

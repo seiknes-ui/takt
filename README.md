@@ -47,7 +47,8 @@ Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt
 |---|---|
 | `index.html` | Hele appen. Skrevet som sideinnhold, slik at den også kan publiseres som Artifact på claude.ai. |
 | `kundeservice.html` | Kundeservice-simulatoren. Samme format som `index.html`. |
-| `scripts/bygg.mjs` | Lager `dist/index.html` og `dist/kundeservice.html` med fullt dokumentskall for Azure (`npm run build`). |
+| `kurs.html` | Kursstien for truckførerkurset. Samme format som `index.html`. |
+| `scripts/bygg.mjs` | Lager sidene i `dist/` med fullt dokumentskall for Azure (`npm run build`). |
 | `api/` | Azure Functions (Node 20): lærerinnlogging, lagring i Cosmos DB og live-rom. |
 | `staticwebapp.config.json` | Konfigurasjon for Azure Static Web Apps. |
 
@@ -60,7 +61,37 @@ Appen finner selv ut hvor den kjører. På claude.ai brukes plattformens sanntid
   - `oppsett` (partisjonsnøkkel `/laererId`): lærerens aktive oppsett.
   - `runder` (`/laererId`): rundeloggen.
   - `rom` (`/kode`, TTL 60 s): live-status under runder.
+  - `kurs` (`/laererId`): eksamensnotater til Kursstien, ett dokument per modul, felles for lærerne. Bare for innlogget lærer.
 - **Live-runder**: hver enhet sender sin status til `POST /api/rom/{lagkode}` omtrent hvert sekund og får tilbake statusen til alle i laget. Bare en innlogget lærer kan være tavle, og bare én lærer kan bruke samme lagkode om gangen.
+
+## Kursstien
+
+`kurs.html` er truckførerkurset som en sti med én stasjon per leksjon i Arbeidstilsynets opplæringsplaner (modul 1, august 2023, og modul 2.2, juni 2022). Leksjonene er nummerert som i skolens kvalitetshåndbok, og eksamen tas i Dugga. Læreren viser på tavla, og elevene svarer på telefonen.
+
+- **Tavla**: læreren logger inn med samme kode som på Taktlinja, velger en leksjon og får en kode på fire sifre og en QR-kode. Piltastene blar, V viser svaret, N viser lærernotatet og F gir fullskjerm.
+- **Lærernotater**: hvert steg har notater med hva læreren gjør, fagstoff å bygge på, spørsmål til klassen, vanlige misforståelser, fasit og kilder (`NOTATER` i siden). De vises i et panel på tavla (N), eller på lærerens egen telefon: logg inn, skriv koden fra tavla og velg «Notater til tavla». Telefonen følger tavla og kan bla og vise svar. Den er også `leder` i rommet og krever lærertoken, så elever kan ikke styre tavla.
+- **Eleven**: går til `kurs.html#elev`, skriver inn koden og fornavnet og følger tavla. Oppgavene låses når læreren viser svaret. «Øv på egen hånd» går gjennom leksjonen uten lærer og viser fasit etter hvert svar.
+- **Steg**: `tavle` (figur og stikkord), `valg` (flervalg, eller avstemning uten fasit), `tall` (utregning med toleranse), `trykk` (eleven trykker i en figur), `quiz` (flere spørsmål, eventuelt med et emballasjesymbol) og `rekkefolge` (eleven setter steg i riktig rekkefølge, stokket ulikt for hver elev). Tavla viser antall svar og, når svaret vises, fordelingen.
+- **Fra prøven**: spørsmålene fra den avsluttende teoriprøven (modul 1.1 og 2.2) står med fasit i lærernotatet på steget der temaet tas opp, med merket «Rettet i Dugga» eller «Sjekk mot Dugga» der det trengs. Velkomststeget viser hvilke prøvespørsmål leksjonen dekker. Prøvene er beskyttet (MA-system), og fasiten skal ikke nå elevene, så de ligger **ikke** i siden eller i repoet. Læreren laster opp `eksamen-1.1.json` og `eksamen-2.2.json` fra den private kildebanken (`fagkilder/kilder/egne/`) én gang med «Last opp eksamensnotater» på startsiden. De lagres felles for skolens lærere i containeren `kurs` og hentes med `GET /api/kurs/eksamen`, som krever lærertoken. Som Artifact på claude.ai finnes ikke API-et, og da vises ikke prøvespørsmålene.
+- **Film**: filmstegene spiller Noorsi-filmene fra lærerens PC. Læreren trykker «Velg filmmappen på PC-en» og velger mappen med filmene; nettleseren spiller dem lokalt, og ingenting lastes opp. Filmene skal ikke legges i repoet.
+- **Live**: bruker `POST /api/rom/{kode}` som Taktlinja. Tavla er `leder`. Hver elev sender fornavn og svar, og tavla regner ut resultatene. Ingenting lagres etter timen, og rommet slettes av TTL-en.
+- **Innhold**: leksjonene ligger som data i siden (`STI` og leksjonsobjektene `STAB` og `GODS`). Hver leksjon oppgir hvilke emner fra planen den dekker. Bare leksjoner med `steg` kan startes, de andre vises som «Kommer».
+
+Ferdige leksjoner i modul 2.2:
+
+- Leksjon 1, Innledning og krav til truckfører (45 min): krav til fører og alder, ansvar etter arbeidsmiljøloven, truckens deler og standarder.
+- Leksjon 2, Trucktyper og tilleggsutstyr (2 × 45 min): motvekts- og støttebensprinsippet, klassene T1–T5, bruksområder, tilleggsutstyr og en runde ved skolens trucker.
+- Leksjon 3, Truckulykker (45 min): årsaker, et ulykkescase, konsekvenser, forsikring, forebygging og rapportering.
+- Leksjon 4, Truckens konstruksjon og virkemåte (2 × 45 min): hoveddeler, motor og kraftoverføring, batteri, hydraulikk, løftesystem, styring, bremser og instrumenter.
+- Leksjon 5, Kontroll og rapportering (2 × 45 min): daglig kontroll med praktisk øvelse, feil og rapportering, periodisk og sakkyndig kontroll (forskrift om utførelse av arbeid kap. 12–13).
+- Leksjon 8, Bruks- og sikkerhetsbestemmelser (45 min): offentlig vei, kjøring, personløft, parkering, brann og Ex, drivstoff, gass og lading.
+
+Modul 1.1 (felles teori for kran, truck og masseforflytningsmaskiner): leksjon 1–4 og 6 på 45 min og leksjon 5 på 2 × 45 min. Farlig gods er en grunnleggende innføring; ADR i dybden tas i eget kurs.
+
+Modul 2.2, i tillegg, på 2 × 45 min:
+
+- Leksjon 6, Truckens stabilitet. Bruker truckstabilitet-simulatoren på seiknes-ui.github.io i en iframe.
+- Leksjon 7, Godshåndtering: lastbærere, emballasjesymboler, stabling og nedtaking, ruller og langgods, lasting av bil og jernbanevogn, signalgiving og sleping.
 
 ## Kvalitetsdelen
 
