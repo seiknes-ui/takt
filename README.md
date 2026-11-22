@@ -48,6 +48,7 @@ Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt
 | `index.html` | Hele appen. Skrevet som sideinnhold, slik at den også kan publiseres som Artifact på claude.ai. |
 | `kundeservice.html` | Kundeservice-simulatoren. Samme format som `index.html`. |
 | `kurs.html` | Kursstien for truckførerkurset. Samme format som `index.html`. |
+| `tilbakemelding.html` | Kurstilbakemelding med fjes. Elevvisning, og lærervisning på `#laerer`. Samme format som `index.html`. |
 | `laerer.html` | Lærersiden med lenker til lærer- og admindelene i alle verktøyene. Samme format som `index.html`. |
 | `scripts/bygg.mjs` | Lager sidene i `dist/` med fullt dokumentskall for Azure (`npm run build`). |
 | `api/` | Azure Functions (Node 20): lærerinnlogging, lagring i Cosmos DB og live-rom. |
@@ -111,6 +112,16 @@ Modul 2.2, i tillegg, på 2 × 45 min:
 - **Innlogging**: samme lærerkode som Taktlinja. Innloggingen lagres som `taktlinja-laerer`, akkurat som i Taktlinja og Kursstien, så én innlogging gjelder alle tre.
 - **Lenkene** ligger i `api/src/lib/lenker.js` og hentes med `GET /api/lenker`, som krever lærertoken. De står altså ikke i kildekoden til siden. Hvert kort viser hvilken kode verktøyet selv krever, men selve kodene står ikke noe sted.
 - **Nytt verktøy**: legg til et kort i `SEKSJONER` i `lenker.js`.
+
+## Kurstilbakemelding
+
+`tilbakemelding.html` spør «Hvordan var kurset?». Eleven trykker på et surt, nøytralt eller smilende fjes og kan skrive en kommentar før svaret sendes. Siden går tilbake til start etter fem sekunder, så den kan stå på et nettbrett ved døra. Kvalitetshåndboka nevner tilbakemeldinger etter avholdt kurs som grunnlag for revisjon av kvalitetssystemet (pkt. 1.2).
+
+- **Lenke per kurs**: `tilbakemelding.html?kurs=Truck%20november` samler svarene under kursnavnet. Uten `kurs` havner svarene under «Kurset».
+- **Lærervisningen** på `tilbakemelding.html#laerer` krever lærerkoden (samme innlogging som Taktlinja). Der lager du lenke og QR-kode til et kurs, ser fordelingen av fjes og kommentarene per kurs, kan slette et enkelt svar og laste ned CSV.
+- **Personvern**: det lagres ingen navn, ingen IP-adresse og bare dato. Be elevene ikke skrive navn i kommentaren.
+- **Lagring**: containeren `tilbakemelding` (partisjonsnøkkel `/kurs`) i databasen `takt`. Svarene slettes automatisk etter 400 dager. Hver IP kan sende høyst 300 svar per 10 minutter.
+- **API**: `POST /api/tilbakemelding` (åpent), `GET /api/tilbakemelding/oversikt?dager=90` og `DELETE /api/tilbakemelding/{kurs}/{id}` (lærertoken).
 
 ## Oppsett i Azure
 

@@ -1,0 +1,393 @@
+<title>Hvordan var kurset?</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Kurstilbakemelding: elevene trykker på et fjes, læreren ser resultatene bak innlogging (#laerer). Samme verkstedstil som Taktlinja. */
+:root {
+  --bg: #E8EBE7; --surface: #F7F8F5; --ink: #1B201E; --muted: #5A6560; --line: #C6CDC8;
+  --accent: #F2B300; --on-accent: #1B201E; --bad: #D0392A;
+  --sur: #D0392A; --noytral: #D89A00; --glad: #2B9A58;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+    --accent: #F5BF1F; --on-accent: #131715; --bad: #F05A47;
+    --sur: #F05A47; --noytral: #F0B429; --glad: #3FBF72;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+  --accent: #F5BF1F; --on-accent: #131715; --bad: #F05A47;
+  --sur: #F05A47; --noytral: #F0B429; --glad: #3FBF72;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+.wrap { max-width: 1100px; margin: 0 auto; }
+h1 { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: .01em; line-height: 1; margin: 0; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; margin: 0 0 4px; }
+input, select, textarea, button { font: inherit; }
+input, select, textarea { padding: 9px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); }
+button { cursor: pointer; padding: 8px 14px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; }
+button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.msg { color: var(--bad); margin: 8px 0 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+[hidden] { display: none !important; }
+
+/* ---------- Elevvisningen ---------- */
+.elev { min-height: calc(100vh - 60px); display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; text-align: center; gap: 28px; }
+.elev h1 { font-size: clamp(40px, 9vw, 84px); text-wrap: balance; }
+.elev .kurs { font-size: clamp(16px, 2.6vw, 22px); color: var(--muted); margin: 10px 0 0; }
+.fjes { display: flex; justify-content: center; gap: clamp(12px, 4vw, 48px); }
+.fjes button { all: unset; cursor: pointer; display: grid; justify-items: center; gap: 8px; border-radius: 50%; transition: transform .12s; }
+.fjes button svg { width: clamp(88px, 26vw, 200px); height: auto; display: block; }
+.fjes button span { font-weight: 600; font-size: clamp(15px, 2.4vw, 20px); }
+.fjes button:hover svg { transform: scale(1.06); }
+.fjes button:active svg { transform: scale(.96); }
+.fjes button:focus-visible svg { outline: 4px solid var(--accent); outline-offset: 6px; border-radius: 50%; }
+.fjes.valgt button:not(.på) { opacity: .3; }
+.mer { display: grid; gap: 12px; justify-items: center; width: min(560px, 100%); margin: 0 auto; }
+.mer textarea { width: 100%; min-height: 110px; resize: vertical; font-size: 17px; }
+.mer .row { justify-content: center; }
+.mer button { font-size: 18px; padding: 12px 22px; }
+.takk svg { width: 120px; height: auto; }
+.takk p { font-size: clamp(22px, 4vw, 34px); font-weight: 700; margin: 0; }
+.anon { font-size: 13px; color: var(--muted); }
+
+/* ---------- Lærervisningen ---------- */
+.laerer header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 20px; margin-bottom: 16px; }
+.laerer h1 { font-size: 40px; }
+.laerer h1 span { color: var(--accent); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-bottom: 14px; min-width: 0; }
+.card > p.sub { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+.lenke { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+@media (max-width: 640px) { .lenke { grid-template-columns: minmax(0, 1fr); } }
+.lenke code { display: block; word-break: break-all; background: var(--bg); padding: 8px 10px; border-radius: 4px; font-size: 13px; margin: 8px 0; }
+#apne { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; font-weight: 500; }
+#qr { background: #fff; padding: 8px; border-radius: 4px; width: 176px; }
+#qr img, #qr canvas { display: block; width: 160px; height: 160px; }
+dialog.qrbig { border: 0; padding: 24px; border-radius: 8px; background: #fff; color: #1B201E; text-align: center; }
+dialog.qrbig::backdrop { background: rgba(0,0,0,.75); }
+dialog.qrbig #qrStor img, dialog.qrbig #qrStor canvas { width: min(75vmin, 640px); height: auto; margin: 0 auto; display: block; }
+dialog.qrbig p { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 4vmin, 40px); text-transform: uppercase; margin: 12px 0 0; }
+.kurskort h2 { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; align-items: baseline; }
+.kurskort h2 small { font-family: var(--body); font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; }
+.fordeling { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 0; }
+.fordeling div { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 4px; padding: 8px 10px; }
+.fordeling svg { width: 40px; height: 40px; flex: none; }
+.fordeling b { font-size: 22px; font-variant-numeric: tabular-nums; display: block; line-height: 1.1; }
+.fordeling span { font-size: 12px; color: var(--muted); }
+.stolpe { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--line); }
+.stolpe i { display: block; height: 100%; }
+.kommentarer { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+.kommentarer li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 8px 0; border-top: 1px solid var(--line); }
+.kommentarer svg { width: 26px; height: 26px; }
+.kommentarer .dato { display: block; font-size: 12px; color: var(--muted); }
+.kommentarer button { padding: 2px 8px; font-size: 12px; font-weight: 500; }
+.empty { color: var(--muted); font-style: italic; }
+</style>
+
+<div class="wrap">
+  <!-- Elevvisningen: ett trykk på et fjes, så valgfri kommentar. Går tilbake til start etter takk, så ett nettbrett kan stå ved døra. -->
+  <main class="elev" id="elev" hidden>
+    <div>
+      <h1>Hvordan var kurset?</h1>
+      <p class="kurs" id="kursnavn" hidden></p>
+    </div>
+    <div class="fjes" id="fjes" role="group" aria-label="Velg et fjes"></div>
+    <div class="mer" id="mer" hidden>
+      <label for="kommentar" class="muted">Vil du si noe mer? (valgfritt)</label>
+      <textarea id="kommentar" maxlength="500" placeholder="Hva var bra, og hva kan bli bedre?"></textarea>
+      <div class="row">
+        <button type="button" id="tilbake">Tilbake</button>
+        <button type="button" class="primary" id="send">Send</button>
+      </div>
+      <p class="msg" id="sendMsg" hidden></p>
+    </div>
+    <div class="takk" id="takk" hidden>
+      <div id="takkFjes"></div>
+      <p>Takk for svaret!</p>
+    </div>
+    <p class="anon">Svaret er anonymt. Navnet ditt lagres ikke.</p>
+  </main>
+
+  <!-- Lærervisningen (#laerer): samme innlogging som Taktlinja. -->
+  <div class="laerer" id="laerer" hidden>
+    <header>
+      <h1>Tilbake<span>melding</span></h1>
+      <div class="row small" id="who" hidden><span class="muted" id="navn"></span><button id="loggut">Logg ut</button></div>
+    </header>
+
+    <section class="card" id="login" hidden>
+      <h2>Logg inn</h2>
+      <p class="sub">Bruk samme lærerkode som i Taktlinja.</p>
+      <form class="row" id="loginForm">
+        <input id="kode" type="password" autocomplete="current-password" placeholder="Lærerkode" aria-label="Lærerkode" required>
+        <button class="primary" type="submit">Logg inn</button>
+      </form>
+      <p class="msg" id="loginMsg" hidden></p>
+    </section>
+
+    <div id="app" hidden>
+      <section class="card">
+        <h2>Lenke til elevene</h2>
+        <p class="sub">Skriv kursnavnet, så havner svarene under riktig kurs. Vis QR-koden på tavla, eller åpne siden på et nettbrett ved døra.</p>
+        <div class="lenke">
+          <div>
+            <div class="row"><input id="nyttKurs" placeholder="Kursnavn, f.eks. Truck T2/T4 november" maxlength="60" style="flex:1;min-width:0"></div>
+            <code id="url"></code>
+            <div class="row">
+              <button type="button" id="kopier">Kopier lenke</button>
+              <button type="button" id="visQr">Vis QR stort</button>
+              <a id="apne" class="small" target="_blank" rel="noopener">Åpne elevsiden</a>
+            </div>
+          </div>
+          <div id="qr" aria-label="QR-kode til elevsiden"></div>
+        </div>
+      </section>
+
+      <div class="card row">
+        <label>Periode
+          <select id="dager"><option value="30">Siste 30 dager</option><option value="90" selected>Siste 90 dager</option><option value="365">Siste år</option><option value="400">Alt (400 dager)</option></select>
+        </label>
+        <button id="oppdater">Oppdater</button>
+        <button id="csv">Last ned CSV</button>
+        <span class="muted small" id="status"></span>
+      </div>
+
+      <div id="kursliste"></div>
+    </div>
+
+    <dialog class="qrbig" id="qrBig" aria-label="QR-kode">
+      <div id="qrStor"></div>
+      <p>Hvordan var kurset?</p>
+    </dialog>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+const SVAR = [
+  { k: 'sur', navn: 'Dårlig' },
+  { k: 'noytral', navn: 'Middels' },
+  { k: 'glad', navn: 'Bra' },
+];
+const navnPå = k => (SVAR.find(s => s.k === k) || {}).navn || k;
+
+// Fjesene tegnes som SVG, så de ser like ut på alle enheter (emoji varierer).
+function fjes(k) {
+  const munn = {
+    sur: 'M34 72 Q50 58 66 72',
+    noytral: 'M34 68 L66 68',
+    glad: 'M32 62 Q50 80 68 62',
+  }[k];
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <circle cx="50" cy="50" r="46" fill="var(--${k})"/>
+    <circle cx="36" cy="40" r="6" fill="#1B201E"/><circle cx="64" cy="40" r="6" fill="#1B201E"/>
+    <path d="${munn}" stroke="#1B201E" stroke-width="7" stroke-linecap="round" fill="none"/>
+  </svg>`;
+}
+
+// ---------- Elevvisningen ----------
+const kurs = (new URLSearchParams(location.search).get('kurs') || '').trim().slice(0, 60);
+let valgt = null, tilbakeTimer = null;
+
+function elevStart() {
+  clearTimeout(tilbakeTimer);
+  valgt = null;
+  $('fjes').classList.remove('valgt');
+  $('fjes').querySelectorAll('button').forEach(b => { b.classList.remove('på'); b.setAttribute('aria-pressed', 'false'); });
+  $('fjes').hidden = false; $('mer').hidden = true; $('takk').hidden = true;
+  $('kommentar').value = ''; $('sendMsg').hidden = true; $('send').disabled = false;
+}
+
+function initElev() {
+  $('elev').hidden = false;
+  if (kurs) { $('kursnavn').textContent = kurs; $('kursnavn').hidden = false; document.title = 'Hvordan var kurset? · ' + kurs; }
+  $('fjes').innerHTML = SVAR.map(s => `<button type="button" data-k="${s.k}" aria-pressed="false" aria-label="${s.navn}">${fjes(s.k)}<span>${s.navn}</span></button>`).join('');
+  $('fjes').addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]');
+    if (!b) return;
+    valgt = b.dataset.k;
+    $('fjes').classList.add('valgt');
+    $('fjes').querySelectorAll('button').forEach(x => { x.classList.toggle('på', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+    $('mer').hidden = false;
+    $('kommentar').focus();
+  });
+  $('tilbake').onclick = elevStart;
+  $('send').onclick = async () => {
+    if (!valgt) return;
+    $('send').disabled = true;
+    $('sendMsg').hidden = true;
+    try {
+      const r = await fetch('/api/tilbakemelding', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ kurs, svar: valgt, kommentar: $('kommentar').value }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.feil || 'Kunne ikke sende svaret.');
+      }
+      $('takkFjes').innerHTML = fjes(valgt);
+      $('fjes').hidden = true; $('mer').hidden = true; $('takk').hidden = false;
+      tilbakeTimer = setTimeout(elevStart, 5000);
+    } catch (err) {
+      $('sendMsg').textContent = err.message === 'Failed to fetch' ? 'Kunne ikke sende. Sjekk nettforbindelsen og prøv igjen.' : err.message;
+      $('sendMsg').hidden = false;
+      $('send').disabled = false;
+    }
+  };
+  elevStart();
+}
+
+// ---------- Lærervisningen ----------
+// Samme lagring som Taktlinja, Kursstien og lærersiden, så én innlogging gjelder alle.
+const AUTH_KEY = 'taktlinja-laerer';
+let auth = null, data = null;
+
+function lesAuth() {
+  try { const a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); return a && a.token && a.exp > Date.now() ? a : null; } catch (e) { return null; }
+}
+function lagreAuth(a) {
+  try { a ? localStorage.setItem(AUTH_KEY, JSON.stringify(a)) : localStorage.removeItem(AUTH_KEY); } catch (e) {}
+}
+
+async function api(metode, sti) {
+  const r = await fetch('/api/' + sti, { method: metode, headers: { 'x-laerer-token': auth ? auth.token : '' } });
+  if (r.status === 401) { visLogin('Innloggingen har gått ut. Logg inn på nytt.'); throw new Error('401'); }
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.feil || 'Feil ' + r.status); }
+  return r.status === 204 ? null : r.json();
+}
+
+function visLogin(msg) {
+  auth = null;
+  lagreAuth(null);
+  $('app').hidden = true; $('who').hidden = true; $('login').hidden = false;
+  $('loginMsg').hidden = !msg; $('loginMsg').textContent = msg || '';
+  $('kode').focus();
+}
+
+function elevUrl() {
+  const navn = $('nyttKurs').value.trim();
+  return location.origin + location.pathname + (navn ? '?kurs=' + encodeURIComponent(navn) : '');
+}
+
+function tegnQr(el, size) {
+  el.innerHTML = '';
+  if (window.QRCode) {
+    try { new window.QRCode(el, { text: elevUrl(), width: size, height: size, colorDark: '#111311', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M }); return; } catch (e) {}
+  }
+  el.textContent = 'QR-koden kunne ikke lages. Bruk lenken.';
+}
+
+function oppdaterLenke() {
+  const url = elevUrl();
+  $('url').textContent = url;
+  $('apne').href = url;
+  tegnQr($('qr'), 320);
+}
+
+function prosent(n, total) { return total ? Math.round(100 * n / total) : 0; }
+
+function tegnKurs() {
+  const svar = data.svar;
+  $('status').textContent = `${svar.length} svar siden ${data.fra.split('-').reverse().join('.')}`;
+  if (!svar.length) { $('kursliste').innerHTML = '<p class="card empty">Ingen svar i perioden.</p>'; return; }
+  const perKurs = new Map();
+  for (const s of svar) {
+    if (!perKurs.has(s.kurs)) perKurs.set(s.kurs, []);
+    perKurs.get(s.kurs).push(s);
+  }
+  $('kursliste').innerHTML = [...perKurs].map(([navn, liste]) => {
+    const n = liste.length;
+    const telling = Object.fromEntries(SVAR.map(s => [s.k, liste.filter(x => x.svar === s.k).length]));
+    const kommentarer = liste.filter(x => x.kommentar);
+    const datoer = liste.map(x => x.dato).sort();
+    const periode = datoer[0] === datoer[datoer.length - 1] ? fmt(datoer[0]) : `${fmt(datoer[0])} – ${fmt(datoer[datoer.length - 1])}`;
+    return `<section class="card kurskort">
+      <h2>${esc(navn)} <small>${n} svar · ${periode}</small></h2>
+      <div class="fordeling">${SVAR.map(s => `<div>${fjes(s.k)}<div><b>${telling[s.k]}</b><span>${s.navn} · ${prosent(telling[s.k], n)} %</span></div></div>`).join('')}</div>
+      <div class="stolpe" aria-hidden="true">${SVAR.map(s => `<i style="width:${prosent(telling[s.k], n)}%;background:var(--${s.k})"></i>`).join('')}</div>
+      ${kommentarer.length ? `<ul class="kommentarer">${kommentarer.map(x => `<li>${fjes(x.svar)}<div>${esc(x.kommentar)}<span class="dato">${fmt(x.dato)}</span></div><button type="button" data-slett="${esc(x.id)}" data-kurs="${esc(x.kurs)}">Slett</button></li>`).join('')}</ul>` : '<p class="empty small">Ingen kommentarer.</p>'}
+    </section>`;
+  }).join('');
+}
+
+const fmt = iso => iso ? iso.split('-').reverse().join('.') : '';
+
+async function hent() {
+  $('status').textContent = 'Henter …';
+  try {
+    data = await api('GET', 'tilbakemelding/oversikt?dager=' + $('dager').value);
+    $('login').hidden = true; $('app').hidden = false; $('who').hidden = false;
+    $('navn').textContent = 'Innlogget: ' + auth.navn;
+    tegnKurs();
+  } catch (err) {
+    if (err.message !== '401') $('status').textContent = 'Kunne ikke hente svarene: ' + err.message;
+  }
+}
+
+function initLaerer() {
+  $('laerer').hidden = false;
+  document.title = 'Tilbakemelding';
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    try {
+      const r = await fetch('/api/laerer/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kode: $('kode').value.trim() }) });
+      if (!r.ok) return visLogin(r.status === 401 ? 'Feil lærerkode.' : r.status === 429 ? 'For mange forsøk. Vent litt og prøv igjen.' : 'Kunne ikke logge inn.');
+      const d = await r.json();
+      auth = { token: d.token, navn: d.navn, exp: d.exp };
+      lagreAuth(auth);
+      $('kode').value = '';
+      hent();
+    } catch (err) { visLogin('Kunne ikke logge inn. Sjekk nettforbindelsen.'); }
+  });
+  $('loggut').onclick = () => visLogin('');
+  $('oppdater').onclick = hent;
+  $('dager').onchange = hent;
+  $('nyttKurs').addEventListener('input', oppdaterLenke);
+  $('kopier').onclick = async () => {
+    try { await navigator.clipboard.writeText(elevUrl()); $('kopier').textContent = 'Kopiert!'; } catch (e) { $('kopier').textContent = 'Merk og kopier lenken'; }
+    setTimeout(() => { $('kopier').textContent = 'Kopier lenke'; }, 2000);
+  };
+  $('visQr').onclick = () => { tegnQr($('qrStor'), 640); $('qrBig').showModal(); };
+  $('qrBig').addEventListener('click', () => $('qrBig').close());
+  $('kursliste').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-slett]');
+    if (!b || !confirm('Slette dette svaret?')) return;
+    try {
+      await api('DELETE', 'tilbakemelding/' + encodeURIComponent(b.dataset.kurs) + '/' + encodeURIComponent(b.dataset.slett));
+      data.svar = data.svar.filter(x => x.id !== b.dataset.slett);
+      tegnKurs();
+    } catch (err) { if (err.message !== '401') alert('Kunne ikke slette: ' + err.message); }
+  });
+  $('csv').onclick = () => {
+    if (!data) return;
+    const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+    const linjer = [['dato', 'kurs', 'svar', 'kommentar'].join(';'), ...data.svar.map(s => [s.dato, s.kurs, navnPå(s.svar), s.kommentar].map(q).join(';'))];
+    const url = URL.createObjectURL(new Blob(['﻿' + linjer.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+    const a = Object.assign(document.createElement('a'), { href: url, download: 'tilbakemelding-' + data.fra + '.csv' });
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  oppdaterLenke();
+  auth = lesAuth();
+  if (auth) hent(); else visLogin('');
+}
+
+if (location.hash === '#laerer') initLaerer(); else initElev();
+window.addEventListener('hashchange', () => location.reload());
+</script>

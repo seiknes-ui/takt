@@ -91,6 +91,12 @@ const SEKSJONER = [
     tittel: 'Rapporter og oppfølging',
     kort: [
       {
+        merke: 'TB', tittel: 'Kurstilbakemelding', for: '«Hvordan var kurset?»',
+        tekst: 'Elevene trykker på et surt, nøytralt eller smilende fjes og kan skrive en kommentar. Lag lenke og QR-kode per kurs, og se resultatene per kurs.',
+        login: TAKT_KODE,
+        lenker: [{ tekst: 'Åpne', url: 'tilbakemelding.html#laerer', hoved: true }],
+      },
+      {
         merke: 'KR', tittel: 'Kundeservice-rapporter', for: 'Elevenes samtaler',
         tekst: 'Lag klassekoder, se resultatene per elev og åpne hver samtale. Tabellen kan lastes ned som CSV.',
         login: TAKT_KODE,
