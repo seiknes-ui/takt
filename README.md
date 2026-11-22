@@ -48,6 +48,7 @@ Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt
 | `index.html` | Hele appen. Skrevet som sideinnhold, slik at den også kan publiseres som Artifact på claude.ai. |
 | `kundeservice.html` | Kundeservice-simulatoren. Samme format som `index.html`. |
 | `kurs.html` | Kursstien for truckførerkurset. Samme format som `index.html`. |
+| `laerer.html` | Lærersiden med lenker til lærer- og admindelene i alle verktøyene. Samme format som `index.html`. |
 | `scripts/bygg.mjs` | Lager sidene i `dist/` med fullt dokumentskall for Azure (`npm run build`). |
 | `api/` | Azure Functions (Node 20): lærerinnlogging, lagring i Cosmos DB og live-rom. |
 | `staticwebapp.config.json` | Konfigurasjon for Azure Static Web Apps. |
@@ -102,6 +103,14 @@ Modul 2.2, i tillegg, på 2 × 45 min:
 - **Lagring**: containeren `kvalitet` (partisjonsnøkkel `/v`) i databasen `takt`, innenfor den delte gratisgjennomstrømningen.
 - **Oversikt**: `GET /api/kvalitet/oversikt?dager=30` krever lærertoken og gir tellinger gruppert per verktøy, hendelse, nøkkel og svar. Siden viser vanskeligste spørsmål med vanligste feilsvar, prøveresultater, maskinskilt-oppgaver, velting og bruk av simulatorene, Fraktvekt-labbens vanskeligste delspørsmål med vanligste feiltype, ADR grunnkurs med vanskeligste spørsmål per stasjon, prøveresultater og laber, og kan laste ned CSV.
 - **Nytt verktøy**: legg navnet i `VERKTOY`, last `kvalitet.js` i verktøyet og kall `Kvalitet.logg`. Hendelsene vises under «Andre verktøy» til det får egen visning.
+
+## Lærersiden
+
+`laerer.html` samler lærer- og admindelene i alle verktøyene: Daglig kontroll og oppkjøring, logistikk-treningen, Kursstien, Taktlinja, Speditøren, kundeservice-rapportene, kvalitetsoversikten og Fraktvekt-labben. Lenken «Lærerside» på forsiden av simulatorene peker hit.
+
+- **Innlogging**: samme lærerkode som Taktlinja. Innloggingen lagres som `taktlinja-laerer`, akkurat som i Taktlinja og Kursstien, så én innlogging gjelder alle tre.
+- **Lenkene** ligger i `api/src/lib/lenker.js` og hentes med `GET /api/lenker`, som krever lærertoken. De står altså ikke i kildekoden til siden. Hvert kort viser hvilken kode verktøyet selv krever, men selve kodene står ikke noe sted.
+- **Nytt verktøy**: legg til et kort i `SEKSJONER` i `lenker.js`.
 
 ## Oppsett i Azure
 

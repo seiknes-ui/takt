@@ -438,6 +438,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
       </div>
       <a class="btn small lnk-ks" href="kundeservice.html" id="lnk-ks" hidden>Kundeservice-simulator →</a>
       <a class="btn small lnk-ks" href="kundeservice.html#laerer" id="lnk-ks-rap" hidden>Kundeservice-rapporter →</a>
+      <a class="btn small lnk-ks" href="laerer.html" id="lnk-laerer" hidden>Lærerside →</a>
     </div>
     <div class="kpis" id="kpis"></div>
   </header>
@@ -817,7 +818,7 @@ dd { margin: 0; color: var(--muted); font-size: 14px; }
   // På claude.ai finnes window.claude.use; ellers kjører appen på Azure Static Web Apps.
   const AZ = !(window.claude && window.claude.use);
   // Kundeservice-simulatoren er en egen side, så lenken virker bare på Azure.
-  $('lnk-ks').hidden = !AZ; $('lnk-ks-rap').hidden = !AZ;
+  $('lnk-ks').hidden = !AZ; $('lnk-ks-rap').hidden = !AZ; $('lnk-laerer').hidden = !AZ;
   let AUTH = null;
   (() => { const a = fetchStore('taktlinja-laerer'); if (a && a.token && a.exp > Date.now()) AUTH = a; })();
   let cloudTimer = null;

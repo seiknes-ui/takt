@@ -1,0 +1,162 @@
+<title>Lærerside</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Lærersiden: lenker til lærer- og admindelene i alle verktøyene. Samme verkstedstil som Taktlinja. */
+:root {
+  --bg: #E8EBE7; --surface: #F7F8F5; --ink: #1B201E; --muted: #5A6560; --line: #C6CDC8;
+  --accent: #F2B300; --on-accent: #1B201E; --bad: #D0392A; --accent-soft: rgba(242,179,0,.18);
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+    --accent: #F5BF1F; --on-accent: #131715; --bad: #F05A47; --accent-soft: rgba(245,191,31,.14);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131715; --surface: #1C2120; --ink: #E6EBE7; --muted: #99A49E; --line: #343C38;
+  --accent: #F5BF1F; --on-accent: #131715; --bad: #F05A47; --accent-soft: rgba(245,191,31,.14);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding: 20px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+.wrap { max-width: 1180px; margin: 0 auto; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 20px; margin-bottom: 8px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: 44px; letter-spacing: .01em; text-transform: uppercase; margin: 0; line-height: 1; }
+h1 span { color: var(--accent); }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px;
+  display: flex; align-items: center; gap: 12px; }
+h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.lead { color: var(--muted); max-width: 70ch; margin: 8px 0 18px; }
+.who { color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+section { margin-top: 28px; }
+.login { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; max-width: 460px; }
+.login h2::after { display: none; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input, button { font: inherit; }
+input { padding: 9px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--ink); flex: 1; min-width: 0; }
+button { cursor: pointer; padding: 8px 14px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; }
+button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.msg { color: var(--bad); margin: 8px 0 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.card { display: grid; grid-template-rows: auto 1fr auto; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px 16px 14px; min-width: 0; }
+.top { display: flex; gap: 12px; align-items: flex-start; }
+.badge { flex: none; font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1; padding: 8px 6px; min-width: 46px; text-align: center; border-radius: 3px; background: var(--ink); color: var(--surface); }
+.card:hover .badge { background: var(--accent); color: var(--on-accent); }
+.card h3 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 24px; line-height: 1.05; text-transform: uppercase; letter-spacing: .01em; }
+.card .for { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
+.card p.desc { margin: 0; font-size: 14.5px; }
+.foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 100%; min-width: 0; }
+.tag { font-size: 12px; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); white-space: nowrap; }
+.tag.login { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+.links { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+a.open { display: inline-block; font-weight: 600; font-size: 14px; text-decoration: none; padding: 7px 14px; border-radius: 4px; background: var(--ink); color: var(--surface); border: 1px solid var(--ink); }
+a.open:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+a.sec { font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; padding: 7px 4px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; max-width: 70ch; }
+[hidden] { display: none !important; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Lærer<span>side</span></h1>
+    <div class="who" id="who" hidden><span id="navn"></span><button id="loggut">Logg ut</button></div>
+  </header>
+  <p class="lead">Lærer- og admindelene i alle verktøyene samlet på ett sted. Hvert verktøy har sin egen innlogging, og kortet viser hvilken kode du trenger.</p>
+
+  <section class="login" id="login" hidden>
+    <h2>Logg inn</h2>
+    <p class="lead" style="margin-top:0">Bruk samme lærerkode som i Taktlinja. Du blir da også logget inn i Taktlinja og Kursstien.</p>
+    <form class="row" id="loginForm">
+      <input id="kode" type="password" autocomplete="current-password" placeholder="Lærerkode" aria-label="Lærerkode" required>
+      <button class="primary" type="submit">Logg inn</button>
+    </form>
+    <p class="msg" id="loginMsg" hidden></p>
+  </section>
+
+  <div id="app" hidden></div>
+
+  <footer id="fot" hidden>Lenkene hentes først etter innlogging. Innloggingen varer i 12 timer.</footer>
+</div>
+
+<script>
+// Samme lagring som Taktlinja og Kursstien bruker, så én innlogging gjelder alle tre.
+const AUTH_KEY = 'taktlinja-laerer';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+function lesAuth() {
+  try { const a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); return a && a.token && a.exp > Date.now() ? a : null; } catch (e) { return null; }
+}
+function lagreAuth(a) {
+  try { a ? localStorage.setItem(AUTH_KEY, JSON.stringify(a)) : localStorage.removeItem(AUTH_KEY); } catch (e) {}
+}
+
+let auth = lesAuth();
+
+function visLogin(msg) {
+  auth = null;
+  lagreAuth(null);
+  $('app').hidden = true; $('who').hidden = true; $('fot').hidden = true; $('login').hidden = false;
+  $('app').innerHTML = '';
+  $('loginMsg').hidden = !msg; $('loginMsg').textContent = msg || '';
+  $('kode').focus();
+}
+
+// Eksterne lenker åpnes i ny fane, lenker inni Taktlinja i samme fane.
+function lenke(l) {
+  const ekstern = /^https?:/.test(l.url);
+  const attr = ekstern ? ' target="_blank" rel="noopener"' : '';
+  return `<a class="${l.hoved ? 'open' : 'sec'}" href="${esc(l.url)}"${attr}>${esc(l.tekst)}</a>`;
+}
+
+function kort(k) {
+  const tags = [`<span class="tag login">${esc(k.login)}</span>`, ...(k.merk || []).map(m => `<span class="tag">${esc(m)}</span>`)].join('');
+  return `<article class="card">
+    <div class="top"><span class="badge">${esc(k.merke)}</span><div><h3>${esc(k.tittel)}</h3><p class="for">${esc(k.for)}</p></div></div>
+    <p class="desc">${esc(k.tekst)}</p>
+    <div class="foot"><div class="tags">${tags}</div><div class="links">${k.lenker.map(lenke).join('')}</div></div>
+  </article>`;
+}
+
+async function hent() {
+  try {
+    const r = await fetch('/api/lenker', { headers: { 'x-laerer-token': auth.token } });
+    if (r.status === 401) return visLogin('Innloggingen har gått ut. Logg inn på nytt.');
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    $('app').innerHTML = d.seksjoner.map(s => `<section><h2>${esc(s.tittel)}</h2><div class="grid">${s.kort.map(kort).join('')}</div></section>`).join('');
+    $('navn').textContent = 'Innlogget: ' + d.navn;
+    $('login').hidden = true; $('app').hidden = false; $('who').hidden = false; $('fot').hidden = false;
+  } catch (e) {
+    $('login').hidden = false;
+    $('loginMsg').hidden = false;
+    $('loginMsg').textContent = 'Kunne ikke hente lenkene. Sjekk nettforbindelsen og prøv igjen.';
+  }
+}
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const kode = $('kode').value.trim();
+  try {
+    const r = await fetch('/api/laerer/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kode }) });
+    if (!r.ok) return visLogin(r.status === 401 ? 'Feil lærerkode.' : r.status === 429 ? 'For mange forsøk. Vent litt og prøv igjen.' : 'Kunne ikke logge inn.');
+    const d = await r.json();
+    auth = { token: d.token, navn: d.navn, exp: d.exp };
+    lagreAuth(auth);
+    $('kode').value = '';
+    hent();
+  } catch (err) { visLogin('Kunne ikke logge inn. Sjekk nettforbindelsen.'); }
+});
+$('loggut').onclick = () => visLogin('');
+
+if (auth) hent(); else visLogin('');
+</script>
