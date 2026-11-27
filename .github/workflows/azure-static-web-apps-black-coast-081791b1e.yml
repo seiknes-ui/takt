@@ -19,6 +19,15 @@ jobs:
         with:
           submodules: true
           lfs: false
+      # ADR/RID 2025 fra DSB som tekst til oppgavesjekken (api/src/functions/adr.js). Ligger ikke i repoet.
+      - name: Hent ADR-boka fra DSB
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+          mkdir -p api/data
+          curl -sSfL https://www.dsb.no/siteassets/rapporter-og-publikasjoner/veileder/adrrid-2025.pdf -o /tmp/adr.pdf
+          pdftotext -q -raw /tmp/adr.pdf api/data/adr.txt
+          ls -l api/data
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

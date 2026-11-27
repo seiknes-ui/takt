@@ -41,6 +41,17 @@ På Azure kan læreren følge elevenes samtaler på `kundeservice.html#laerer` (
 
 Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt med noder (`k` = kundens meldinger, `valg` = svar med humørendring `h`, profesjonalitet `p` 0–2, neste node `til`, forklaring `hvorfor` og eventuelt `brudd`).
 
+## ADR-oppgavesjekk
+
+`adr.html` lar eleven ta bilde av en ADR-oppgave, for eksempel fra en oppgavesamling, og få den sjekket mot ADR/RID 2025 og forskriften fra DSB. Den bruker samme Claude-nøkkel og samme klassekoder som AI-kundene i kundeservice.
+
+- Kallet går til `POST /api/adr-oppgave` med klassekoden og bildet (JPEG, høyst omtrent 1,8 MB, gjort mindre i nettleseren) eller oppgaven skrevet inn.
+- Claude (modellen Claude Opus 5.5) leser oppgaven og foreslår avsnitt, paragrafer, UN-numre og søkeord. Serveren henter de avsnittene fra boka, med fotnotene nederst på sidene, og Claude sjekker svaret bare mot utdragene. Svaret har riktig svar, vurdering (riktig, feil, delvis, ikke besvart, uklar, står ikke i boka), forklaring, hva som er feil, og kilder med avsnitt, side og sitat.
+- Ved et avslag fra sikkerhetsfiltrene prøver API-et en annen modell automatisk (`fallbacks: "default"`).
+- Boka ligger ikke i repoet. Utrullingen henter PDF-en fra www.dsb.no og lager `api/data/adr.txt` med `pdftotext`, én side per PDF-side, så sidetallene er de samme som i boka. Mangler fila, svarer API-et at boka ikke er lastet.
+- Bildet lagres ikke. Oppgaveteksten, svaret og vurderingen lagres i containeren `adroppgaver` hos læreren som eier klassekoden, og slettes etter to år. Læreren ser dem på `adr.html#laerer`, kan filtrere på vurdering, slette og laste ned JSON for å forbedre spørsmålene i ADR-kurset.
+- Kostnad: omtrent 15 000–25 000 tokens inn og 2 000–4 000 ut per oppgave. Utgiftsgrensen i Claude Console gjelder også her.
+
 ## Struktur
 
 | Sti | Innhold |
@@ -48,6 +59,7 @@ Kundene ligger som dialogtrær i `KUNDER` i siden. En ny kunde er et nytt objekt
 | `index.html` | Hele appen. Skrevet som sideinnhold, slik at den også kan publiseres som Artifact på claude.ai. |
 | `kundeservice.html` | Kundeservice-simulatoren. Samme format som `index.html`. |
 | `kurs.html` | Kursstien for truckførerkurset. Samme format som `index.html`. |
+| `adr.html` | ADR-oppgavesjekk med bilde. Elevvisning, og lærervisning på `#laerer`. Samme format som `index.html`. |
 | `tilbakemelding.html` | Kurstilbakemelding med fjes. Elevvisning, og lærervisning på `#laerer`. Samme format som `index.html`. |
 | `laerer.html` | Lærersiden med lenker til lærer- og admindelene i alle verktøyene. Samme format som `index.html`. |
 | `scripts/bygg.mjs` | Lager sidene i `dist/` med fullt dokumentskall for Azure (`npm run build`). |

@@ -13,6 +13,17 @@ const INGEN = 'Ingen innlogging';
 
 const SEKSJONER = [
   {
+    tittel: 'ADR grunnkurs',
+    kort: [
+      {
+        merke: 'AD', tittel: 'ADR-oppgavesjekk', for: 'Oppgaver elevene har sjekket med bilde',
+        tekst: 'Elevene tar bilde av en ADR-oppgave og får den sjekket mot ADR/RID 2025 av Claude. Her ser du oppgavene, vurderingen og kildene i boka, og kan laste dem ned som JSON for å forbedre spørsmålene i ADR-kurset. Elevene bruker klassekoden fra kundeservice.',
+        login: TAKT_KODE,
+        lenker: [{ tekst: 'Elevsiden', url: 'adr.html' }, { tekst: 'Åpne', url: 'adr.html#laerer', hoved: true }],
+      },
+    ],
+  },
+  {
     tittel: 'Truck: daglig kontroll og oppkjøring',
     kort: [
       {
