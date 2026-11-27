@@ -10,7 +10,7 @@ async function init() {
   // Delt gjennomstrømning på databasen holder hele appen innenfor gratisnivået (1000 RU/s).
   const { database } = await client.databases.createIfNotExists({ id: process.env.COSMOS_DATABASE || 'takt', throughput: 1000 });
   const opprett = (id, key, extra = {}) => database.containers.createIfNotExists({ id, partitionKey: { paths: [key] }, ...extra }).then(r => r.container);
-  const [oppsett, runder, rom, klasser, rapporter, kvalitet, kurs, tilbakemelding] = await Promise.all([
+  const [oppsett, runder, rom, klasser, rapporter, kvalitet, kurs, tilbakemelding, adroppgaver] = await Promise.all([
     opprett('oppsett', '/laererId'),
     opprett('runder', '/laererId'),
     // Live-status er kortlivet: dokumentene slettes automatisk etter ett minutt uten oppdatering.
@@ -28,8 +28,10 @@ async function init() {
     opprett('kurs', '/laererId'),
     // Anonyme kurstilbakemeldinger (fjes og kommentar). Slettes automatisk etter 400 dager.
     opprett('tilbakemelding', '/kurs', { defaultTtl: 400 * 24 * 3600 }),
+    // ADR-oppgaver som elevene har sjekket med bilde (uten bildet). Til læreren, for å forbedre spørsmålene. Slettes etter to år.
+    opprett('adroppgaver', '/laererId', { defaultTtl: 730 * 24 * 3600 }),
   ]);
-  return { oppsett, runder, rom, klasser, rapporter, kvalitet, kurs, tilbakemelding };
+  return { oppsett, runder, rom, klasser, rapporter, kvalitet, kurs, tilbakemelding, adroppgaver };
 }
 
 function containers() {

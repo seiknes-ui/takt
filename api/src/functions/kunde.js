@@ -1,9 +1,7 @@
-const crypto = require('crypto');
 const { app } = require('@azure/functions');
 const { Anthropic } = require('@anthropic-ai/sdk');
-const { laererFra } = require('../lib/auth');
 const { REGLER, KUNDER } = require('../lib/kunder');
-const { finnKlasse } = require('../lib/klasser');
+const { harTilgang, klassekoder, sperre } = require('../lib/tilgang');
 const { json, feil, lesJson, vakt } = require('../lib/http');
 
 // AI-kunder i kundeservice-simulatoren. Claude spiller kunden og vurderer eleven etterpå.
@@ -18,35 +16,7 @@ const UTFALL = ['lost', 'delvis', 'ulost', 'videre', 'brudd'];
 let klient = null;
 const ai = () => klient || (klient = new Anthropic({ timeout: 35000, maxRetries: 1 }));
 
-const sha = s => crypto.createHash('sha256').update(s).digest();
-const norm = s => String(s).trim().toLowerCase();
-
-function klassekoder() {
-  return (process.env.KUNDESERVICE_KODER || '').split(/[;\n]/).map(norm).filter(k => k.length >= 4);
-}
-
-async function harTilgang(req, kode) {
-  try { if (laererFra(req)) return true; } catch { /* TOKEN_SECRET mangler: bare klassekoder gjelder */ }
-  if (typeof kode !== 'string' || !kode) return false;
-  const h = sha('ks:' + norm(kode));
-  let ok = false;
-  for (const k of klassekoder()) if (crypto.timingSafeEqual(h, sha('ks:' + k))) ok = true;
-  if (ok) return true;
-  // Klassekoder som læreren har laget i appen. Uten database gjelder bare kodene over.
-  try { return !!(await finnKlasse(kode)); } catch { return false; }
-}
-
-// Enkel sperre mot løpske skript. Den gjelder per instans, så den reelle grensen er utgiftsgrensen i Claude Console.
-const kall = new Map();
-function forMange(req) {
-  const ip = (req.headers.get('x-forwarded-for') || 'ukjent').split(',')[0].trim();
-  const nå = Date.now();
-  const l = (kall.get(ip) || []).filter(t => t > nå - GRENSE.ms);
-  l.push(nå);
-  kall.set(ip, l);
-  if (kall.size > 5000) kall.clear();
-  return l.length > GRENSE.antall;
-}
+const forMange = sperre(GRENSE);
 
 function lesUtskrift(u) {
   if (!Array.isArray(u) || !u.length || u.length > MAKS_LINJER) return null;
