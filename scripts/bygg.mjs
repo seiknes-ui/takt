@@ -1,7 +1,7 @@
 // Lager dist/ for Azure Static Web Apps fra sidene i rota (index.html og kundeservice.html).
 // Sidene er skrevet som innholdet i en side (slik claude.ai Artifacts vil ha det),
 // så her legges dokumentskallet rundt: doctype, head med metadata og stil, og body.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 
 const SIDER = ['index.html', 'kundeservice.html', 'kvalitet.html', 'kurs.html', 'laerer.html', 'tilbakemelding.html', 'adr.html'];
 
@@ -37,7 +37,3 @@ ${body}
   writeFileSync(new URL('../dist/' + side, import.meta.url), html);
   console.log(`dist/${side} skrevet (${Math.round(html.length / 1024)} kB)`);
 }
-
-// ADR-påmelding for lokal PC: én ferdig fil (lages med scripts/bygg-pamelding.mjs) som kan lastes ned fra lærersiden.
-copyFileSync(new URL('../skjema/adr-pamelding-lokal.html', import.meta.url), new URL('../dist/adr-pamelding-lokal.html', import.meta.url));
-console.log('dist/adr-pamelding-lokal.html kopiert');
