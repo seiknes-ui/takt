@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADR-påmelding</title>
+<style>
+/* Påmelding til ADR-kurs på en lokal PC, uten nett. Alt lagres kryptert i nettleseren på denne PC-en.
+   Deltakerne legger seg inn med «Ny deltaker». Listen er skjult bak kursholderens PIN-kode. */
+:root { --bg: #E8EBE7; --surface: #F7F8F5; --ink: #1B201E; --muted: #5A6560; --line: #C6CDC8; --accent: #F2B300; --ok: #2B9A58; --bad: #D0392A; color-scheme: light; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 "Segoe UI", system-ui, sans-serif; margin: 0; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 24px 16px 60px; }
+h1 { font: 800 40px/1 "Arial Narrow", Impact, sans-serif; text-transform: uppercase; margin: 0 0 6px; }
+h1 span { color: var(--accent); }
+h2 { font: 700 24px/1.2 "Arial Narrow", system-ui, sans-serif; margin: 0 0 10px; }
+.lead { color: var(--muted); margin: 0 0 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; margin: 12px 0; }
+label { display: block; font-weight: 600; margin: 10px 0 4px; }
+label.valg { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; margin: 6px 0; }
+label.valg input { margin-top: 4px; }
+input:not([type=radio]):not([type=checkbox]) { width: 100%; font: inherit; padding: 10px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--ink); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.grid .hel { grid-column: 1 / -1; }
+@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+button { font: inherit; font-weight: 600; padding: 10px 16px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+button.stor { font-size: 22px; padding: 18px 28px; }
+button.fare { color: var(--bad); }
+button.lenke { border: 0; background: none; color: var(--muted); text-decoration: underline; padding: 4px; font-weight: 400; }
+.msg { color: var(--muted); margin: 10px 0 0; }
+.msg.feil { color: var(--bad); font-weight: 600; }
+.msg.ok { color: var(--ok); font-weight: 600; }
+.liten { font-size: 13px; color: var(--muted); }
+fieldset { border: 1px solid var(--line); border-radius: 4px; margin: 10px 0; padding: 8px 12px; }
+legend { font-weight: 600; padding: 0 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); }
+.tabell { overflow-x: auto; }
+.bunn { margin-top: 32px; text-align: right; }
+[hidden] { display: none !important; }
+#utskrift { display: none; }
+@media print {
+  body { background: #fff; }
+  .wrap > *:not(#utskrift) { display: none !important; }
+  #utskrift { display: block !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ADR-<span>påmelding</span></h1>
+  <div id="kursinfo" class="lead"></div>
+
+  <!-- Deltakeren: bare «Ny deltaker» og skjemaet. Listen vises aldri her. -->
+  <section id="start">
+    <div class="card" style="text-align:center">
+      <p id="antall" class="liten"></p>
+      <button class="primary stor" id="ny">+ Ny deltaker</button>
+    </div>
+  </section>
+
+  <form class="card" id="skjema" hidden autocomplete="off">
+    <h2>Ny deltaker</h2>
+    <div class="grid">
+      <div><label for="fornavn">Fornavn</label><input id="fornavn" required maxlength="60" autocomplete="off"></div>
+      <div><label for="etternavn">Etternavn</label><input id="etternavn" required maxlength="60" autocomplete="off"></div>
+      <div class="hel"><label for="fnr">Fødselsnummer (11 siffer)</label><input id="fnr" inputmode="numeric" required maxlength="13" autocomplete="off"></div>
+      <div class="hel"><label for="adresse">Adresse</label><input id="adresse" required maxlength="100" autocomplete="off"></div>
+      <div><label for="postnr">Postnummer</label><input id="postnr" inputmode="numeric" required maxlength="4" autocomplete="off"></div>
+      <div><label for="poststed">Poststed</label><input id="poststed" required maxlength="40" autocomplete="off"></div>
+      <div><label for="telefon">Telefon</label><input id="telefon" type="tel" required maxlength="20" autocomplete="off"></div>
+      <div><label for="epost">E-post (valgfritt)</label><input id="epost" type="email" maxlength="100" autocomplete="off"></div>
+    </div>
+    <fieldset>
+      <legend>Har du ADR-kompetansebevis fra før?</legend>
+      <label class="valg"><input type="radio" name="tidligere" value="nei" checked> Nei</label>
+      <label class="valg"><input type="radio" name="tidligere" value="ja"> Ja</label>
+      <div class="grid" id="bevis" hidden>
+        <div><label for="bevisnr">Bevisnummer</label><input id="bevisnr" maxlength="30" autocomplete="off"></div>
+        <div><label for="gyldig">Gyldig til</label><input id="gyldig" type="date"></div>
+      </div>
+    </fieldset>
+    <label class="valg"><input type="checkbox" id="samtykke" required> <span>Opplysningene stemmer, og kursholderen kan bruke dem til å melde meg opp til ADR-prøven og fylle ut søknaden om prøve for ADR-kompetansebevis. De lagres bare på denne PC-en og slettes etter kurset.</span></label>
+    <div class="row" style="margin-top:12px"><button class="primary" type="submit">Lagre</button><button type="button" id="avbryt">Avbryt</button></div>
+    <p class="msg" id="skjema-msg" aria-live="polite"></p>
+  </form>
+
+  <section id="takk" hidden>
+    <div class="card" style="text-align:center">
+      <h2 id="takk-tekst"></h2>
+      <p>Opplysningene er lagret. Skjermen tømmes om noen sekunder.</p>
+      <button class="primary" id="ferdig">Ferdig</button>
+    </div>
+  </section>
+
+  <!-- Kursholderen -->
+  <section id="pin" hidden>
+    <form class="card" id="f-pin">
+      <h2 id="pin-tittel">Kursholder</h2>
+      <p class="liten" id="pin-tekst"></p>
+      <label for="pin1">PIN-kode</label><input id="pin1" type="password" autocomplete="off" required minlength="6">
+      <div id="pin2-boks" hidden><label for="pin2">Gjenta PIN-koden</label><input id="pin2" type="password" autocomplete="off"></div>
+      <div class="row" style="margin-top:12px"><button class="primary" type="submit">Fortsett</button><button type="button" id="pin-avbryt">Avbryt</button></div>
+      <p class="msg" id="pin-msg"></p>
+      <p class="liten" id="glemt" hidden>Har du glemt PIN-koden? Da kan listen ikke åpnes. <button type="button" class="lenke" id="slett-alt-glemt">Slett alt og start på nytt</button></p>
+    </form>
+  </section>
+
+  <section id="laerer" hidden>
+    <div class="row"><button id="l-ny">+ Ny deltaker</button><button id="l-kurs">Kursopplysninger</button><button id="l-las" class="primary">Lås og gå tilbake</button></div>
+    <form class="card" id="f-kurs" hidden></form>
+    <div class="card" id="liste"></div>
+  </section>
+
+  <div class="bunn"><button class="lenke" id="til-laerer">Kursholder</button></div>
+  <div id="utskrift"></div>
+</div>
+
+<script>/*PDFLIB*/</script>
+<script>/*NA0200*/</script>
+<script>
+(() => {
+  const MAL = '__MAL_BASE64__';
+  const NOKKEL = 'adr-pamelding-lokal-v1';
+  const SLETT_ETTER_DAGER = 60;
+  const LAS_ETTER_MS = 10 * 60 * 1000;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const norsk = iso => (iso ? iso.split('-').reverse().join('.') : '');
+  const periode = k => (k.til && k.til !== k.fra ? `${norsk(k.fra)}–${norsk(k.til)}` : norsk(k.fra));
+  const KURSNAVN = { grunnkurs: 'Grunnkurs', klasse1: 'Spesialiseringskurs klasse 1', klasse7: 'Spesialiseringskurs klasse 7', tank: 'Spesialiseringskurs tank' };
+  const valgTekst = k => Object.keys(KURSNAVN).filter(x => k.kurs && k.kurs[x]).map(x => KURSNAVN[x]).join(', ');
+  const opplTekst = k => (k.opplaering === 'oppfrisk' ? 'Oppfriskning' : 'Førstegangsopplæring');
+  const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const fraB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const enc = new TextEncoder(), dec = new TextDecoder();
+
+  // ---------- Lagring ----------
+  // { pub, salt, iv, priv, kurs, deltakere: [{ id, tid, nokkel, iv, data }] }. Deltakerne er kryptert med kursholderens offentlige nøkkel,
+  // så nye deltakere kan lagres uten PIN-koden, men bare den som har PIN-koden kan lese dem.
+  const les = () => { try { return JSON.parse(localStorage.getItem(NOKKEL) || 'null'); } catch (e) { return null; } };
+  const lagre = d => localStorage.setItem(NOKKEL, JSON.stringify(d));
+  let D = les();
+
+  // Sletter påmeldingene automatisk når det er gått 60 dager etter siste kursdag.
+  if (D && D.kurs && D.kurs.til && Date.now() > Date.parse(D.kurs.til) + SLETT_ETTER_DAGER * 864e5 && D.deltakere.length) { D.deltakere = []; lagre(D); }
+
+  // ---------- Kryptering ----------
+  const RSA = { name: 'RSA-OAEP', hash: 'SHA-256' };
+  async function pinNokkel(pin, salt) {
+    const base = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+  async function opprett(pin) {
+    const par = await crypto.subtle.generateKey({ ...RSA, modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]) }, true, ['encrypt', 'decrypt']);
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const priv = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await pinNokkel(pin, salt), await crypto.subtle.exportKey('pkcs8', par.privateKey));
+    D = { pub: b64(await crypto.subtle.exportKey('spki', par.publicKey)), salt: b64(salt), iv: b64(iv), priv: b64(priv), kurs: null, deltakere: [] };
+    lagre(D);
+    return par.privateKey;
+  }
+  async function lasOpp(pin) {
+    try {
+      const raw = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fraB64(D.iv) }, await pinNokkel(pin, fraB64(D.salt)), fraB64(D.priv));
+      return await crypto.subtle.importKey('pkcs8', raw, RSA, false, ['decrypt']);
+    } catch (e) { return null; }
+  }
+  async function krypter(obj) {
+    const pub = await crypto.subtle.importKey('spki', fraB64(D.pub), RSA, false, ['encrypt']);
+    const aes = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aes, enc.encode(JSON.stringify(obj)));
+    const nokkel = await crypto.subtle.encrypt(RSA, pub, await crypto.subtle.exportKey('raw', aes));
+    return { nokkel: b64(nokkel), iv: b64(iv), data: b64(data) };
+  }
+  async function dekrypter(priv, e) {
+    const raw = await crypto.subtle.decrypt(RSA, priv, fraB64(e.nokkel));
+    const aes = await crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt']);
+    return JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fraB64(e.iv) }, aes, fraB64(e.data))));
+  }
+
+  // ---------- Fødselsnummer ----------
+  function fodselsdato(f) {
+    let dag = +f.slice(0, 2), mnd = +f.slice(2, 4);
+    const aa = +f.slice(4, 6), ind = +f.slice(6, 9);
+    if (dag > 40) dag -= 40;
+    if (mnd > 40 && mnd < 53) mnd -= 40;
+    let aar;
+    if (ind <= 499) aar = 1900 + aa;
+    else if (ind <= 749 && aa >= 54) aar = 1800 + aa;
+    else if (aa <= 39) aar = 2000 + aa;
+    else if (ind >= 900) aar = 1900 + aa;
+    else return '';
+    const dt = new Date(Date.UTC(aar, mnd - 1, dag));
+    if (dt.getUTCMonth() !== mnd - 1 || dt.getUTCDate() !== dag) return '';
+    return `${String(dag).padStart(2, '0')}.${String(mnd).padStart(2, '0')}.${aar}`;
+  }
+  function gyldigFnr(f) {
+    if (!/^\d{11}$/.test(f)) return false;
+    const d = f.split('').map(Number), kk = k => (k === 11 ? 0 : k);
+    const k1 = 11 - ([3, 7, 6, 1, 8, 9, 4, 5, 2].reduce((s, v, i) => s + v * d[i], 0) % 11);
+    const k2 = 11 - ([5, 4, 3, 2, 7, 6, 5, 4, 3, 2].reduce((s, v, i) => s + v * d[i], 0) % 11);
+    return k1 !== 10 && k2 !== 10 && kk(k1) === d[9] && kk(k2) === d[10] && !!fodselsdato(f);
+  }
+
+  // ---------- Visning ----------
+  let priv = null, liste = [], lasTimer = null, takkTimer = null;
+  const vis = id => { for (const s of ['start', 'skjema', 'takk', 'pin', 'laerer']) $(s).hidden = s !== id; $('til-laerer').hidden = id !== 'start'; };
+  function tegnInfo() {
+    const k = D && D.kurs;
+    $('kursinfo').innerHTML = k ? `<b>${esc(k.navn)}</b> · ${esc(periode(k))} · ${esc(k.sted)}<br>${esc(opplTekst(k))}: ${esc(valgTekst(k))}` : 'Kursholderen må legge inn kursopplysningene først (knappen «Kursholder» nederst).';
+    const n = D ? D.deltakere.length : 0;
+    $('antall').textContent = n ? `${n} ${n === 1 ? 'deltaker' : 'deltakere'} er registrert.` : '';
+    $('ny').disabled = !(D && D.kurs);
+  }
+  function hjem() { priv = null; liste = []; clearTimeout(lasTimer); $('utskrift').innerHTML = ''; tegnInfo(); vis('start'); }
+
+  // ---------- Ny deltaker ----------
+  function nyDeltaker() {
+    $('skjema').reset(); $('bevis').hidden = true; $('skjema-msg').textContent = '';
+    if (D.kurs.opplaering === 'oppfrisk') { document.querySelector('input[name=tidligere][value=ja]').checked = true; $('bevis').hidden = false; }
+    vis('skjema'); $('fornavn').focus();
+  }
+  $('ny').onclick = nyDeltaker;
+  $('avbryt').onclick = () => { $('skjema').reset(); priv ? visLaerer() : hjem(); };
+  document.querySelectorAll('input[name=tidligere]').forEach(r => r.addEventListener('change', () => { $('bevis').hidden = document.querySelector('input[name=tidligere]:checked').value !== 'ja'; }));
+  $('skjema').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('skjema-msg'); m.className = 'msg feil';
+    const v = id => $(id).value.trim();
+    const fnr = v('fnr').replace(/\D/g, '');
+    const tidligere = document.querySelector('input[name=tidligere]:checked').value === 'ja';
+    if (!gyldigFnr(fnr)) { m.textContent = 'Fødselsnummeret er ikke gyldig. Sjekk de 11 sifrene.'; $('fnr').focus(); return; }
+    if (!/^\d{4}$/.test(v('postnr'))) { m.textContent = 'Postnummeret skal ha 4 siffer.'; $('postnr').focus(); return; }
+    if (!/^[+\d][\d ]{7,}$/.test(v('telefon'))) { m.textContent = 'Skriv et telefonnummer.'; $('telefon').focus(); return; }
+    const d = {
+      fornavn: v('fornavn'), etternavn: v('etternavn'), fnr, fodselsdato: fodselsdato(fnr), adresse: v('adresse'), postnr: v('postnr'), poststed: v('poststed'),
+      telefon: v('telefon'), epost: v('epost'), tidligere, bevisnr: tidligere ? v('bevisnr') : '', gyldigTil: tidligere ? $('gyldig').value : '',
+    };
+    try {
+      const id = crypto.getRandomValues(new Uint32Array(2)).join('-');
+      D.deltakere.push({ id, tid: new Date().toISOString(), ...(await krypter(d)) });
+      lagre(D);
+    } catch (err) { m.textContent = 'Klarte ikke å lagre: ' + err.message; return; }
+    $('skjema').reset();
+    if (priv) { liste.push({ id: D.deltakere[D.deltakere.length - 1].id, ...d }); visLaerer(); return; }
+    $('takk-tekst').textContent = `Takk, ${d.fornavn}!`;
+    vis('takk');
+    clearTimeout(takkTimer); takkTimer = setTimeout(hjem, 8000);
+  });
+  $('ferdig').onclick = () => { clearTimeout(takkTimer); hjem(); };
+
+  // ---------- Kursholder: PIN ----------
+  $('til-laerer').onclick = () => {
+    const ny = !D;
+    $('f-pin').reset(); $('pin-msg').textContent = '';
+    $('pin-tittel').textContent = ny ? 'Velg PIN-kode' : 'Kursholder';
+    $('pin-tekst').textContent = ny ? 'Velg en PIN-kode på minst 6 tegn. Den trengs for å se listen. Uten PIN-koden kan listen ikke åpnes, heller ikke av deg.' : 'Skriv PIN-koden for å se listen.';
+    $('pin2-boks').hidden = !ny; $('pin2').required = ny; $('glemt').hidden = ny;
+    vis('pin'); $('pin1').focus();
+  };
+  $('pin-avbryt').onclick = hjem;
+  $('f-pin').addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = $('pin-msg'); m.className = 'msg'; m.textContent = 'Åpner …';
+    const pin = $('pin1').value;
+    if (!D) {
+      if (pin.length < 6) { m.className = 'msg feil'; m.textContent = 'PIN-koden må ha minst 6 tegn.'; return; }
+      if (pin !== $('pin2').value) { m.className = 'msg feil'; m.textContent = 'PIN-kodene er ikke like.'; return; }
+      priv = await opprett(pin); liste = [];
+      $('f-pin').reset(); visLaerer(); kursSkjema(); return;
+    }
+    const p = await lasOpp(pin);
+    $('f-pin').reset();
+    if (!p) { m.className = 'msg feil'; m.textContent = 'Feil PIN-kode.'; return; }
+    priv = p; liste = [];
+    for (const x of D.deltakere) { try { liste.push({ id: x.id, ...(await dekrypter(priv, x)) }); } catch (err) { /* hopper over en ødelagt oppføring */ } }
+    visLaerer();
+  });
+  $('slett-alt-glemt').onclick = slettAlt;
+  function slettAlt() {
+    if (!confirm('Slette alle påmeldingene, kursopplysningene og PIN-koden på denne PC-en? Det kan ikke angres.')) return;
+    localStorage.removeItem(NOKKEL); D = null; hjem();
+  }
+  // Låser listen etter 10 minutter uten aktivitet.
+  const aktiv = () => { if (!priv) return; clearTimeout(lasTimer); lasTimer = setTimeout(hjem, LAS_ETTER_MS); };
+  ['click', 'keydown'].forEach(t => document.addEventListener(t, aktiv));
+
+  // ---------- Kursholder: kurs og liste ----------
+  function kursSkjema() {
+    const k = D.kurs || { opplaering: 'forste', kurs: { grunnkurs: true }, prove: 'separat', praktisk: true, utgave: '2025' };
+    const f = $('f-kurs'); f.hidden = false;
+    f.innerHTML = `<h2>Kursopplysninger</h2>
+      <div class="grid">
+        <div class="hel"><label for="k-navn">Navn på kurset</label><input id="k-navn" maxlength="80" value="${esc(k.navn || 'ADR-kurs')}"></div>
+        <div class="hel"><label for="k-sted">Kurssted</label><input id="k-sted" maxlength="80" required value="${esc(k.sted || '')}"></div>
+        <div><label for="k-fra">Første kursdag</label><input id="k-fra" type="date" required value="${esc(k.fra || '')}"></div>
+        <div><label for="k-til">Siste kursdag (prøvedag)</label><input id="k-til" type="date" value="${esc(k.til || '')}"></div>
+        <div><label for="k-utgave">Prøve etter ADR-utgaven</label><input id="k-utgave" inputmode="numeric" maxlength="4" value="${esc(k.utgave || '2025')}"></div>
+      </div>
+      <fieldset><legend>Opplæring</legend>
+        <label class="valg"><input type="radio" name="k-oppl" value="forste" ${k.opplaering !== 'oppfrisk' ? 'checked' : ''}> Førstegangsopplæring</label>
+        <label class="valg"><input type="radio" name="k-oppl" value="oppfrisk" ${k.opplaering === 'oppfrisk' ? 'checked' : ''}> Oppfriskning</label></fieldset>
+      <fieldset><legend>Kurs</legend>${Object.keys(KURSNAVN).map(x => `<label class="valg"><input type="checkbox" data-kurs="${x}" ${k.kurs && k.kurs[x] ? 'checked' : ''}> ${KURSNAVN[x]}</label>`).join('')}</fieldset>
+      <fieldset><legend>Prøve og kurs</legend>
+        <label class="valg"><input type="radio" name="k-prove" value="separat" ${k.prove !== 'kombinert' ? 'checked' : ''}> Separat</label>
+        <label class="valg"><input type="radio" name="k-prove" value="kombinert" ${k.prove === 'kombinert' ? 'checked' : ''}> Kombinert</label>
+        <label class="valg"><input type="checkbox" id="k-praktisk" ${k.praktisk !== false ? 'checked' : ''}> Praktisk øving er gjennomført (krysses av i attesten)</label></fieldset>
+      <div class="row" style="margin-top:12px"><button class="primary" type="submit">Lagre</button><button type="button" id="k-avbryt">Lukk</button></div>
+      <p class="msg" id="k-msg"></p>`;
+    $('k-avbryt').onclick = () => { f.hidden = true; };
+    f.onsubmit = e => {
+      e.preventDefault();
+      const kurs = {}; f.querySelectorAll('[data-kurs]').forEach(c => { kurs[c.dataset.kurs] = c.checked; });
+      if (!Object.values(kurs).some(Boolean)) { $('k-msg').className = 'msg feil'; $('k-msg').textContent = 'Velg minst ett kurs.'; return; }
+      D.kurs = {
+        navn: $('k-navn').value.trim() || 'ADR-kurs', sted: $('k-sted').value.trim(), fra: $('k-fra').value, til: $('k-til').value || $('k-fra').value,
+        utgave: /^\d{4}$/.test($('k-utgave').value) ? $('k-utgave').value : '2025', opplaering: f.querySelector('input[name=k-oppl]:checked').value,
+        kurs, prove: f.querySelector('input[name=k-prove]:checked').value, praktisk: $('k-praktisk').checked,
+      };
+      lagre(D); f.hidden = true; tegnInfo(); visLaerer();
+    };
+  }
+  function visLaerer() {
+    vis('laerer'); tegnInfo(); aktiv();
+    const k = D.kurs;
+    liste.sort((a, b) => (a.etternavn + a.fornavn).localeCompare(b.etternavn + b.fornavn, 'nb'));
+    $('liste').innerHTML = `<h2>${liste.length} påmeldt</h2>
+      ${k ? '' : '<p class="msg feil">Legg inn kursopplysningene før deltakerne melder seg på.</p>'}
+      <div class="row">
+        <button class="primary" id="pdf-arkiv" ${liste.length && k ? '' : 'disabled'}>Samlet PDF til arkiv (SharePoint)</button>
+        <button id="pdf-alle" ${liste.length && k ? '' : 'disabled'}>Bare skjemaene (PDF til utskrift)</button>
+        <button id="csv" ${liste.length ? '' : 'disabled'}>Liste til DSB (Excel/CSV)</button>
+        <button id="skrivut" ${liste.length ? '' : 'disabled'}>Skriv ut listen</button>
+      </div>
+      <div class="tabell" style="margin-top:12px">${liste.length ? `<table><thead><tr><th>Navn</th><th>Fødselsnr.</th><th>Telefon</th><th>Tidligere bevis</th><th></th></tr></thead><tbody>
+        ${liste.map(x => `<tr><td>${esc(x.etternavn)}, ${esc(x.fornavn)}<br><span class="liten">${esc(x.adresse)}, ${esc(x.postnr)} ${esc(x.poststed)}</span></td>
+        <td>${esc(x.fnr)}</td><td>${esc(x.telefon)}${x.epost ? `<br><span class="liten">${esc(x.epost)}</span>` : ''}</td>
+        <td>${x.tidligere ? `Ja, ${esc(x.bevisnr)}${x.gyldigTil ? ', gyldig til ' + esc(norsk(x.gyldigTil)) : ''}` : 'Nei'}</td>
+        <td><div class="row"><button data-pdf="${esc(x.id)}" ${k ? '' : 'disabled'}>PDF</button><button class="fare" data-slett="${esc(x.id)}">Slett</button></div></td></tr>`).join('')}</tbody></table>` : '<p>Ingen er registrert ennå.</p>'}</div>
+      <p class="liten">Opplysningene ligger bare i nettleseren på denne PC-en, kryptert med PIN-koden din. Påmeldingene slettes automatisk ${SLETT_ETTER_DAGER} dager etter siste kursdag. Filer du laster ned (PDF og CSV), må du selv slette når de er sendt. Listen låses etter 10 minutter uten aktivitet.</p>
+      <div class="row"><button class="fare" id="slett-deltakere" ${liste.length ? '' : 'disabled'}>Slett alle påmeldingene</button><button class="fare" id="slett-alt">Slett alt, også PIN-koden</button></div>
+      <p class="msg" id="l-msg"></p>`;
+    if (liste.length) {
+      $('csv').onclick = lastNedCsv; $('skrivut').onclick = skrivUt;
+      if (k) {
+        $('pdf-alle').onclick = () => lastNedPdf(liste, 'NA-0200 ' + k.navn);
+        $('pdf-arkiv').onclick = () => lastNedPdf(liste, `ADR-påmelding ${k.navn} ${k.fra}`, { forside: true });
+      }
+      $('slett-deltakere').onclick = () => { if (confirm(`Slette alle ${liste.length} påmeldingene?`)) { D.deltakere = []; lagre(D); liste = []; visLaerer(); } };
+    }
+    $('slett-alt').onclick = slettAlt;
+  }
+  $('liste').addEventListener('click', e => {
+    const p = e.target.closest('[data-pdf]');
+    if (p) { const x = liste.find(d => d.id === p.dataset.pdf); if (x) lastNedPdf([x], `NA-0200 ${x.etternavn} ${x.fornavn}`); return; }
+    const s = e.target.closest('[data-slett]');
+    if (s) {
+      const x = liste.find(d => d.id === s.dataset.slett);
+      if (!x || !confirm(`Slette ${x.fornavn} ${x.etternavn}?`)) return;
+      D.deltakere = D.deltakere.filter(d => d.id !== x.id); lagre(D); liste = liste.filter(d => d.id !== x.id); visLaerer();
+    }
+  });
+  $('l-ny').onclick = nyDeltaker;
+  $('l-kurs').onclick = kursSkjema;
+  $('l-las').onclick = hjem;
+
+  // ---------- Filer ----------
+  // Filnavn uten æ, ø og å, så de virker i alle nettlesere og i SharePoint.
+  const filnavn = s => s.replace(/[æÆ]/g, 'ae').replace(/[øØ]/g, 'o').replace(/[åÅ]/g, 'a').replace(/[^\w .-]+/g, '').trim().replace(/\s+/g, '_');
+  function lastNed(blob, navn) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = navn; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  async function lastNedPdf(deltakere, navn, valg) {
+    const m = $('l-msg'); m.className = 'msg'; m.textContent = 'Lager PDF …';
+    try {
+      const bytes = await window.NA0200.lagPdf(fraB64(MAL), D.kurs, deltakere, valg);
+      lastNed(new Blob([bytes], { type: 'application/pdf' }), filnavn(navn) + '.pdf');
+      m.textContent = `Laget skjema for ${deltakere.length} ${deltakere.length === 1 ? 'deltaker' : 'deltakere'}. Side 1 signeres av kandidaten, side 2 av kursholderen.`;
+    } catch (e) { m.className = 'msg feil'; m.textContent = 'Klarte ikke å lage PDF: ' + e.message; }
+  }
+  const KOLONNER = [['Etternavn', 'etternavn'], ['Fornavn', 'fornavn'], ['Fødselsnummer', 'fnr'], ['Fødselsdato', 'fodselsdato'], ['Adresse', 'adresse'], ['Postnummer', 'postnr'], ['Poststed', 'poststed'], ['Telefon', 'telefon'], ['E-post', 'epost'], ['Tidligere ADR-bevis', x => (x.tidligere ? 'Ja' : 'Nei')], ['Bevisnummer', 'bevisnr'], ['Gyldig til', x => norsk(x.gyldigTil)]];
+  function lastNedCsv() {
+    const k = D.kurs || {};
+    const celle = (v, i) => {
+      v = String(v == null ? '' : v);
+      if (i === 2 && /^\d{11}$/.test(v)) return `="${v}"`;   // fødselsnummer som tekst, så Excel beholder nullen foran
+      if (/^[=+\-@]/.test(v)) v = "'" + v;
+      return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    };
+    const linjer = [KOLONNER.map(c => c[0]).join(';')].concat(liste.map(x => KOLONNER.map(([, f], i) => celle(typeof f === 'function' ? f(x) : x[f], i)).join(';')));
+    lastNed(new Blob(['﻿' + linjer.join('\r\n')], { type: 'text/csv;charset=utf-8' }), filnavn(`Påmeldte ${k.navn || 'ADR-kurs'} ${k.fra || ''}`) + '.csv');
+  }
+  function skrivUt() {
+    const k = D.kurs || {};
+    $('utskrift').innerHTML = `<h2>${esc(k.navn || 'ADR-kurs')}</h2><p>${esc(periode(k))} · ${esc(k.sted || '')}<br>${esc(opplTekst(k))}: ${esc(valgTekst(k))} · ${k.prove === 'kombinert' ? 'kombinert' : 'separat'} prøve · ADR ${esc(k.utgave || '')}</p>
+      <table><thead><tr><th>#</th><th>Etternavn</th><th>Fornavn</th><th>Fødselsnummer</th><th>Adresse</th><th>Telefon</th><th>Tidligere bevis</th></tr></thead><tbody>
+      ${liste.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.etternavn)}</td><td>${esc(x.fornavn)}</td><td>${esc(x.fnr)}</td><td>${esc(x.adresse)}, ${esc(x.postnr)} ${esc(x.poststed)}</td><td>${esc(x.telefon)}</td><td>${x.tidligere ? 'Ja ' + esc(x.bevisnr) : 'Nei'}</td></tr>`).join('')}</tbody></table>`;
+    window.print();
+    setTimeout(() => { $('utskrift').innerHTML = ''; }, 1000);
+  }
+
+  if (!window.crypto || !crypto.subtle) {
+    document.querySelector('.wrap').innerHTML = '<div class="card"><p>Nettleseren støtter ikke kryptering her. Åpne filen i Edge, Chrome eller Firefox direkte fra PC-en.</p></div>';
+    return;
+  }
+  hjem();
+})();
+</script>
+</body>
+</html>
