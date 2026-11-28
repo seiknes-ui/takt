@@ -21,12 +21,6 @@ const SEKSJONER = [
         login: TAKT_KODE,
         lenker: [{ tekst: 'Elevsiden', url: 'adr.html' }, { tekst: 'Åpne', url: 'adr.html#laerer', hoved: true }],
       },
-      {
-        merke: 'PM', tittel: 'ADR-påmelding (lokal PC)', for: 'Oppmelding til ADR-prøven og blankett NA-0200',
-        tekst: 'Last ned filen og åpne den i nettleseren på en PC på kurset. Elevene legger seg inn med «Ny deltaker». Listen er skjult bak din PIN-kode og lagres bare kryptert på den PC-en. Du får listen til DSB (Excel/CSV), blankett NA-0200 utfylt for hver deltaker, og en samlet PDF til arkivet. Ingenting sendes på nett.',
-        login: 'PIN-kode du velger selv',
-        lenker: [{ tekst: 'Last ned filen', url: 'adr-pamelding-lokal.html', hoved: true }],
-      },
     ],
   },
   {
